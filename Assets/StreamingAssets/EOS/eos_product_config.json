@@ -1,0 +1,38 @@
+{
+  "ProductName": "Bank Robbery",
+  "ProductId": "a76bec252f2643f5a06be17d53d2fd97",
+  "ProductVersion": "0.1.0",
+  "imported": true,
+  "Clients": [
+    {
+      "Value": {
+        "ClientId": "xyza7891AXBFtPaIZbpyecNbUXFRvR5O",
+        "ClientSecret": "Rku6oKiFaD9cvXNgwCEGva+w0Cg8QWAJqTpXYXhIKis",
+        "EncryptionKey": "D666B410678FE8FB6656D2C48211D2600CA658A814D1EF332BAB6B15BDCABA70"
+      },
+      "Name": "Client"
+    }
+  ],
+  "Environments": {
+    "Deployments": [
+      {
+        "Value": {
+          "SandboxId": {
+            "Value": "21a5649bdc5543779e7e7831ce2b4e4a"
+          },
+          "DeploymentId": "fd15586afee74310bc2770697ca00e10"
+        },
+        "Name": "Deployment"
+      }
+    ],
+    "Sandboxes": [
+      {
+        "Value": {
+          "Value": "21a5649bdc5543779e7e7831ce2b4e4a"
+        },
+        "Name": "Sandbox"
+      }
+    ]
+  },
+  "schemaVersion": "1.0"
+}
