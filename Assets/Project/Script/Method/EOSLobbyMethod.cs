@@ -16,13 +16,14 @@ namespace OriginalNameSpace.EOSMethod.Lobby
     public static class EOSLobbyMethod
     {
         // === 定数定義 === //
-        private const string SearchKeyRoomName = "ROOM_NAME";
+        private const string ATTRIBUTE_LOBBY_ROOM_NAME = "ROOM_NAME";
+        private const string ATTRIBUTE_PLAYER_DISPLAY_NAME = "DISPLAY_NAME";
 
         /// <summary>
-        /// 端末の「デバイスID」を使用して、EOS Connect サービスへのログインを非同期で実行します。
-        /// 成功時はプレイヤーの識別子（ProductUserId）を返し、失敗時は null を返します。
+        /// EOSログイン
         /// </summary>
-        public static async UniTask<ProductUserId> LoginAsync(string userName)
+        /// <returns>ログイン成功時: ProductUserId 失敗時: null</returns>
+        public static async UniTask<ProductUserId> LoginAsync()
         {
             // 1. EOSのユーザー認証・接続を司る Connect インターフェースを取得
             var connectInterface = EOSManager.Instance.GetEOSConnectInterface();
@@ -50,7 +51,7 @@ namespace OriginalNameSpace.EOSMethod.Lobby
 
             // 5.デバイスIDの作成結果を確認
             if (deviceIdResult.ResultCode == Result.Success || // ID作成成功
-                deviceIdResult.ResultCode == Result.DuplicateNotAllowed) // ID作成済み（実質成功）
+                deviceIdResult.ResultCode == Result.DuplicateNotAllowed) // ID作成済み
             {
                 Debug.Log("デバイスIDの準備完了。StartConnectLoginWithOptions を実行します。");
 
@@ -64,10 +65,9 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                     },
                     UserLoginInfo = new UserLoginInfo
                     {
-                        DisplayName = userName
+                        DisplayName = "NULL" // ユーザー名
                     }
                 };
-                Debug.Log(loginOptions.UserLoginInfo);
                 // 5.2.ログイン処理を実行
                 var loginUtcs = new UniTaskCompletionSource<ProductUserId>(); // UniTask用待機ソース
                 EOSManager.Instance.StartConnectLoginWithOptions( // EOS Connect へのログインリクエスト
@@ -77,7 +77,6 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                         // ログイン処理の結果が返ってきたときのコールバック
                         if (loginData.ResultCode == Result.Success)
                         {
-                            Debug.Log($"EOS Connect ログイン成功! PUID: {loginData.LocalUserId}");
                             // ログイン成功：取得したユーザー固有の ProductUserId をセットして待機を解除
                             loginUtcs.TrySetResult(loginData.LocalUserId);
                         }
@@ -101,14 +100,12 @@ namespace OriginalNameSpace.EOSMethod.Lobby
         }
 
         /// <summary>
-        /// 指定した名前のロビーを検索
-        /// 存在する場合:自動入室
-        /// 存在しない場合:その部屋名で新規ロビーを作成
-        /// 入室または作成されたロビーのID（失敗時は空文字）を返す
+        /// ロビー参加・作成および表示名の自動登録
         /// </summary>
         /// <param name="roomName">合流・作成ロビーの部屋名</param>
+        /// <param name="displayName">ロビーに登録する自身の表示名</param>
         /// <returns>成功時:ロビーID 失敗時:空文字</returns>
-        public static async UniTask<string> JoinOrCreateGameLobbyAsync(string roomName)
+        public static async UniTask<string> JoinOrCreateGameLobbyWithDisplayNameAsync(string roomName, string displayName)
         {
             if (string.IsNullOrEmpty(roomName))
             {
@@ -133,6 +130,8 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                 return string.Empty;
             }
 
+            string targetLobbyId = string.Empty;
+
             try
             {
                 // バケットIDの設定（同じ仕組みのロビーが所属する大枠の空間）
@@ -143,7 +142,7 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                 {
                     Parameter = new AttributeData()
                     {
-                        Key = SearchKeyRoomName,
+                        Key = ATTRIBUTE_LOBBY_ROOM_NAME,
                         Value = roomName
                     },
                     ComparisonOp = ComparisonOp.Equal
@@ -210,7 +209,7 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                                     }
                                 });
 
-                                return await joinUtcs.Task;
+                                targetLobbyId = await joinUtcs.Task;
                             }
                             finally
                             {
@@ -220,321 +219,193 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                         else
                         {
                             Debug.LogError($"ロビー詳細ハンドルのコピーに失敗しました。 エラーコード: {copyResult}");
-                            return string.Empty;
                         }
                     }
                 }
 
-                // 3.2.検索結果が存在しない場合、新規作成
-                Debug.Log($"部屋名 [{roomName}] に一致するロビーがなかったため、新しく作成します...");
-
-                var createLobbyOptions = new CreateLobbyOptions()
+                // 既存のロビーが見つからず、まだ入室できていない場合は新規作成
+                if (string.IsNullOrEmpty(targetLobbyId))
                 {
-                    LocalUserId = localProductUserId,
-                    MaxLobbyMembers = 2,
-                    PermissionLevel = LobbyPermissionLevel.Publicadvertised,
-                    PresenceEnabled = false,
-                    AllowInvites = true,
-                    BucketId = bucketId,
-                    LobbyId = null,
-                    EnableJoinById = true,
-                    EnableRTCRoom = false,
-                    LocalRTCOptions = null,
-                    RTCRoomJoinActionType = LobbyRTCRoomJoinActionType.AutomaticJoin,
-                    DisableHostMigration = false,
-                    RejoinAfterKickRequiresInvite = true,
-                    AllowedPlatformIds = null,
-                    CrossplayOptOut = false
-                };
+                    Debug.Log($"部屋名 [{roomName}] に一致するロビーがなかったため、新しく作成します...");
 
-                var createLobbyUtcs = new UniTaskCompletionSource<string>();
-
-                lobbyInterface.CreateLobby(ref createLobbyOptions, null, (ref CreateLobbyCallbackInfo callbackInfo) =>
-                {
-                    if (callbackInfo.ResultCode == Result.Success)
+                    var createLobbyOptions = new CreateLobbyOptions()
                     {
-                        Debug.Log("ロビーの新規作成に成功しました！(ホストとして開始)");
-                        createLobbyUtcs.TrySetResult(callbackInfo.LobbyId);
+                        LocalUserId = localProductUserId,
+                        MaxLobbyMembers = 2,
+                        PermissionLevel = LobbyPermissionLevel.Publicadvertised,
+                        PresenceEnabled = false,
+                        AllowInvites = true,
+                        BucketId = bucketId,
+                        LobbyId = null,
+                        EnableJoinById = true,
+                        EnableRTCRoom = false,
+                        LocalRTCOptions = null,
+                        RTCRoomJoinActionType = LobbyRTCRoomJoinActionType.AutomaticJoin,
+                        DisableHostMigration = false,
+                        RejoinAfterKickRequiresInvite = true,
+                        AllowedPlatformIds = null,
+                        CrossplayOptOut = false
+                    };
+
+                    var createLobbyUtcs = new UniTaskCompletionSource<string>();
+
+                    lobbyInterface.CreateLobby(ref createLobbyOptions, null, (ref CreateLobbyCallbackInfo callbackInfo) =>
+                    {
+                        if (callbackInfo.ResultCode == Result.Success)
+                        {
+                            Debug.Log("ロビーの新規作成に成功しました！(ホストとして開始)");
+                            createLobbyUtcs.TrySetResult(callbackInfo.LobbyId);
+                        }
+                        else
+                        {
+                            Debug.LogError($"ロビーの作成に失敗しました。 エラーコード: {callbackInfo.ResultCode}");
+                            createLobbyUtcs.TrySetResult(string.Empty);
+                        }
+                    });
+
+                    targetLobbyId = await createLobbyUtcs.Task;
+
+                    // ロビー作成、または既存ロビー入室のどちらにも失敗している場合はここで終了
+                    if (string.IsNullOrEmpty(targetLobbyId))
+                    {
+                        return string.Empty;
+                    }
+
+                    // === 新規作成時のみ：検索できるようにカスタム属性（部屋名）をロビーに紐付ける ===
+                    Debug.Log($"ロビー [{targetLobbyId}] にカスタム属性（部屋名: {roomName}）を登録中...");
+
+                    var updateLobbyModificationOptions = new UpdateLobbyModificationOptions()
+                    {
+                        LobbyId = targetLobbyId,
+                        LocalUserId = localProductUserId
+                    };
+
+                    Result modificationResult = lobbyInterface.UpdateLobbyModification(ref updateLobbyModificationOptions, out LobbyModification lobbyModificationHandle);
+
+                    if (modificationResult == Result.Success && lobbyModificationHandle != null)
+                    {
+                        try
+                        {
+                            var attributeData = new AttributeData()
+                            {
+                                Key = ATTRIBUTE_LOBBY_ROOM_NAME,
+                                Value = roomName
+                            };
+
+                            var lobbyModificationAddAttributeOptions = new LobbyModificationAddAttributeOptions()
+                            {
+                                Attribute = attributeData,
+                                Visibility = LobbyAttributeVisibility.Public
+                            };
+
+                            lobbyModificationHandle.AddAttribute(ref lobbyModificationAddAttributeOptions);
+
+                            var updateLobbyOptions = new UpdateLobbyOptions()
+                            {
+                                LobbyModificationHandle = lobbyModificationHandle
+                            };
+
+                            var updateLobbyUtcs = new UniTaskCompletionSource<bool>();
+                            lobbyInterface.UpdateLobby(ref updateLobbyOptions, null, (ref UpdateLobbyCallbackInfo callbackInfo) =>
+                            {
+                                if (callbackInfo.ResultCode == Result.Success)
+                                {
+                                    Debug.Log("ロビーのカスタム属性のアップデートに成功しました！これで検索可能になります。");
+                                    updateLobbyUtcs.TrySetResult(true);
+                                }
+                                else
+                                {
+                                    Debug.LogError($"ロビーのカスタム属性アップデートに失敗しました。 エラーコード: {callbackInfo.ResultCode}");
+                                    updateLobbyUtcs.TrySetResult(false);
+                                }
+                            });
+
+                            await updateLobbyUtcs.Task;
+                        }
+                        finally
+                        {
+                            lobbyModificationHandle.Release();
+                        }
                     }
                     else
                     {
-                        Debug.LogError($"ロビーの作成に失敗しました。 エラーコード: {callbackInfo.ResultCode}");
-                        createLobbyUtcs.TrySetResult(string.Empty);
+                        Debug.LogError($"LobbyModificationハンドルの取得に失敗しました: {modificationResult}");
                     }
-                });
-
-                string createdLobbyId = await createLobbyUtcs.Task;
-
-                // ロビー作成に失敗した場合は終了
-                if (string.IsNullOrEmpty(createdLobbyId))
-                {
-                    return string.Empty;
                 }
 
                 // =================================================================
-                // 【追加実装】作成成功後、検索できるようにカスタム属性（部屋名）をロビーに紐付ける
+                // 【一体化処理】自身の表示名をメンバー属性としてロビーに登録
                 // =================================================================
-                Debug.Log($"ロビー [{createdLobbyId}] にカスタム属性（部屋名: {roomName}）を登録中...");
-
-                var updateLobbyModificationOptions = new UpdateLobbyModificationOptions()
+                if (!string.IsNullOrEmpty(targetLobbyId) && !string.IsNullOrEmpty(displayName))
                 {
-                    LobbyId = createdLobbyId,
-                    LocalUserId = localProductUserId
-                };
+                    Debug.Log($"ロビー [{targetLobbyId}] に自身の表示名（{displayName}）を登録中...");
 
-                // 1. ロビー修正用ハンドルの取得
-                Result modificationResult = lobbyInterface.UpdateLobbyModification(ref updateLobbyModificationOptions, out LobbyModification lobbyModificationHandle);
-
-                if (modificationResult == Result.Success && lobbyModificationHandle != null)
-                {
-                    try
+                    var updateOptions = new UpdateLobbyModificationOptions()
                     {
-                        // 2. 属性データの構築
-                        var attributeData = new AttributeData()
-                        {
-                            Key = SearchKeyRoomName,
-                            Value = roomName
-                        };
+                        LobbyId = targetLobbyId,
+                        LocalUserId = localProductUserId
+                    };
 
-                        var lobbyModificationAddAttributeOptions = new LobbyModificationAddAttributeOptions()
+                    Result memberModResult = lobbyInterface.UpdateLobbyModification(ref updateOptions, out LobbyModification memberModificationHandle);
+                    if (memberModResult == Result.Success && memberModificationHandle != null)
+                    {
+                        try
                         {
-                            Attribute = attributeData,
-                            // 重要: 他のユーザーが検索（Find）で見つけられるように「Publicadvertised」を指定
-                            Visibility = LobbyAttributeVisibility.Public
-                        };
-
-                        // 3. ハンドルに対して属性を設定
-                        lobbyModificationHandle.AddAttribute(ref lobbyModificationAddAttributeOptions);
-
-                        // 4. 設定した内容をEOSサーバーへ反映（アップデートリクエスト）
-                        var updateLobbyOptions = new UpdateLobbyOptions()
-                        {
-                            LobbyModificationHandle = lobbyModificationHandle
-                        };
-
-                        var updateLobbyUtcs = new UniTaskCompletionSource<bool>();
-                        lobbyInterface.UpdateLobby(ref updateLobbyOptions, null, (ref UpdateLobbyCallbackInfo callbackInfo) =>
-                        {
-                            if (callbackInfo.ResultCode == Result.Success)
+                            var memberAttributeData = new AttributeData()
                             {
-                                Debug.Log("ロビーのカスタム属性のアップデートに成功しました！これで検索可能になります。");
-                                updateLobbyUtcs.TrySetResult(true);
+                                Key = ATTRIBUTE_PLAYER_DISPLAY_NAME,
+                                Value = displayName
+                            };
+
+                            var addMemberAttributeOptions = new LobbyModificationAddMemberAttributeOptions()
+                            {
+                                Attribute = memberAttributeData,
+                                Visibility = LobbyAttributeVisibility.Public
+                            };
+
+                            Result addResult = memberModificationHandle.AddMemberAttribute(ref addMemberAttributeOptions);
+                            if (addResult == Result.Success)
+                            {
+                                var updateLobbyOptions = new UpdateLobbyOptions() { LobbyModificationHandle = memberModificationHandle };
+                                var memberUpdateUtcs = new UniTaskCompletionSource<bool>();
+
+                                lobbyInterface.UpdateLobby(ref updateLobbyOptions, null, (ref UpdateLobbyCallbackInfo callbackInfo) =>
+                                {
+                                    memberUpdateUtcs.TrySetResult(callbackInfo.ResultCode == Result.Success);
+                                });
+
+                                bool isNameUpdateSuccess = await memberUpdateUtcs.Task;
+                                if (isNameUpdateSuccess)
+                                {
+                                    Debug.Log("自身の表示名の登録に成功しました。");
+                                }
+                                else
+                                {
+                                    Debug.LogError("自身の表示名のサーバー反映に失敗しました。");
+                                }
                             }
                             else
                             {
-                                Debug.LogError($"ロビーのカスタム属性アップデートに失敗しました。 エラーコード: {callbackInfo.ResultCode}");
-                                updateLobbyUtcs.TrySetResult(false);
+                                Debug.LogError($"メンバー属性の追加に失敗: {addResult}");
                             }
-                        });
-
-                        // アップデート完了まで待機
-                        await updateLobbyUtcs.Task;
+                        }
+                        finally
+                        {
+                            memberModificationHandle.Release();
+                        }
                     }
-                    finally
+                    else
                     {
-                        // 使い終わった修正用ハンドルを確実に解放
-                        lobbyModificationHandle.Release();
+                        Debug.LogError($"表示名登録用のLobbyModificationの取得に失敗: {memberModResult}");
                     }
                 }
-                else
-                {
-                    Debug.LogError($"LobbyModificationハンドルの取得に失敗しました: {modificationResult}");
-                }
 
-                return createdLobbyId;
+                return targetLobbyId;
             }
             finally
             {
                 lobbySearchHandle.Release();
             }
-        }
-
-        /// <summary>
-        /// ロビー内のメンバーを取得
-        /// </summary>
-        /// <param name="localUserId">自身のProductUserId</param>
-        /// <param name="lobbyId">対象のロビーID</param>
-        /// <returns>メンバーのProductUserId配列</returns>
-        public static List<ProductUserId> GetLobbyMembers(ProductUserId localUserId, string lobbyId)
-        {
-            // 0. 変数定義
-            var list = new List<ProductUserId>();
-            var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
-
-            // 1. ロビー詳細を取得
-            // 【修正箇所】LocalUserId = localUserId を追加
-            var copyOptions = new CopyLobbyDetailsHandleOptions()
-            {
-                LobbyId = lobbyId,
-                LocalUserId = localUserId
-            };
-
-            Result result = lobbyInterface.CopyLobbyDetailsHandle(ref copyOptions, out LobbyDetails lobbyDetails);
-
-            // 完全に取得失敗し、ハンドルも生成されていない場合のみ即リターン
-            if (result != Result.Success || lobbyDetails == null)
-            {
-                Debug.LogError($"ロビー詳細の取得に失敗しました: {result}");
-                return list;
-            }
-
-            // 2. ロビー内のメンバーを取得
-            try
-            {
-                var countOptions = new LobbyDetailsGetMemberCountOptions();
-                uint memberCount = lobbyDetails.GetMemberCount(ref countOptions);
-
-                for (uint i = 0; i < memberCount; i++)
-                {
-                    var memberOptions = new LobbyDetailsGetMemberByIndexOptions() { MemberIndex = i };
-                    ProductUserId memberPuid = lobbyDetails.GetMemberByIndex(ref memberOptions);
-                    list.Add(memberPuid);
-                }
-
-                // Click.csの挙動（配列期待）に合わせて配列で返す
-                return list;
-            }
-            finally
-            {
-                // ハンドル解放
-                lobbyDetails.Release();
-            }
-        }
-
-        /// <summary>
-        /// ロビーのメンバー変更通知を登録します。
-        /// </summary>
-        public static void RegisterLobbyNotifications(string lobbyId, ref ulong memberStatusNotificationId, Action onMemberChangedCallback)
-        {
-            var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
-
-            // すでに登録されている場合は一度解除
-            UnregisterLobbyNotifications(memberStatusNotificationId);
-
-            // 通知のオプション設定
-            var memberStatusOptions = new AddNotifyLobbyMemberStatusReceivedOptions();
-
-            // EOSサーバーに通知イベント（リスナー）を登録
-            memberStatusNotificationId = lobbyInterface.AddNotifyLobbyMemberStatusReceived(
-                ref memberStatusOptions,
-                null,
-                (ref LobbyMemberStatusReceivedCallbackInfo callbackInfo) =>
-                {
-                    // 自分が対象のロビーに対する通知か確認
-                    if (callbackInfo.LobbyId != lobbyId) return;
-
-                    // どんな変化が起きたかログを出す（デバッグ用）
-                    Debug.Log($"ロビーメンバーに変化がありました。対象PUID: {callbackInfo.TargetUserId}, 状態: {callbackInfo.CurrentStatus}");
-
-                    // callbackInfo.CurrentStatus の中身によって処理を分岐できます
-                    // - LobbyMemberStatus.Joined : 誰かが入ってきた
-                    // - LobbyMemberStatus.Left   : 誰かが出ていった
-                    // - LobbyMemberStatus.Disconnected : 誰かの回線が切れた
-
-                    // 変化があったので、UI（画面表示）を更新するためのコールバック関数を実行
-                    onMemberChangedCallback?.Invoke();
-                }
-            );
-        }
-
-        /// <summary>
-        /// ゲームを終了する場合や、ロビーを退室する際に通知登録を解除します（メモリリーク防止）。
-        /// </summary>
-        public static void UnregisterLobbyNotifications(ulong memberStatusNotificationId = 0)
-        {
-            if (memberStatusNotificationId != 0)
-            {
-                var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
-                lobbyInterface.RemoveNotifyLobbyMemberStatusReceived(memberStatusNotificationId);
-                memberStatusNotificationId = 0;
-                Debug.Log("ロビーメンバー変更通知を解除しました。");
-            }
-        }
-
-        /// <summary>
-        /// ロビーメンバー全員の表示名を一括で取得する
-        /// </summary>
-        /// <param name="localProductUserId">あなた（自分自身）の PUID</param>
-        /// <param name="lobbyMembers">自分を含めた、ロビー内にいる全員の PUID 配列</param>
-        /// <returns>PUID をキー、表示名を値とした辞書</returns>
-        public static async UniTask<Dictionary<ProductUserId, string>> FetchLobbyDisplayNamesAsync(ProductUserId localProductUserId, List<ProductUserId> lobbyMembers)
-        {
-            var displayNamesMap = new Dictionary<ProductUserId, string>();
-
-            if (lobbyMembers == null || lobbyMembers.Count == 0)
-            {
-                return displayNamesMap;
-            }
-
-            var connectInterface = EOSManager.Instance.GetEOSConnectInterface();
-            if (connectInterface == null)
-            {
-                Debug.LogError("Connect Interface の取得に失敗しました。");
-                return displayNamesMap;
-            }
-
-            // 1. サーバーへ一括問い合わせ（クエリ）を行うための設定
-            // 引数で受け取った配列をそのまま渡すことができます
-            var queryOptions = new QueryProductUserIdMappingsOptions()
-            {
-                LocalUserId = localProductUserId,
-                ProductUserIds = lobbyMembers.ToArray()
-            };
-
-            var utcs = new UniTaskCompletionSource<Result>();
-
-            // 2. サーバーに問い合わせを投げる（非同期）
-            connectInterface.QueryProductUserIdMappings(ref queryOptions, null, (ref QueryProductUserIdMappingsCallbackInfo callbackInfo) =>
-            {
-                utcs.TrySetResult(callbackInfo.ResultCode);
-            });
-
-            // 3. サーバーからの返答を待つ
-            Result queryResult = await utcs.Task;
-            if (queryResult != Result.Success)
-            {
-                Debug.LogError($"ロビーメンバーの情報クエリに失敗しました: {queryResult}");
-                return displayNamesMap; // 失敗時は空の辞書を返す
-            }
-            // 4. クエリ成功後、ローカルキャッシュから1人ずつ名前を抽出する
-            foreach (var targetUserId in lobbyMembers)
-            {
-                // 該当ユーザーに紐づいている外部アカウント（デバイスIDやSteam等）の総数を取得
-                var getCountOptions = new GetProductUserExternalAccountCountOptions()
-                {
-                    TargetUserId = targetUserId
-                };
-                uint accountCount = connectInterface.GetProductUserExternalAccountCount(ref getCountOptions);
-
-                string foundDisplayName = "Unknown Player"; // 名前が見つからなかった時のフォールバック
-
-                // アカウントをループして DisplayName を探す
-                for (uint i = 0; i < accountCount; i++)
-                {
-                    // 正しいオプション型名：CopyProductUserExternalAccountByIndexOptions
-                    var copyOptions = new CopyProductUserExternalAccountByIndexOptions()
-                    {
-                        TargetUserId = targetUserId,
-                        ExternalAccountInfoIndex = i // インデックスを指定
-                    };
-
-                    // 正しい関数名：CopyProductUserExternalAccountByIndex
-                    Result copyResult = connectInterface.CopyProductUserExternalAccountByIndex(ref copyOptions, out ExternalAccountInfo? externalAccountInfo);
-
-                    if (copyResult == Result.Success && externalAccountInfo != null)
-                    {
-                        if (!string.IsNullOrEmpty(externalAccountInfo.Value.DisplayName))
-                        {
-                            foundDisplayName = externalAccountInfo.Value.DisplayName;
-                            break; // 名前が見つかったらこの人のループは抜ける
-                        }
-                    }
-                }
-
-                // 辞書に PUID と名前のペアを追加
-                displayNamesMap[targetUserId] = foundDisplayName;
-            }
-            return displayNamesMap;
         }
 
         /// <summary>
@@ -584,6 +455,174 @@ namespace OriginalNameSpace.EOSMethod.Lobby
             });
 
             return await utcs.Task;
+        }
+
+        /// <summary>
+        /// ロビーのメンバー属性から全員の表示名を取得する
+        /// </summary>
+        /// <param name="members">メンバー一覧</param>
+        /// <returns>表示名一覧</returns>
+        public static Dictionary<ProductUserId, string> GetLobbyMemberDisplayNames(ProductUserId localUserId, string lobbyId)
+        {
+            var displayNamesMap = new Dictionary<ProductUserId, string>();
+            var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
+
+            var copyOptions = new CopyLobbyDetailsHandleOptions()
+            {
+                LobbyId = lobbyId,
+                LocalUserId = localUserId
+            };
+
+            if (lobbyInterface.CopyLobbyDetailsHandle(ref copyOptions, out LobbyDetails lobbyDetails) != Result.Success)
+            {
+                return displayNamesMap;
+            }
+
+            try
+            {
+                var members = GetLobbyMembers(localUserId, lobbyId);
+                foreach (var memberPuid in members)
+                {
+                    var getAttributeOptions = new LobbyDetailsCopyMemberAttributeByKeyOptions()
+                    {
+                        TargetUserId = memberPuid,
+                        AttrKey = ATTRIBUTE_PLAYER_DISPLAY_NAME
+                    };
+
+                    // メンバー属性から名前をコピー
+                    if (lobbyDetails.CopyMemberAttributeByKey(ref getAttributeOptions, out Epic.OnlineServices.Lobby.Attribute? memberAttribute) == Result.Success && memberAttribute != null)
+                    {
+                        // 【修正】DataがNullable型のため、Data.Value(構造体実体) からさらに .Value(AttributeDataValue) を経由して AsUtf8 を取得します
+                        if (memberAttribute.Value.Data.HasValue)
+                        {
+                            displayNamesMap[memberPuid] = memberAttribute.Value.Data.Value.Value.AsUtf8;
+                        }
+                        else
+                        {
+                            displayNamesMap[memberPuid] = "Unknown Player";
+                        }
+
+                        // 【修正】構造体なので memberAttribute.Value.Release() は不要（削除）
+                    }
+                    else
+                    {
+                        displayNamesMap[memberPuid] = "Unknown Player";
+                    }
+                }
+            }
+            finally
+            {
+                // こちらのクラスハンドル（LobbyDetails）は確実に解放が必要です
+                lobbyDetails.Release();
+            }
+
+            return displayNamesMap;
+        }
+
+        /// <summary>
+        /// ロビー内メンバー取得
+        /// </summary>
+        /// <param name="localUserId">自身のProductUserId</param>
+        /// <param name="lobbyId">対象のロビーID</param>
+        /// <returns>ロビーメンバーのProductUserId配列</returns>
+        public static List<ProductUserId> GetLobbyMembers(ProductUserId localUserId, string lobbyId)
+        {
+            // 0. 変数定義
+            var list = new List<ProductUserId>();
+            var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
+
+            // 1. ロビー詳細を取得
+            // 【修正箇所】LocalUserId = localUserId を追加
+            var copyOptions = new CopyLobbyDetailsHandleOptions()
+            {
+                LobbyId = lobbyId,
+                LocalUserId = localUserId
+            };
+
+            Result result = lobbyInterface.CopyLobbyDetailsHandle(ref copyOptions, out LobbyDetails lobbyDetails);
+
+            // 完全に取得失敗し、ハンドルも生成されていない場合のみ即リターン
+            if (result != Result.Success || lobbyDetails == null)
+            {
+                Debug.LogError($"ロビー詳細の取得に失敗しました: {result}");
+                return list;
+            }
+
+            // 2. ロビー内のメンバーを取得
+            try
+            {
+                var countOptions = new LobbyDetailsGetMemberCountOptions();
+                uint memberCount = lobbyDetails.GetMemberCount(ref countOptions);
+
+                for (uint i = 0; i < memberCount; i++)
+                {
+                    var memberOptions = new LobbyDetailsGetMemberByIndexOptions() { MemberIndex = i };
+                    ProductUserId memberPuid = lobbyDetails.GetMemberByIndex(ref memberOptions);
+                    list.Add(memberPuid);
+                }
+
+                // Click.csの挙動（配列期待）に合わせて配列で返す
+                return list;
+            }
+            finally
+            {
+                // ハンドル解放
+                lobbyDetails.Release();
+            }
+        }
+
+        /// <summary>
+        /// ロビーメンバー変更通知登録
+        /// </summary>
+        /// <param name="lobbyId">対象のロビーID</param>
+        /// <param name="memberStatusNotificationId">通知ID</param>
+        /// <param name="onMemberChangedCallback">通知コールバック</param>
+        public static void RegisterLobbyNotifications(string lobbyId, ref ulong memberStatusNotificationId, Action onMemberChangedCallback)
+        {
+            var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
+
+            // すでに登録されている場合は一度解除
+            UnregisterLobbyNotifications(memberStatusNotificationId);
+
+            // 通知のオプション設定
+            var memberStatusOptions = new AddNotifyLobbyMemberStatusReceivedOptions();
+
+            // EOSサーバーに通知イベント（リスナー）を登録
+            memberStatusNotificationId = lobbyInterface.AddNotifyLobbyMemberStatusReceived(
+                ref memberStatusOptions,
+                null,
+                (ref LobbyMemberStatusReceivedCallbackInfo callbackInfo) =>
+                {
+                    // 自分が対象のロビーに対する通知か確認
+                    if (callbackInfo.LobbyId != lobbyId) return;
+
+                    // どんな変化が起きたかログを出す（デバッグ用）
+                    Debug.Log($"ロビーメンバーに変化がありました。対象PUID: {callbackInfo.TargetUserId}, 状態: {callbackInfo.CurrentStatus}");
+
+                    // callbackInfo.CurrentStatus の中身によって処理を分岐できます
+                    // - LobbyMemberStatus.Joined : 誰かが入ってきた
+                    // - LobbyMemberStatus.Left   : 誰かが出ていった
+                    // - LobbyMemberStatus.Disconnected : 誰かの回線が切れた
+
+                    // 変化があったので、UI（画面表示）を更新するためのコールバック関数を実行
+                    onMemberChangedCallback?.Invoke();
+                }
+            );
+        }
+
+        /// <summary>
+        /// ロビー通知登録を解除
+        /// </summary>
+        /// <param name="memberStatusNotificationId">通知ID</param>
+        public static void UnregisterLobbyNotifications(ulong memberStatusNotificationId = 0)
+        {
+            if (memberStatusNotificationId != 0)
+            {
+                var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
+                lobbyInterface.RemoveNotifyLobbyMemberStatusReceived(memberStatusNotificationId);
+                memberStatusNotificationId = 0;
+                Debug.Log("ロビーメンバー変更通知を解除しました。");
+            }
         }
 
     }
