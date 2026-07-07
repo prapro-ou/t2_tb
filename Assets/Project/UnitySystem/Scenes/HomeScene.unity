@@ -1083,6 +1083,7 @@ MonoBehaviour:
   _userName: {fileID: 986405582}
   _roomName: {fileID: 2050336817}
   _eosLobbyOperator: {fileID: 11400000, guid: 458dae190b4e3124ba15f549872c4dd2, type: 2}
+  _gameOverseer: {fileID: 11400000, guid: 62a8de7bb6363de4689fdec72866c727, type: 2}
 --- !u!1 &1545289383
 GameObject:
   m_ObjectHideFlags: 0

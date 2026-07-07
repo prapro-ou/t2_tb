@@ -7,6 +7,7 @@ public class Click : MonoBehaviour
 {
     [SerializeField] private TMP_Text _userName, _roomName;
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
+    [SerializeField] private GameOverseer _gameOverseer;
 
     public void OnClick()
     {
@@ -33,8 +34,9 @@ public class Click : MonoBehaviour
             return;
         }
 
-        // ディスプレイ名の取得
-        var displayNames = EOSLobbyMethod.GetLobbyMemberDisplayNames(_eosLobbyOperator.LocalProductUserId, _eosLobbyOperator.CurrentLobbyId);
+        _gameOverseer.sceneOrchestrator.AddSceneMediator(SceneNameEnum.LobbyScene);
+        _gameOverseer.sceneOrchestrator.RemoveSceneMediator(SceneNameEnum.HomeScene);
+
     }
 
 }
