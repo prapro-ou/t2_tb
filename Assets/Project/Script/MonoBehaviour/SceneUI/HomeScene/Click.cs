@@ -26,24 +26,15 @@ public class Click : MonoBehaviour
         }
 
         // 入室・作成の成否をしっかり受け取る
-        bool success = await _eosLobbyOperator.JoinOrCreateRoomAsync(userName, roomName);
+        bool success = await _eosLobbyOperator.JoinOrCreateRoomAsync(roomName, userName);
         if (!success)
         {
             Debug.LogError("ロビーへの参加または作成に失敗したため、処理を中断します。");
             return;
         }
 
-        // メンバー一覧の取得
-        var members = EOSLobbyMethod.GetLobbyMembers(_eosLobbyOperator.LocalProductUserId, _eosLobbyOperator.CurrentLobbyId);
-        Debug.Log($"ロビー人数: {members.Count}人");
-
         // ディスプレイ名の取得
-        var displayNames = await EOSLobbyMethod.FetchLobbyDisplayNamesAsync(_eosLobbyOperator.LocalProductUserId, members);
-
-        if (displayNames.TryGetValue(_eosLobbyOperator.LocalProductUserId, out string myName))
-        {
-            Debug.Log($"自身の表示名: {myName}");
-        }
+        var displayNames = EOSLobbyMethod.GetLobbyMemberDisplayNames(_eosLobbyOperator.LocalProductUserId, _eosLobbyOperator.CurrentLobbyId);
     }
 
 }

@@ -12,7 +12,7 @@ public class EOSLobbyOperator : ScriptableObject
     /// <summary>
     /// 初期化ログイン処理を行います
     /// </summary>
-    public async UniTask<bool> InitializeAndLoginAsync(string userName)
+    public async UniTask<bool> InitializeAndLoginAsync()
     {
         // すでにログイン済みの場合はスキップ
         if (LocalProductUserId != null && LocalProductUserId.IsValid())
@@ -21,7 +21,7 @@ public class EOSLobbyOperator : ScriptableObject
         }
 
         Debug.Log("EOSへのログインを開始します...");
-        LocalProductUserId = await EOSLobbyMethod.LoginAsync(userName);
+        LocalProductUserId = await EOSLobbyMethod.LoginAsync();
 
         if (LocalProductUserId == null)
         {
@@ -36,24 +36,22 @@ public class EOSLobbyOperator : ScriptableObject
     /// <summary>
     /// 部屋名を指定して、ロビーへの参加または新規作成を試みます
     /// </summary>
-    public async UniTask<bool> JoinOrCreateRoomAsync(string userName, string roomName)
+    public async UniTask<bool> JoinOrCreateRoomAsync(string roomName, string userName)
     {
         // ログインしていない場合は先にログインを試みる
         if (LocalProductUserId == null || !LocalProductUserId.IsValid())
         {
-            bool loginSuccess = await InitializeAndLoginAsync(userName);
+            bool loginSuccess = await InitializeAndLoginAsync();
             if (!loginSuccess) return false;
         }
 
         // すでにどこかのロビーに入っている場合は、一度退出するなどの処理が必要
         if (IsInLobby)
         {
-            Debug.LogWarning("すでにロビーに参加しています。新しく入る前に退出してください。");
             return false;
         }
 
-        Debug.Log($"部屋名: {roomName} への入室・作成リクエストを開始します...");
-        string lobbyId = await EOSLobbyMethod.JoinOrCreateGameLobbyAsync(roomName);
+        string lobbyId = await EOSLobbyMethod.JoinOrCreateGameLobbyWithDisplayNameAsync(roomName, userName);
 
         if (string.IsNullOrEmpty(lobbyId))
         {
@@ -63,7 +61,6 @@ public class EOSLobbyOperator : ScriptableObject
 
         // ロビーIDを保持
         CurrentLobbyId = lobbyId;
-        Debug.Log($"ロビーの確保に成功しました。LobbyID: {CurrentLobbyId}");
 
         return true;
     }
@@ -77,8 +74,9 @@ public class EOSLobbyOperator : ScriptableObject
 
     private void OnDisable()
     {
-        Debug.Log(LocalProductUserId);
-        EOSLobbyMethod.LeaveLobbyAsync(LocalProductUserId, CurrentLobbyId).Forget();
+        var tmpUserId = LocalProductUserId;
+        var tmpLobbyId = CurrentLobbyId;
+        EOSLobbyMethod.LeaveLobbyAsync(tmpUserId, tmpLobbyId).Forget();
         // ScriptableObject無効化タイミングによるIDクリア
         LocalProductUserId = null;
         CurrentLobbyId = null;
