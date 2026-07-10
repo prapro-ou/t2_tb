@@ -458,6 +458,59 @@ namespace OriginalNameSpace.EOSMethod.Lobby
         }
 
         /// <summary>
+        /// ロビー内メンバー取得
+        /// </summary>
+        /// <param name="localUserId">自身のProductUserId</param>
+        /// <param name="lobbyId">対象のロビーID</param>
+        /// <returns>ロビーメンバーのProductUserId配列</returns>
+        public static List<ProductUserId> GetLobbyMembers(ProductUserId localUserId, string lobbyId)
+        {
+            // 0. 変数定義
+            var list = new List<ProductUserId>();
+            var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
+
+            // 1. ロビー詳細を取得
+            // 【修正箇所】LocalUserId = localUserId を追加
+            var copyOptions = new CopyLobbyDetailsHandleOptions()
+            {
+                LobbyId = lobbyId,
+                LocalUserId = localUserId
+            };
+
+            Result result = lobbyInterface.CopyLobbyDetailsHandle(ref copyOptions, out LobbyDetails lobbyDetails);
+
+            // 完全に取得失敗し、ハンドルも生成されていない場合のみ即リターン
+            if (result != Result.Success || lobbyDetails == null)
+            {
+                Debug.LogError($"ロビー詳細の取得に失敗しました: {result}");
+                return list;
+            }
+
+            // 2. ロビー内のメンバーを取得
+            try
+            {
+                var countOptions = new LobbyDetailsGetMemberCountOptions();
+                uint memberCount = lobbyDetails.GetMemberCount(ref countOptions);
+
+                for (uint i = 0; i < memberCount; i++)
+                {
+                    var memberOptions = new LobbyDetailsGetMemberByIndexOptions() { MemberIndex = i };
+                    ProductUserId memberPuid = lobbyDetails.GetMemberByIndex(ref memberOptions);
+                    list.Add(memberPuid);
+                }
+
+                // Click.csの挙動（配列期待）に合わせて配列で返す
+                return list;
+            }
+            finally
+            {
+                // ハンドル解放
+                lobbyDetails.Release();
+            }
+        }
+
+
+        /// <summary>
         /// ロビーのメンバー属性から全員の表示名を取得する
         /// </summary>
         /// <param name="members">メンバー一覧</param>
@@ -520,53 +573,50 @@ namespace OriginalNameSpace.EOSMethod.Lobby
         }
 
         /// <summary>
-        /// ロビー内メンバー取得
+        /// ロビーのホスト（オーナー）の ProductUserId を取得する
         /// </summary>
         /// <param name="localUserId">自身のProductUserId</param>
         /// <param name="lobbyId">対象のロビーID</param>
-        /// <returns>ロビーメンバーのProductUserId配列</returns>
-        public static List<ProductUserId> GetLobbyMembers(ProductUserId localUserId, string lobbyId)
+        /// <returns>ホストのProductUserId（取得失敗時は null）</returns>
+        public static ProductUserId GetLobbyHostPuid(ProductUserId localUserId, string lobbyId)
         {
-            // 0. 変数定義
-            var list = new List<ProductUserId>();
             var lobbyInterface = EOSManager.Instance.GetEOSPlatformInterface().GetLobbyInterface();
 
-            // 1. ロビー詳細を取得
-            // 【修正箇所】LocalUserId = localUserId を追加
+            // ロビー詳細ハンドルを取得するためのオプションを設定
             var copyOptions = new CopyLobbyDetailsHandleOptions()
             {
                 LobbyId = lobbyId,
                 LocalUserId = localUserId
             };
 
+            // ロビー詳細のコピー
             Result result = lobbyInterface.CopyLobbyDetailsHandle(ref copyOptions, out LobbyDetails lobbyDetails);
 
-            // 完全に取得失敗し、ハンドルも生成されていない場合のみ即リターン
             if (result != Result.Success || lobbyDetails == null)
             {
-                Debug.LogError($"ロビー詳細の取得に失敗しました: {result}");
-                return list;
+                Debug.LogError($"ホスト取得用のロビー詳細のコピーに失敗しました: {result}");
+                return null;
             }
 
-            // 2. ロビー内のメンバーを取得
             try
             {
-                var countOptions = new LobbyDetailsGetMemberCountOptions();
-                uint memberCount = lobbyDetails.GetMemberCount(ref countOptions);
+                // ロビー詳細からオーナー（ホスト）の PUID を取得するオプションを設定
+                var getOwnerOptions = new LobbyDetailsGetLobbyOwnerOptions();
 
-                for (uint i = 0; i < memberCount; i++)
+                // ホストの ProductUserId を取得
+                ProductUserId hostPuid = lobbyDetails.GetLobbyOwner(ref getOwnerOptions);
+
+                if (hostPuid == null || !hostPuid.IsValid())
                 {
-                    var memberOptions = new LobbyDetailsGetMemberByIndexOptions() { MemberIndex = i };
-                    ProductUserId memberPuid = lobbyDetails.GetMemberByIndex(ref memberOptions);
-                    list.Add(memberPuid);
+                    Debug.LogWarning("ロビーのホストPUIDが有効ではありません。");
+                    return null;
                 }
 
-                // Click.csの挙動（配列期待）に合わせて配列で返す
-                return list;
+                return hostPuid;
             }
             finally
             {
-                // ハンドル解放
+                // ハンドルを確実に解放
                 lobbyDetails.Release();
             }
         }

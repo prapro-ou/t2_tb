@@ -1,9 +1,8 @@
 using UnityEngine;
 using TMPro;
 using Cysharp.Threading.Tasks;
-using OriginalNameSpace.EOSMethod.Lobby;
 
-public class Click : MonoBehaviour
+public class HomeSceneLobbyEnterClickOrchestrator : MonoBehaviour
 {
     [SerializeField] private TMP_Text _userName, _roomName;
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
