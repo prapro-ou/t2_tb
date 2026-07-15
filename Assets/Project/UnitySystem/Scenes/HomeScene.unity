@@ -510,8 +510,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85cb7d9276a72bb43ac3a269e97a7c86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HomeSceneLobbyEnterClickOrchestrator
-  _userName: {fileID: 1950445539}
-  _roomName: {fileID: 2028641900}
+  _userName: {fileID: 986405582}
+  _roomName: {fileID: 2050336817}
   _eosLobbyOperator: {fileID: 11400000, guid: 458dae190b4e3124ba15f549872c4dd2, type: 2}
   _gameOverseer: {fileID: 11400000, guid: 62a8de7bb6363de4689fdec72866c727, type: 2}
 --- !u!1 &824889725
@@ -704,7 +704,7 @@ GameObject:
   - component: {fileID: 986405583}
   - component: {fileID: 986405582}
   m_Layer: 5
-  m_Name: Text
+  m_Name: InText(UserName)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2086,7 +2086,7 @@ GameObject:
   - component: {fileID: 2050336818}
   - component: {fileID: 2050336817}
   m_Layer: 5
-  m_Name: Text
+  m_Name: InText(RoomName)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

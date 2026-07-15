@@ -1,14 +1,12 @@
 using UnityEngine;
-using OriginalNameSpace.EOSMethod.Lobby;
 public class LobbySceneInitializationOperator : MonoBehaviour
 {
-    [SerializeField] EOSLobbyOperator _eosLobbyOperator;
     [SerializeField] LobbySceneLobbyPlayerDisplayOrchestrator _displayOrchestrator;
+    [SerializeField] LobbySceneP2PConnectOperator _p2pConnectOperator;
 
-    public void InitializeLobbyScene()
+    public void Initialize()
     {
-        var lobbyPlayerNames = EOSLobbyMethod.GetLobbyMemberDisplayNames(_eosLobbyOperator.LocalProductUserId, _eosLobbyOperator.CurrentLobbyId);
-        var hostID = EOSLobbyMethod.GetLobbyHostPuid(_eosLobbyOperator.LocalProductUserId, _eosLobbyOperator.CurrentLobbyId);
-        _displayOrchestrator.SetPlayerName(lobbyPlayerNames, hostID);
+        _displayOrchestrator.Initialize();
+        _p2pConnectOperator.Initialize();
     }
 }

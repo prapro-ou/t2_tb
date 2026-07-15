@@ -76,7 +76,7 @@ public class EOSLobbyOperator : ScriptableObject
     {
         var tmpUserId = LocalProductUserId;
         var tmpLobbyId = CurrentLobbyId;
-        EOSLobbyMethod.LeaveLobbyAsync(tmpUserId, tmpLobbyId).Forget();
+        EOSLobbyMethod.LeaveLobbyAsync(tmpLobbyId).Forget();
         // ScriptableObject無効化タイミングによるIDクリア
         LocalProductUserId = null;
         CurrentLobbyId = null;

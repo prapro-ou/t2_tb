@@ -13,7 +13,6 @@ namespace OriginalNameSpace.EOSMethod.P2P
     public static class EOSP2PMethod
     {
 
-
         #region ========== クラス内共通処理 ==========
 
         // 開発元（PlayEveryWare製ラッパー）のEOSManagerから、P2P通信に必要な低レイヤーインターフェースを毎回安全に取得します。
@@ -107,8 +106,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
 
 
 
-        #region ================= 送信・受信（データロスト防止・分配型） =================
-
+        #region ========== 送信・受信処理 ==========
         /// <summary>
         /// 【送信】任意の構造体/クラスデータをJsonUtilityでシリアライズし、先頭にヘッダー（型識別子）を付与して送信します。
         /// </summary>
@@ -218,6 +216,9 @@ namespace OriginalNameSpace.EOSMethod.P2P
             }
         }
 
+        /// <summary>
+        /// 受信ループ更新
+        /// </summary>
         public static void UpdateReceiveLoop()
         {
             // ログ出力を削除し、安全に早期リターン
@@ -296,6 +297,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
             }
         }
 
-        #endregion
+        #endregion ========== 送信・受信処理 ==========
+
     }
 }

@@ -22,13 +22,13 @@ public class GameOverseer : ScriptableObject
     {
         private SerializedDictionary<SceneNameEnum, bool> _scenesBoolDictionary = new SerializedDictionary<SceneNameEnum, bool>();
         private List<SceneNameEnum> _currentSceneName;
-        public void AddSceneMediator(SceneNameEnum addSceneName)
+        public async UniTask AddSceneMediator(SceneNameEnum addSceneName)
         {
-            SceneManager.LoadSceneAsync(addSceneName.ToString(), LoadSceneMode.Additive);
+            await SceneManager.LoadSceneAsync(addSceneName.ToString(), LoadSceneMode.Additive);
         }
-        public void RemoveSceneMediator(SceneNameEnum removeSceneName)
+        public async UniTask RemoveSceneMediator(SceneNameEnum removeSceneName)
         {
-            SceneManager.UnloadSceneAsync(removeSceneName.ToString());
+            await SceneManager.UnloadSceneAsync(removeSceneName.ToString());
         }
     }
 

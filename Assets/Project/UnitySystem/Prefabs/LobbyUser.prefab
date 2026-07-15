@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64aa98762cc9acb4baaed72491658274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbyUserDisplayOperator
-  _settingOrchestrator: {fileID: 0}
+  _settingOrchestrator: {fileID: 1683579794101144266}
 --- !u!1 &1918873203844209964
 GameObject:
   m_ObjectHideFlags: 0
