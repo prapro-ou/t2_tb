@@ -913,7 +913,11 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
+<<<<<<< HEAD
   m_AnchoredPosition: {x: 2, y: 76}
+=======
+  m_AnchoredPosition: {x: 24, y: 76}
+>>>>>>> c46a238 (create PasswordModule)
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1722634585736938585
@@ -1331,7 +1335,11 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
+<<<<<<< HEAD
   m_AnchoredPosition: {x: 0, y: 73}
+=======
+  m_AnchoredPosition: {x: 0, y: 0}
+>>>>>>> c46a238 (create PasswordModule)
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2494694993339302157
@@ -3650,6 +3658,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+<<<<<<< HEAD
 --- !u!1 &8855413316578516333
 GameObject:
   m_ObjectHideFlags: 0
@@ -3729,6 +3738,8 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
+=======
+>>>>>>> c46a238 (create PasswordModule)
 --- !u!1 &8973209380854797802
 GameObject:
   m_ObjectHideFlags: 0
@@ -3932,9 +3943,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7757691281905582470, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7131686455015956755}
+<<<<<<< HEAD
     - targetCorrespondingSourceObject: {fileID: 7757691281905582470, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 305239750114036317}
+=======
+>>>>>>> c46a238 (create PasswordModule)
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8280505292211967427, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
