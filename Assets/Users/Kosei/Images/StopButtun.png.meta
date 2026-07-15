@@ -1,7 +1,10 @@
 fileFormatVersion: 2
-guid: f4d25bd6b807d1d40949989a2920241c
+guid: 0fbb34c2c1d87374ebf3d07991b67827
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -7963287199376599926
+    second: StopButtun_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -43,12 +46,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 10
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -110,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ModuleShadow_0
+      name: StopButtun_0
       rect:
         serializedVersion: 2
-        x: 211
-        y: 195
-        width: 2094
-        height: 2094
+        x: 0
+        y: 61
+        width: 1083
+        height: 362
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 923d1def143c19cb0800000000000000
-      internalID: -4858887834740600023
+      spriteID: a841eb4cb78bc7190800000000000000
+      internalID: -7963287199376599926
       vertices: []
       indices: 
       edges: []
@@ -135,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -145,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ModuleShadow_0: -4858887834740600023
+      StopButtun_0: -7963287199376599926
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
