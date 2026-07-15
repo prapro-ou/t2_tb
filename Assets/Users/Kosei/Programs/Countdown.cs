@@ -12,6 +12,15 @@ public class Timer : MonoBehaviour
     void Start()
     {
         currentTime = limitTime;
+        UpdateTimerText();
+    }
+
+    void UpdateTimerText()
+    {
+        int minutes = Mathf.FloorToInt(currentTime / 60);
+        int seconds = Mathf.FloorToInt(currentTime % 60);
+
+        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     void Update()
@@ -26,8 +35,7 @@ public class Timer : MonoBehaviour
                 isRunning = false;
                 TimeUp();
             }
-
-            timerText.text = Mathf.Ceil(currentTime).ToString();
+            UpdateTimerText();
         }
     }
 
