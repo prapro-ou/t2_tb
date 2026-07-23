@@ -1,7 +1,7 @@
 using UnityEngine;
 public class SceneInputSystemOrchestrator : MonoBehaviour
 {
-    [SerializeField] private GameOverseer _gameOverseer;
+    [SerializeField] private ProjectOverseer _gameOverseer;
     [SerializeField] private InputActionAssetEnum _inputActionAssetEnum;
     void Awake()
     {

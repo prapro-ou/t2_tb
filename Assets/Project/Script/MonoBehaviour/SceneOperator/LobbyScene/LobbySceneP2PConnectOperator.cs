@@ -1,22 +1,32 @@
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 using Epic.OnlineServices;
 using OriginalNameSpace.EOSMethod.P2P;
 public class LobbySceneP2PConnectOperator : MonoBehaviour
 {
+    [SerializeField] private ProjectOverseer _gameOverseer;
+    [SerializeField] private GameStatusActiveSOData _gameStatusActiveSOData;
+    private string _gameSettingPacketReceiveUUID;
     public void Initialize()
     {
-        EOSP2PMethod.StartListening(SocketNameEnum.Test);
-        EOSP2PMethod.RegisterListener<TestPacket>(OnPacketReceived);
+        _gameSettingPacketReceiveUUID = EOSP2PMethod.RegisterListener<GameSettingPacket>(OnGameSettingPacketReceived);
     }
 
-    public void OnPacketReceived(ProductUserId remoteUserId, string socketName, TestPacket packetData)
+    private void OnGameSettingPacketReceived(ProductUserId remoteUserId, string socketName, GameSettingPacket packet)
     {
-        Debug.Log(remoteUserId.ToString());
-        Debug.Log(socketName);
-        Debug.Log(packetData.message);
+        _gameStatusActiveSOData.ThisGameSettingPacket = packet;
+        GameSceneChange().Forget();
     }
-    public void Update()
+
+    private async UniTask GameSceneChange()
     {
-        EOSP2PMethod.UpdateReceiveLoop();
+        await _gameOverseer.sceneOrchestrator.RemoveSceneMediator(SceneNameEnum.LobbyScene);
+        await _gameOverseer.sceneOrchestrator.AddSceneMediator(SceneNameEnum.GameScene);
+        EOSP2PMethod.UnregisterListener(_gameSettingPacketReceiveUUID);
+    }
+
+    public void OnDisable()
+    {
+        EOSP2PMethod.UnregisterListener(_gameSettingPacketReceiveUUID);
     }
 }

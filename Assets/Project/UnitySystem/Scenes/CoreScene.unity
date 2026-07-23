@@ -317,7 +317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01ff5cc39a81ae44e85aa14d144006d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoreSceneEOSOrchestrator
-  _eosLobbyOperator: {fileID: 0}
+  _eosLobbyOperator: {fileID: 11400000, guid: 458dae190b4e3124ba15f549872c4dd2, type: 2}
 --- !u!1 &1410439020
 GameObject:
   m_ObjectHideFlags: 0

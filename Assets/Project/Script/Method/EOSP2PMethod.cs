@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using PlayEveryWare.EpicOnlineServices;
 using Epic.OnlineServices;
 using Epic.OnlineServices.P2P;
@@ -16,14 +17,33 @@ namespace OriginalNameSpace.EOSMethod.P2P
         #region ========== クラス内共通処理 ==========
 
         // 開発元（PlayEveryWare製ラッパー）のEOSManagerから、P2P通信に必要な低レイヤーインターフェースを毎回安全に取得します。
-        private static P2PInterface P2P => EOSManager.Instance.GetEOSPlatformInterface()?.GetP2PInterface();
+        private static P2PInterface P2P
+        {
+            get
+            {
+                var platformInterface = EOSManager.Instance?.GetEOSPlatformInterface();
+                if (platformInterface == null)
+                {
+                    Debug.LogError("EOS Platform Interface の取得に失敗しました。EOSManagerの初期化完了後に呼び出してください。");
+                    return null;
+                }
+                return platformInterface.GetP2PInterface();
+            }
+        }
         private static readonly byte[] _receiveBuffer = new byte[1024 * 64];
+
+        private static Dictionary<SocketNameEnum, ulong> _notificationIds = new Dictionary<SocketNameEnum, ulong>();
         /// <summary>
-        /// 【重要】受信したパケットの「タイプ（1バイト目）」と「それを処理するデシリアライズ処理」を紐付ける辞書。
-        /// 1つの受信ループで全てのパケットを回収し、この辞書を頼りに適切な型へと安全に分配（ディスパッチ）します。
+        /// 内側をUUIDキーの辞書にすることで、同一のパケット型に対して複数のリスナーを同時登録できるようにしています。
         /// </summary>
-        private static readonly Dictionary<string, Action<ProductUserId, string, byte[]>> _packetCallbacks
-            = new Dictionary<string, Action<ProductUserId, string, byte[]>>();
+        private static readonly Dictionary<string, Dictionary<Guid, Action<ProductUserId, string, byte[]>>> _packetCallbacksByType
+            = new Dictionary<string, Dictionary<Guid, Action<ProductUserId, string, byte[]>>>();
+
+        /// <summary>
+        /// リスナーUUID → パケット型名 逆引き辞書。
+        /// </summary>
+        private static readonly Dictionary<Guid, string> _listenerTypeById
+            = new Dictionary<Guid, string>();
 
         #endregion ========== クラス内共通処理 ==========
 
@@ -32,18 +52,22 @@ namespace OriginalNameSpace.EOSMethod.P2P
         #region ========== 待ち受け処理 ==========
 
         /// <summary>
-        /// 待ち受け登録開始
+        /// 待ち受け登録開始処理
         /// </summary>
-        /// <param name="socketName">通信チャネル識別任意ソケット名</param>
-        /// <returns>待ち受け解除時に必要な通知ID</returns>
-        public static ulong StartListening(SocketNameEnum socketNameEnum)
+        /// <param name="socketNameEnum">通信チャネル識別任意ソケット名</param>
+        public static void StartListening(SocketNameEnum socketNameEnum)
         {
 
             // 0. 初期確認
             if (P2P == null || EOSManager.Instance.GetProductUserId() == null) // nullチェック
             {
                 Debug.LogError("送信できません。");
-                return 0;
+                return;
+            }
+            if (_notificationIds.TryGetValue(socketNameEnum, out ulong existingId) && existingId != 0) // 二重登録防止
+            {
+                Debug.LogWarning($"[EOSP2PController] ソケット '{socketNameEnum}' は既に待ち受け中です（ID: {existingId}）。先にStopListeningを呼んでください。");
+                return;
             }
             string socketName = socketNameEnum.ToString(); // ソケット名のstring化
 
@@ -55,29 +79,42 @@ namespace OriginalNameSpace.EOSMethod.P2P
             };
             ulong notificationId = P2P.AddNotifyPeerConnectionRequest(ref options, null, OnIncomingConnectionRequest);
             Debug.Log($"[EOSP2PController] ソケット '{socketName}' での待ち受けを開始しました。ID: {notificationId}");
-
-            // 2. 通知ID返却
-            return notificationId;
+            _notificationIds[socketNameEnum] = notificationId;
         }
 
         /// <summary>
-        /// 待ち受け登録終了
+        /// 待ち受け登録終了処理
         /// </summary>
-        public static void StopListening(ulong notificationId)
+        public static void StopListening(SocketNameEnum socketNameEnum)
         {
-
-            // 0. 初期確認
-            if (notificationId == 0 || P2P == null) return;
+            // 0. 初期確認：登録されていないソケットなら何もしない（例外を投げない）
+            if (!_notificationIds.TryGetValue(socketNameEnum, out ulong notificationId) || notificationId == 0 || P2P == null)
+            {
+                return;
+            }
 
             // 1.EOSのAPIを叩いて通知の登録を解除
             P2P.RemoveNotifyPeerConnectionRequest(notificationId);
             Debug.Log($"[EOSP2PController] 待ち受けを停止しました。ID: {notificationId}");
-
+            _notificationIds.Remove(socketNameEnum);
         }
 
         /// <summary>
-        /// 他のユーザーから接続リクエスト（握手要求）が届いた際に呼ばれるEOSコールバック。
-        /// ※この実装では届いた要求をすべて自動的に承認（Accept）します。
+        /// 全待ち受け登録終了処理
+        /// </summary>
+        public static void StopAllListening()
+        {
+            foreach (var notificationId in _notificationIds.Values)
+            {
+                P2P.RemoveNotifyPeerConnectionRequest(notificationId);
+                Debug.Log($"[EOSP2PController] 待ち受けを停止しました。ID: {notificationId}");
+            }
+            _notificationIds.Clear();
+        }
+
+
+        /// <summary>
+        /// 他ユーザー接続リクエストコールバック
         /// </summary>
         private static void OnIncomingConnectionRequest(ref OnIncomingConnectionRequestInfo data)
         {
@@ -107,8 +144,9 @@ namespace OriginalNameSpace.EOSMethod.P2P
 
 
         #region ========== 送信・受信処理 ==========
+
         /// <summary>
-        /// 【送信】任意の構造体/クラスデータをJsonUtilityでシリアライズし、先頭にヘッダー（型識別子）を付与して送信します。
+        /// 送信処理
         /// </summary>
         /// <typeparam name="T">IPacketTypeを実装するデータ型</typeparam>
         /// <param name="socketName">通信チャネル識別任意ソケット名</param>
@@ -118,7 +156,6 @@ namespace OriginalNameSpace.EOSMethod.P2P
         public static void SendPacket<T>(SocketNameEnum socketNameEnum, ProductUserId remoteUserId, T packet, PacketReliability reliability = PacketReliability.ReliableOrdered)
             where T : IPacketType
         {
-
             // 0. 初期確認
             if (P2P == null || EOSManager.Instance.GetProductUserId() == null) // nullチェック
             {
@@ -162,22 +199,31 @@ namespace OriginalNameSpace.EOSMethod.P2P
         }
 
         /// <summary>
-        /// 型指定を伴う受信処理登録
+        /// 受信処理登録
         /// </summary>
         /// <typeparam name="T">パケット型</typeparam>
         /// <param name="onPacketReceived">パケット受信時に呼ばれるコールバック</param>
-        public static void RegisterListener<T>(Action<ProductUserId, string, T> onPacketReceived) where T : IPacketType
+        /// <returns>登録したリスナーの識別UUID</returns>
+        public static string RegisterListener<T>(Action<ProductUserId, string, T> onPacketReceived) where T : IPacketType
         {
             // 0. 初期確認
             string key = typeof(T).FullName;
             if (System.Text.Encoding.UTF8.GetByteCount(key) > 255)
             {
                 Debug.LogError($"[P2P] クラス名 '{key}' が255バイトを超えています。名前を短くしてください。");
-                return;
+                return null;
+            }
+            if (onPacketReceived == null)
+            {
+                Debug.LogError("[P2P] コールバックがnullのため登録できません。");
+                return null;
             }
 
-            // 1. バイト配列から型「T」へと復元し、コールバックを呼ぶ
-            _packetCallbacks[key] = (remoteUser, socketName, payload) =>
+            // 1. このリスナーを一意に識別するUUIDを発行
+            Guid listenerId = Guid.NewGuid();
+
+            // 2. バイト配列から型「T」へと復元し、コールバックを呼ぶラッパーを作成
+            Action<ProductUserId, string, byte[]> wrappedCallback = (remoteUser, socketName, payload) =>
             {
                 try
                 {
@@ -195,25 +241,84 @@ namespace OriginalNameSpace.EOSMethod.P2P
                     Debug.LogError($"[P2P] パケット型 '{key}' のデシリアライズに失敗しました: {e.Message}");
                 }
             };
+
+            // 3. 「型名 → (UUID → コールバック)」の辞書に登録
+            if (!_packetCallbacksByType.TryGetValue(key, out var listenersForType))
+            {
+                listenersForType = new Dictionary<Guid, Action<ProductUserId, string, byte[]>>();
+                _packetCallbacksByType[key] = listenersForType;
+            }
+            listenersForType[listenerId] = wrappedCallback;
+
+            // 4. 「UUID → 型名」の逆引きも記録（解除時に型を意識せずアクセスできるようにするため）
+            _listenerTypeById[listenerId] = key;
+
+            Debug.Log($"[P2P] パケット型 '{key}' にリスナーを登録しました。ID: {listenerId}");
+
+            return listenerId.ToString();
         }
 
         /// <summary>
-        /// 指定したパケットタイプに対する受信登録を解除します。シーン遷移時やオブジェクト破棄時に呼んでください。
+        /// 受信登録解除(UUID)
         /// </summary>
-        public static void UnregisterListener<T>() where T : IPacketType
+        /// <param name="listenerId">UUID文字列</param>
+        public static void UnregisterListener(string listenerId)
         {
-            string key = typeof(T).FullName;
-            if (System.Text.Encoding.UTF8.GetByteCount(key) > 255)
+            if (string.IsNullOrEmpty(listenerId))
             {
-                Debug.LogError($"[P2P] クラス名 '{key}' が255バイトを超えています。名前を短くしてください。");
+                Debug.LogError("[P2P] リスナーIDが空です。解除できません。");
+                return;
+            }
+            if (!Guid.TryParse(listenerId, out Guid id))
+            {
+                Debug.LogError($"[P2P] リスナーID '{listenerId}' はUUID形式ではありません。");
+                return;
+            }
+            if (!_listenerTypeById.TryGetValue(id, out string key))
+            {
+                Debug.LogWarning($"[P2P] リスナーID '{listenerId}' は登録されていません（既に解除済みの可能性があります）。");
                 return;
             }
 
-            if (_packetCallbacks.ContainsKey(key))
+            if (_packetCallbacksByType.TryGetValue(key, out var listenersForType))
             {
-                _packetCallbacks.Remove(key);
-                Debug.Log($"[P2P] パケット型 '{key}' のリスナーを解除しました。");
+                listenersForType.Remove(id);
+                // その型のリスナーが0件になったら、型名のエントリごと削除して辞書を綺麗に保つ
+                if (listenersForType.Count == 0)
+                {
+                    _packetCallbacksByType.Remove(key);
+                }
             }
+            _listenerTypeById.Remove(id);
+
+            Debug.Log($"[P2P] パケット型 '{key}' のリスナー（ID: {listenerId}）を解除しました。");
+        }
+
+        /// <summary>
+        /// 受信登録解除(パケット型)
+        /// </summary>
+        public static void UnregisterAllListeners<T>() where T : IPacketType
+        {
+            string key = typeof(T).FullName;
+            if (_packetCallbacksByType.TryGetValue(key, out var listenersForType))
+            {
+                foreach (var id in listenersForType.Keys)
+                {
+                    _listenerTypeById.Remove(id);
+                }
+                _packetCallbacksByType.Remove(key);
+                Debug.Log($"[P2P] パケット型 '{key}' の全リスナーを解除しました。");
+            }
+        }
+
+        /// <summary>
+        /// 受信登録全解除
+        /// </summary>
+        public static void UnregisterAllListeners()
+        {
+            _packetCallbacksByType.Clear();
+            _listenerTypeById.Clear();
+            Debug.Log("[P2P] 全リスナーを解除しました。");
         }
 
         /// <summary>
@@ -238,8 +343,26 @@ namespace OriginalNameSpace.EOSMethod.P2P
                 // 確保した固定バッファより大きいパケットはエラー
                 if (packetSize > _receiveBuffer.Length)
                 {
-                    Debug.LogError($"[P2P] 受信バッファサイズを超過しています。Size: {packetSize}");
-                    // パケットを破棄するために一度ダミーで読み飛ばすなどの処理が必要な場合があります
+                    Debug.LogError($"[P2P] 受信バッファサイズを超過しているため、このパケットを破棄します。Size: {packetSize}");
+                    var discardOptions = new ReceivePacketOptions()
+                    {
+                        LocalUserId = EOSManager.Instance.GetProductUserId(),
+                        MaxDataSizeBytes = packetSize,
+                        RequestedChannel = null
+                    };
+                    ProductUserId discardRemoteUserId = default;
+                    SocketId discardSocketId = default;
+                    byte discardChannel;
+                    uint discardBytesWritten;
+                    byte[] discardBuffer = new byte[packetSize];
+                    P2P.ReceivePacket(
+                        ref discardOptions,
+                        ref discardRemoteUserId,
+                        ref discardSocketId,
+                        out discardChannel,
+                        new ArraySegment<byte>(discardBuffer),
+                        out discardBytesWritten
+                    );
                     continue;
                 }
 
@@ -265,7 +388,18 @@ namespace OriginalNameSpace.EOSMethod.P2P
                     out bytesWritten
                 );
 
-                if (readResult == Result.Success && packetSize > 1)
+                if (readResult != Result.Success)
+                {
+                    Debug.LogWarning($"[P2P] ReceivePacketに失敗しました。Result: {readResult}");
+                    continue;
+                }
+
+                if (packetSize <= 1)
+                {
+                    Debug.LogWarning($"[P2P] 不正な最小サイズのパケットを受信しました。Size: {packetSize}");
+                    continue;
+                }
+
                 {
                     int typeNameLength = _receiveBuffer[0];
                     if (packetSize < 1 + typeNameLength)
@@ -280,14 +414,21 @@ namespace OriginalNameSpace.EOSMethod.P2P
                     int payloadOffset = 1 + typeNameLength;
                     int payloadLength = (int)packetSize - payloadOffset;
 
-                    if (_packetCallbacks.TryGetValue(typeName, out var callback))
+                    if (_packetCallbacksByType.TryGetValue(typeName, out var listenersForType) && listenersForType.Count > 0)
                     {
                         // コールバック側（RegisterListener）も byte[] を直接受けるように変更するか、
                         // ここで payloadString を直接生成して渡すように変更すると、さらに byte[] の new を削減できます。
                         byte[] payload = new byte[payloadLength]; // ※ここも理想はプールか文字列への直接変換
                         Array.Copy(_receiveBuffer, payloadOffset, payload, 0, payloadLength);
 
-                        callback.Invoke(remoteUserId, socketId.SocketName, payload);
+                        // 同じ型名(typeName)に対して複数のリスナーが登録されていても、型判別はここで一度だけ行い、
+                        // 該当する全リスナーへ同じpayloadを配信する。
+                        // 列挙中にコールバック側からUnregisterListenerが呼ばれるとコレクション変更例外になるため、
+                        // ToArray()でスナップショットを取ってから呼び出す。
+                        foreach (var listenerEntry in listenersForType.ToArray())
+                        {
+                            listenerEntry.Value.Invoke(remoteUserId, socketId.SocketName, payload);
+                        }
                     }
                     else
                     {

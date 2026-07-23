@@ -385,6 +385,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ea99ec16b07cae4286bec5e8a6214c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoreSceneEOSOrchestorator
+  _gameOverseer: {fileID: 11400000, guid: 62a8de7bb6363de4689fdec72866c727, type: 2}
+  _gameStatusActiveSOData: {fileID: 11400000, guid: eae9d60a16f017f4ba647eed12c8030a, type: 2}
 --- !u!1 &775514274
 GameObject:
   m_ObjectHideFlags: 0
@@ -430,6 +432,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbySceneStartGameOrchestrator
   _eosLobbyOperator: {fileID: 11400000, guid: 458dae190b4e3124ba15f549872c4dd2, type: 2}
+  _allModuleSOData: {fileID: 11400000, guid: 881108c709c541045bdf0b93ba867fb2, type: 2}
+  _gameOverseer: {fileID: 11400000, guid: 62a8de7bb6363de4689fdec72866c727, type: 2}
+  _gameStatusActiveSOData: {fileID: 11400000, guid: eae9d60a16f017f4ba647eed12c8030a, type: 2}
+  _moduleTypeCount: 0
 --- !u!1 &1136935388
 GameObject:
   m_ObjectHideFlags: 0

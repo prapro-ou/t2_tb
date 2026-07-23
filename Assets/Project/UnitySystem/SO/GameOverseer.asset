@@ -13,9 +13,5 @@ MonoBehaviour:
   m_Name: GameOverseer
   m_EditorClassIdentifier: 
   inputActionAssetOrchestrator:
-    InputActionAssetDictionary:
-      m_list:
-      - Key: 1
-        Value: {fileID: -944628639613478452, guid: 9ac629f1c1f9a3d45af63a1c628aa09b, type: 3}
-  cameraOrchestrator:
-    gameStateData: {fileID: 11400000, guid: fa067710db6ead14796e607b9442a9d7, type: 2}
+    _inputActionAssetDictionary:
+      m_list: []

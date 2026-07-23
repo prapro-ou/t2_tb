@@ -6,7 +6,7 @@ public class HomeSceneLobbyEnterClickOrchestrator : MonoBehaviour
 {
     [SerializeField] private TMP_Text _userName, _roomName;
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
-    [SerializeField] private GameOverseer _gameOverseer;
+    [SerializeField] private ProjectOverseer _gameOverseer;
     private bool isEnter = false;
 
     public void OnClick()
