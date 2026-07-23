@@ -1,4 +1,4 @@
-public struct ModuleFailedPacket
+public struct ModuleFailedPacket : IPacketType
 {
     public ModuleTypeEnum moduleType;
 }

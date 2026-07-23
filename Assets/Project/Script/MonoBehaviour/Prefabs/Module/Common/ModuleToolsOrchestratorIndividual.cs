@@ -19,7 +19,7 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     /// <param name="moduleSettingData"></param>
     /// <returns></returns>
-    public override sealed async UniTask Initialize(ProductUserId productUserId, ModuleSettingData moduleSettingData)
+    public override sealed void Initialize(ProductUserId productUserId, ModuleSettingData moduleSettingData)
     {
         // 0.初期確認
 

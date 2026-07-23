@@ -1,5 +1,54 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &910182206818557520
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7169227085605642539}
+  - component: {fileID: 513842957280538827}
+  m_Layer: 0
+  m_Name: InitializeOrchestrator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7169227085605642539
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910182206818557520}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7109649257563713957}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &513842957280538827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910182206818557520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 854a70b6db79826479d5032db536d163, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModuleInitializeOrchestrator
+  _moduleDataOrchestrator: {fileID: 8954895971053090244}
+  _moduleColorSettingOrchestrator: {fileID: 1341778496961225457}
+  _moduleSuccessOrchestrator: {fileID: 3301274339432407947}
+  _moduleFailedOrchestrator: {fileID: 684210699833844558}
+  _moduleToolsOrchestratorObject: {fileID: 5889833901742782373}
 --- !u!1 &1398299747826172859
 GameObject:
   m_ObjectHideFlags: 0
@@ -158,6 +207,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6574516064212469480}
+  - {fileID: 7169227085605642539}
   - {fileID: 4717862092789132696}
   - {fileID: 8342871513995521391}
   - {fileID: 5608299080440256902}
@@ -176,7 +226,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22e763abaa456cb409eded51e22323fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleOperator
-  _moduleColorSettingOrchestrator: {fileID: 0}
 --- !u!1 &5889833901742782373
 GameObject:
   m_ObjectHideFlags: 0
@@ -419,6 +468,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51fa24dcd5aea364ea06a2c9bf750f3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleDataOrchestrator
+  _moduleColorSettingOrchestrator: {fileID: 1341778496961225457}
+  _moduleSuccessOrchestrator: {fileID: 3301274339432407947}
+  _moduleFailedOrchestrator: {fileID: 684210699833844558}
 --- !u!1 &7730999356641519601
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,6 +684,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dede7bedeb399149a726c6835b5b5d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleColorSettingOrchestrator
+  _moduleDataOrchestrator: {fileID: 0}
   _light: {fileID: 9032971701386534242}
   _neon: {fileID: 278167741788353001}
 --- !u!1 &8936414444411002431

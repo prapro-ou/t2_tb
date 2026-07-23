@@ -17,6 +17,7 @@ public class GameSceneGameSettingOperator : MonoBehaviour
         // 0.初期確認
         ProductUserId userId = _eosLobbyOperator.LocalProductUserId;
         List<ModuleSettingData> moduleSettingDatas = _gameStatusActiveSOData.ThisGameSettingPacket.ModuleSettingDatas[userId];
+        List<UniTask> moduleInitializeTasks = new List<UniTask>();
 
         // 1.モジュール確認
         while (modulePlaceList.Count < 14)
@@ -34,7 +35,6 @@ public class GameSceneGameSettingOperator : MonoBehaviour
         // 2.モジュール配置
         // 2.0.初期確認
         List<Object> modules = new List<Object>();
-        List<UniTask> moduleInitializeTasks = new List<UniTask>();
 
         // 2.1.モジュール配置
         foreach (ModuleSettingData moduleSettingData in moduleSettingDatas)
@@ -48,11 +48,14 @@ public class GameSceneGameSettingOperator : MonoBehaviour
             );
 
             modules.Add(module);
-            moduleInitializeTasks.Add(module.GetComponentInChildren<ModuleOperator>().Initialize(userId, _gameStatusActiveSOData.ThisGameSettingPacket.PlayerColors, moduleSettingData));
+            module.GetComponentInChildren<ModuleInitializeOrchestrator>().Initialize(userId, _gameStatusActiveSOData.ThisGameSettingPacket.PlayerColors, moduleSettingData);
         }
-        await UniTask.WhenAll(moduleInitializeTasks);
+
+
+
 
         // 3.ゲーム準備完了
+        await UniTask.WhenAll(moduleInitializeTasks);
         EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, _gameStatusActiveSOData.ThisGameSettingPacket.HostUserId, new GameSettingEndSignalPacket() { IsSetting = true });
     }
 
