@@ -1,6 +1,7 @@
 using System.Linq;
 using UnityEngine;
 using Epic.OnlineServices;
+[CreateAssetMenu(fileName = "ModuleSOData", menuName = "SO/ModuleSOData")]
 public class ModuleSOData : ScriptableObject
 {
     [SerializeField] private ModuleTypeEnum _moduleType;

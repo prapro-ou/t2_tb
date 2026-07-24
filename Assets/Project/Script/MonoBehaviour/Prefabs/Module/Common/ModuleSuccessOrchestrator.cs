@@ -1,8 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using Epic.OnlineServices;
 using OriginalNameSpace.EOSMethod.P2P;
 public class ModuleSuccessOrchestrator : MonoBehaviour
 {
+    [SerializeField] private ModuleDataOrchestrator _moduleDataOrchestrator;
+    [SerializeField] private GameObject _gameObject;
+    [SerializeField] private List<UnityEvent> _events;
 
     public void Initialize()
     {
@@ -11,6 +16,13 @@ public class ModuleSuccessOrchestrator : MonoBehaviour
 
     private void OnSuccessPacketReceived(ProductUserId remoteUserId, string socketName, ModuleSuccessPacket packet)
     {
+        if (packet.moduleType != _moduleDataOrchestrator.ThisModuleSettingData.ModuleType) return;
+        _events.ForEach(x => x.Invoke());
+        OnSuccess();
+    }
 
+    private void OnSuccess()
+    {
+        _gameObject.SetActive(true);
     }
 }

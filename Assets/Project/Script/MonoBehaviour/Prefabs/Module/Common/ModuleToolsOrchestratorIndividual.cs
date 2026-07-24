@@ -60,10 +60,11 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     /// <typeparam name="PacketT"></typeparam>
     /// <param name="onPacketReceived"></param>
-    public string ModuleDataRegisterListener<PacketT>(Action<ModuleVersionEnum, string, PacketT> onPacketReceived) where PacketT : IPacketType
+    public string ModuleDataRegisterListener<PacketT>(Action<ModuleVersionEnum, PacketT> onPacketReceived) where PacketT : IPacketType
     {
         string uuid = EOSP2PMethod.RegisterListener<PacketT>((remoteUserId, socketName, payload) =>
         {
+            if (socketName != SocketNameEnum.ModuleInfo.ToString()) return;
             ModuleVersionEnum targetKey = new ModuleVersionEnum();
             foreach (var pair in ThisModuleSettingData.ModuleGroup)
             {
@@ -73,7 +74,7 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
                     break; // 最初に見つかった時点で抜ける
                 }
             }
-            onPacketReceived(targetKey, socketName, payload);
+            onPacketReceived(targetKey, payload);
         });
         listenerList.Add(uuid);
         return uuid;
@@ -116,7 +117,7 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     public void ModuleFailed()
     {
-
+        EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, _hostUserId, new ModuleFailedPacket());
     }
 
     #endregion ========== GameInfo ==========
