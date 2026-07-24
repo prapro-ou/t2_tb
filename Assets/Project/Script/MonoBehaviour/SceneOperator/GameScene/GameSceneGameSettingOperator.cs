@@ -24,7 +24,7 @@ public class GameSceneGameSettingOperator : MonoBehaviour
         {
             moduleSettingDatas.Add(new ModuleSettingData()
             {
-                ModuleType = ModuleTypeEnum.Empty,
+                ModuleType = ModuleTypeEnum.Void,
                 ModuleVersion = ModuleVersionEnum.A,
                 ModuleGroup = null,
                 ModuleData = null

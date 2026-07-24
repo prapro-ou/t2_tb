@@ -7,7 +7,6 @@ public class ModuleInitializeOrchestrator : MonoBehaviour
     [SerializeField] private ModuleColorSettingOrchestrator _moduleColorSettingOrchestrator;
     [SerializeField] private ModuleSuccessOrchestrator _moduleSuccessOrchestrator;
     [SerializeField] private ModuleFailedOrchestrator _moduleFailedOrchestrator;
-
     [SerializeField] private GameObject _moduleToolsOrchestratorObject;
     public void Initialize(ProductUserId hostId, Dictionary<ProductUserId, Color> color, ModuleSettingData moduleSettingData)
     {

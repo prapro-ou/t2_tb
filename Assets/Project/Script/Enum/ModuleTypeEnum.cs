@@ -1,5 +1,9 @@
 public enum ModuleTypeEnum
 {
-    Empty,
+    Void,
     Time,
+    Wire,
+    Stopwatch,
+    Password,
+    Symbol
 }

@@ -106,7 +106,7 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                     (LoginCallbackInfo loginData) =>
                     {
                         // ログイン処理の結果が返ってきたときのコールバック
-                        if (loginData.ResultCode == Result.Success)
+                        if (loginData.ResultCode == Result.Success || loginData.ResultCode == Result.AlreadyPending)
                         {
                             // ログイン成功：取得したユーザー固有の ProductUserId をセットして待機を解除
                             loginUtcs.TrySetResult(loginData.LocalUserId);

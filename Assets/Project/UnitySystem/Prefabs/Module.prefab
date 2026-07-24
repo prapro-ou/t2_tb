@@ -93,6 +93,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 162463db4208c474d8a957c261c03639, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleFailedOrchestrator
+  _moduleDataOrchestrator: {fileID: 8954895971053090244}
+  _events: []
 --- !u!1 &1885813475327974581
 GameObject:
   m_ObjectHideFlags: 0
@@ -301,6 +303,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66f08986c91794449a6520d7aede7a4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleSuccessOrchestrator
+  _moduleDataOrchestrator: {fileID: 8954895971053090244}
+  _gameObject: {fileID: 7059452385772376142}
+  _events: []
 --- !u!1 &7059452385772376142
 GameObject:
   m_ObjectHideFlags: 0
@@ -468,9 +473,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51fa24dcd5aea364ea06a2c9bf750f3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleDataOrchestrator
-  _moduleColorSettingOrchestrator: {fileID: 1341778496961225457}
-  _moduleSuccessOrchestrator: {fileID: 3301274339432407947}
-  _moduleFailedOrchestrator: {fileID: 684210699833844558}
+  _colorSettingOrchestrator: {fileID: 1341778496961225457}
+  _successOrchestrator: {fileID: 3301274339432407947}
+  _failedOrchestrator: {fileID: 684210699833844558}
 --- !u!1 &7730999356641519601
 GameObject:
   m_ObjectHideFlags: 0
@@ -684,7 +689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dede7bedeb399149a726c6835b5b5d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleColorSettingOrchestrator
-  _moduleDataOrchestrator: {fileID: 0}
+  _moduleDataOrchestrator: {fileID: 8954895971053090244}
   _light: {fileID: 9032971701386534242}
   _neon: {fileID: 278167741788353001}
 --- !u!1 &8936414444411002431

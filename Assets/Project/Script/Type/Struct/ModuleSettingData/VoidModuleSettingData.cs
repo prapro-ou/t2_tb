@@ -1,0 +1,4 @@
+public struct VoidModuleSettingData : IModuleSettingData
+{
+
+}

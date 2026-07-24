@@ -259,7 +259,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: -1000
   far clip plane: 1000
   field of view: 60
   orthographic: 1
@@ -267,7 +267,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 23
+    m_Bits: 1
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -328,6 +328,63 @@ MonoBehaviour:
   _gameStatusActiveSOData: {fileID: 11400000, guid: eae9d60a16f017f4ba647eed12c8030a, type: 2}
   modulePlaceParent: {fileID: 0}
   modulePlaceList: []
+--- !u!1001 &507943140
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 205.01433
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 164.46478
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804815488203102992, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_Name
+      value: Module
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
 --- !u!1 &567148819
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,7 +722,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81df470c796e31f46b825a1e8b22a9d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneDirector
-  _gameSceneInitializationOperator: {fileID: 0}
+  _gameSceneInitializationOperator: {fileID: 1668841413}
 --- !u!1 &1668841411
 GameObject:
   m_ObjectHideFlags: 0
@@ -779,8 +836,8 @@ Canvas:
   m_GameObject: {fileID: 1781176194}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 772546608}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -851,3 +908,4 @@ SceneRoots:
   - {fileID: 1545289384}
   - {fileID: 1781176198}
   - {fileID: 322356741}
+  - {fileID: 507943140}
