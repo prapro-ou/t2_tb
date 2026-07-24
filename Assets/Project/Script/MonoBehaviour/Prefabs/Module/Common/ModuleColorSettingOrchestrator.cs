@@ -11,16 +11,6 @@ public class ModuleColorSettingOrchestrator : MonoBehaviour
     [SerializeField] private ModuleDataOrchestrator _moduleDataOrchestrator;
     [SerializeField] private SpriteRenderer _light, _neon;
 
-    public void Start()
-    {
-        ColorChange(new List<Color>
-        {
-            Color.red,
-            Color.green,
-            Color.blue
-        }).Forget();
-    }
-
     public void Initialize()
     {
         ColorChange(_moduleDataOrchestrator.UserColors.Values.ToList()).Forget();
