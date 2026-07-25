@@ -6,6 +6,7 @@ using OriginalNameSpace.EOSMethod.P2P;
 public class ModuleSuccessOrchestrator : MonoBehaviour
 {
     [SerializeField] private ModuleDataOrchestrator _moduleDataOrchestrator;
+    [SerializeField] private ModuleColorOrchestrator _moduleColorSettingOrchestrator;
     [SerializeField] private GameObject _gameObject;
     [SerializeField] private List<UnityEvent> _events;
 
@@ -24,5 +25,6 @@ public class ModuleSuccessOrchestrator : MonoBehaviour
     private void OnSuccess()
     {
         _gameObject.SetActive(true);
+        _moduleColorSettingOrchestrator.SuccessColor();
     }
 }

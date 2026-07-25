@@ -11,7 +11,7 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
     [SerializeField] private AllModuleSOData _allModuleSOData;
     [SerializeField] private ProjectOverseer _gameOverseer;
-    [SerializeField] private GameStatusActiveSOData _gameStatusActiveSOData;
+    [SerializeField] private GameSettingActiveSOData _gameStatusActiveSOData;
     [SerializeField] private int _moduleTypeCount;
 
     public void OnClick()

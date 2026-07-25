@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 public abstract class TypeModuleSettingDataGenerateSOMethod<T> : ModuleSettingDataGenerateSOMethod where T : IModuleSettingData
 {
     public override sealed IModuleSettingData Generate()

@@ -5,9 +5,13 @@ using Cysharp.Threading.Tasks;
 public class CoreSceneEOSOrchestrator : MonoBehaviour
 {
     [SerializeField] EOSLobbyOperator _eosLobbyOperator;
-    public void Initialize()
+    public async UniTask Initialize()
     {
-        EOSLobbyMethod.LoginAsync().Forget();
+        while (_eosLobbyOperator.LocalProductUserId == null)
+        {
+            await _eosLobbyOperator.InitializeAndLoginAsync();
+        }
+
         EOSP2PMethod.StartListening(SocketNameEnum.Fallback);
     }
 

@@ -304,6 +304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleSuccessOrchestrator
   _moduleDataOrchestrator: {fileID: 8954895971053090244}
+  _moduleColorSettingOrchestrator: {fileID: 1341778496961225457}
   _gameObject: {fileID: 7059452385772376142}
   _events: []
 --- !u!1 &7059452385772376142
@@ -690,8 +691,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModuleColorSettingOrchestrator
   _moduleDataOrchestrator: {fileID: 8954895971053090244}
-  _light: {fileID: 9032971701386534242}
   _neon: {fileID: 278167741788353001}
+  _colorComponents: []
 --- !u!1 &8936414444411002431
 GameObject:
   m_ObjectHideFlags: 0

@@ -80,7 +80,6 @@ public class EOSLobbyOperator : ScriptableObject
         // ScriptableObject有効化タイミングによるID初期化
         LocalProductUserId = null;
         CurrentLobbyId = null;
-        await InitializeAndLoginAsync();
     }
 
     #endregion ========== 入出処理 ==========

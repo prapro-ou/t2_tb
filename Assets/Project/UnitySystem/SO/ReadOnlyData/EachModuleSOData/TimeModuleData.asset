@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e493afce11006c64cbfc2bc62db1818d, type: 3}
+  m_Name: TimeModuleData
+  m_EditorClassIdentifier: Assembly-CSharp::ModuleSOData
+  _moduleType: 1
+  _modulePrefabsDictionary:
+    m_list:
+    - Key: 0
+      Value: {fileID: 4439520576819465717, guid: 293160a589f30fd4087c818e8300fa7a, type: 3}
+  _dataGanerate: {fileID: 11400000, guid: 7c4f45f5cb047ce4a80af20c72ae9582, type: 2}
