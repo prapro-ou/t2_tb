@@ -3,8 +3,8 @@ using UnityEngine;
 using Epic.OnlineServices;
 public class ModuleDataOrchestrator : MonoBehaviour
 {
-    [SerializeField] private ModuleColorSettingOrchestrator _colorSettingOrchestrator;
-    public ModuleColorSettingOrchestrator ColorSettingOrchestrator => _colorSettingOrchestrator;
+    [SerializeField] private ModuleColorOrchestrator _colorSettingOrchestrator;
+    public ModuleColorOrchestrator ColorSettingOrchestrator => _colorSettingOrchestrator;
     [SerializeField] private ModuleSuccessOrchestrator _successOrchestrator;
     public ModuleSuccessOrchestrator SuccessOrchestrator => _successOrchestrator;
     [SerializeField] private ModuleFailedOrchestrator _failedOrchestrator;

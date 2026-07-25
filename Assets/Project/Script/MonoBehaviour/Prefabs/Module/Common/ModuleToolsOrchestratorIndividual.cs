@@ -124,6 +124,4 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
 
     #endregion ========== public Tools Method ==========
 
-
-
 }

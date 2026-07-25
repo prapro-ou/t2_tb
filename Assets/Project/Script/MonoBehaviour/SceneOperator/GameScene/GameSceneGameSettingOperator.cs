@@ -8,26 +8,35 @@ public class GameSceneGameSettingOperator : MonoBehaviour
 {
     [SerializeField] private AllModuleSOData _allModuleSOData;
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
+    [SerializeField] private GameSettingActiveSOData _gameSettingActiveSOData;
     [SerializeField] private GameStatusActiveSOData _gameStatusActiveSOData;
+    [SerializeField] private Camera _gameCamera;
+    [SerializeField] private GameObject _timeObject;
+    [SerializeField] private ModuleSOData _timeModuleSOData;
     [SerializeField] private Transform modulePlaceParent;
     [SerializeField] private List<Vector2> modulePlaceList;
 
     public async UniTask Initialize()
     {
+        await UniTask.WaitUntil(() => _eosLobbyOperator.LocalProductUserId != null);
+        TestDataGenerate();
         // 0.初期確認
         ProductUserId userId = _eosLobbyOperator.LocalProductUserId;
-        List<ModuleSettingData> moduleSettingDatas = _gameStatusActiveSOData.ThisGameSettingPacket.ModuleSettingDatas[userId];
+        List<ModuleSettingData> moduleSettingDatas =
+            _gameSettingActiveSOData?.ThisGameSettingPacket.ModuleSettingDatas?.GetValueOrDefault(userId)
+            ?? new List<ModuleSettingData>();
         List<UniTask> moduleInitializeTasks = new List<UniTask>();
+        _gameStatusActiveSOData.Camera = _gameCamera;
 
         // 1.モジュール確認
-        while (modulePlaceList.Count < 14)
+        while (moduleSettingDatas.Count < 14)
         {
             moduleSettingDatas.Add(new ModuleSettingData()
             {
                 ModuleType = ModuleTypeEnum.Void,
                 ModuleVersion = ModuleVersionEnum.A,
-                ModuleGroup = null,
-                ModuleData = null
+                ModuleGroup = new Dictionary<ModuleVersionEnum, ProductUserId>(),
+                ModuleData = new VoidModuleSettingData()
             }
             );
         }
@@ -39,24 +48,37 @@ public class GameSceneGameSettingOperator : MonoBehaviour
         // 2.1.モジュール配置
         foreach (ModuleSettingData moduleSettingData in moduleSettingDatas)
         {
-
+            Debug.Log(moduleSettingData.ModuleType);
             GameObject module = Instantiate(
                 _allModuleSOData.ModuleDatas[moduleSettingData.ModuleType].ModulePrefabsDictionary[moduleSettingData.ModuleVersion],
-                modulePlaceList[0],
+                modulePlaceList[moduleSettingDatas.IndexOf(moduleSettingData)],
                 Quaternion.identity,
                 modulePlaceParent
             );
-
             modules.Add(module);
-            module.GetComponentInChildren<ModuleInitializeOrchestrator>().Initialize(userId, _gameStatusActiveSOData.ThisGameSettingPacket.PlayerColors, moduleSettingData);
+            moduleInitializeTasks.Add(module.GetComponentInChildren<ModuleInitializeOrchestrator>().Initialize(userId, _gameSettingActiveSOData.ThisGameSettingPacket.PlayerColors, moduleSettingData));
         }
-
-
-
+        modules.Add(_timeObject);
+        moduleInitializeTasks.Add(_timeObject.GetComponentInChildren<ModuleInitializeOrchestrator>().Initialize(userId, _gameSettingActiveSOData.ThisGameSettingPacket.PlayerColors, _timeModuleSOData.GenerateModuleSettingData()));
 
         // 3.ゲーム準備完了
         await UniTask.WhenAll(moduleInitializeTasks);
-        EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, _gameStatusActiveSOData.ThisGameSettingPacket.HostUserId, new GameSettingEndSignalPacket() { IsSetting = true });
+        Debug.Log("GameSettingEnd");
+        EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, _gameSettingActiveSOData.ThisGameSettingPacket.HostUserId, new GameSettingEndSignalPacket() { IsSetting = true });
     }
-
+    private void TestDataGenerate()
+    {
+        _gameSettingActiveSOData.ThisGameSettingPacket = new GameSettingPacket()
+        {
+            HostUserId = _eosLobbyOperator.LocalProductUserId,
+            ModuleSettingDatas = new Dictionary<ProductUserId, List<ModuleSettingData>>()
+            {
+                { _eosLobbyOperator.LocalProductUserId, new List<ModuleSettingData>() }
+            },
+            PlayerColors = new Dictionary<ProductUserId, Color>()
+            {
+                { _eosLobbyOperator.LocalProductUserId, Color.red }
+            }
+        };
+    }
 }

@@ -5,7 +5,7 @@ using OriginalNameSpace.EOSMethod.P2P;
 public class LobbySceneP2PConnectOperator : MonoBehaviour
 {
     [SerializeField] private ProjectOverseer _gameOverseer;
-    [SerializeField] private GameStatusActiveSOData _gameStatusActiveSOData;
+    [SerializeField] private GameSettingActiveSOData _gameStatusActiveSOData;
     private string _gameSettingPacketReceiveUUID;
     public void Initialize()
     {

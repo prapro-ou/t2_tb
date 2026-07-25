@@ -6,15 +6,43 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using PlayEveryWare.EpicOnlineServices;
-public class ModuleColorSettingOrchestrator : MonoBehaviour
+public class ModuleColorOrchestrator : MonoBehaviour
 {
     [SerializeField] private ModuleDataOrchestrator _moduleDataOrchestrator;
-    [SerializeField] private SpriteRenderer _light, _neon;
+    [SerializeField] private SpriteRenderer _neon;
+    [SerializeField] private List<Component> _colorComponents;
 
-    public void Initialize()
+    public async UniTask Initialize()
     {
         ColorChange(_moduleDataOrchestrator.UserColors.Values.ToList()).Forget();
-        _light.color = _moduleDataOrchestrator.UserColors[EOSManager.Instance.GetProductUserId()];
+        Color userColor = _moduleDataOrchestrator.UserColors[EOSManager.Instance.GetProductUserId()];
+        Tweener tweener;
+        if (_colorComponents != null && _colorComponents.Count > 0)
+        {
+            foreach (Component component in _colorComponents)
+            {
+                if (!component.TryDOColor(userColor, 1.0f, out tweener))
+                {
+                    Debug.Log("ColorChange task was canceled.");
+                    continue;
+                }
+            }
+        }
+
+        await UniTask.WaitForSeconds(1.0f);
+    }
+
+    public void SuccessColor()
+    {
+        Tweener tweener;
+        foreach (Component component in _colorComponents)
+        {
+            if (!component.TryDOColor(Color.white, 1.0f, out tweener))
+            {
+                Debug.Log("ColorChange task was canceled.");
+                continue;
+            }
+        }
     }
 
     private async UniTask ColorChange(List<Color> userColor)
@@ -40,5 +68,4 @@ public class ModuleColorSettingOrchestrator : MonoBehaviour
             Debug.Log("ColorChange task was canceled.");
         }
     }
-
 }
