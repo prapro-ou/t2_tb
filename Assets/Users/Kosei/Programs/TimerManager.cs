@@ -9,18 +9,20 @@ public class TimerManager : MonoBehaviour
     private float currentTime = 0f;
     private bool isRunning = false;
 
-    void Start()
+    private void Start()
     {
-        currentTime = 0f;
-        UpdateTimerText();
+        ResetTimer();
     }
 
-    void Update()
+    private void Update()
     {
         if (!isRunning)
             return;
 
+        Debug.Log("Update");
+
         currentTime += Time.deltaTime;
+
         UpdateTimerText();
     }
 
@@ -29,8 +31,11 @@ public class TimerManager : MonoBehaviour
     /// </summary>
     public void StartTimer()
     {
+        Debug.Log("StartTimer");
+
         currentTime = 0f;
         isRunning = true;
+
         UpdateTimerText();
     }
 
@@ -61,18 +66,13 @@ public class TimerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// タイマーが動作中か取得
-    /// </summary>
-    public bool IsRunning()
-    {
-        return isRunning;
-    }
-
-    /// <summary>
     /// タイマー表示更新
     /// </summary>
     private void UpdateTimerText()
     {
-        timerText.text = currentTime.ToString("F2");
+        if (timerText != null)
+        {
+            timerText.text = currentTime.ToString("F2");
+        }
     }
 }
