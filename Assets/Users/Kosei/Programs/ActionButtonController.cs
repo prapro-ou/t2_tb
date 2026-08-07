@@ -75,19 +75,28 @@ public class ActionButtonController : MonoBehaviour
     }
 
     /// <summary>
-    /// ボタン色変更
+    /// ボタン本体とアイコンの色を変更
     /// </summary>
     private void SetButtonColor(Color color)
     {
-        if (button == null)
-            return;
+        // ボタン本体の色
+        if (button != null)
+        {
+            ColorBlock cb = button.colors;
 
-        ColorBlock cb = button.colors;
-        cb.normalColor = color;
-        cb.highlightedColor = color;
-        cb.pressedColor = color * 0.9f;
-        cb.selectedColor = color;
-        cb.disabledColor = color * 0.5f;
-        button.colors = cb;
+            cb.normalColor = color;
+            cb.highlightedColor = color;
+            cb.pressedColor = color * 0.9f;
+            cb.selectedColor = color;
+            cb.disabledColor = color * 0.5f;
+
+            button.colors = cb;
+        }
+
+        // 三角形・停止アイコンの色
+        if (iconImage != null)
+        {
+            iconImage.color = color;
+        }
     }
 }

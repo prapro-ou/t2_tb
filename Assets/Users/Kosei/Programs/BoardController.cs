@@ -1,10 +1,9 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BoardController : MonoBehaviour
 {
     [Header("Board")]
-    public Image boardImage;
+    public SpriteRenderer[] boardRenderers;
 
     [Header("Colors")]
     public Color normalColor = Color.white;
@@ -14,25 +13,33 @@ public class BoardController : MonoBehaviour
 
     public void SetNormal()
     {
-        if (boardImage != null)
-            boardImage.color = normalColor;
+        SetColor(normalColor);
     }
 
     public void SetSuccess()
     {
-        if (boardImage != null)
-            boardImage.color = successColor;
+        SetColor(successColor);
     }
 
     public void SetFailed()
     {
-        if (boardImage != null)
-            boardImage.color = failedColor;
+        SetColor(failedColor);
     }
 
     public void SetClear()
     {
-        if (boardImage != null)
-            boardImage.color = clearColor;
+        SetColor(clearColor);
+    }
+
+    private void SetColor(Color color)
+    {
+        if (boardRenderers == null)
+            return;
+
+        foreach (SpriteRenderer renderer in boardRenderers)
+        {
+            if (renderer != null)
+                renderer.color = color;
+        }
     }
 }
