@@ -4,6 +4,11 @@ using System.Collections;
 
 public class OperatorGameManager : MonoBehaviour
 {
+    [Header("Boards")]
+    public BoardController operatorInstructionBoard;
+    public BoardController timerInstructionBoard;
+    public BoardController timerBoard;
+
     [Header("Manager")]
     public GameData gameData;
     public TimerGameManager timerGameManager;
@@ -12,7 +17,9 @@ public class OperatorGameManager : MonoBehaviour
     [Header("UI")]
     public TMP_Text operatorInstructionText;
     public TMP_Text timerInstructionText;
+
     private bool timerRunning = false;
+    private bool inputLocked = false;
 
     private void Start()
     {
@@ -26,9 +33,18 @@ public class OperatorGameManager : MonoBehaviour
     {
         gameData.GenerateQuestions();
 
+        gameData.gameClear = false;
+        gameData.gameFailed = false;
+        gameData.waitingNextQuestion = false;
+
         timerRunning = false;
+        inputLocked = false;
 
         actionButton.SetPlay();
+
+        operatorInstructionBoard.SetNormal();
+        timerInstructionBoard.SetNormal();
+        timerBoard.SetNormal();
 
         ShowCurrentQuestion();
     }
@@ -41,8 +57,8 @@ public class OperatorGameManager : MonoBehaviour
         float target = gameData.GetCurrentTarget();
 
         string message =
-        $"STOP\n" +
-        $"{target - gameData.tolerance:F2} ～ {target + gameData.tolerance:F2}";
+            $"STOP\n" +
+            $"{target - gameData.tolerance:F2} - {target + gameData.tolerance:F2}";
 
         operatorInstructionText.text = message;
         timerInstructionText.text = message;
@@ -53,6 +69,9 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     public void PressActionButton()
     {
+        if (inputLocked)
+            return;
+
         if (gameData.gameClear)
             return;
 
@@ -77,37 +96,33 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     private void StartRound()
     {
+        inputLocked = true;
+
         timerRunning = true;
 
-        // タイマー役へ開始指示
         timerGameManager.ReceiveStart();
 
-        // ボタンをSTOP表示へ
         actionButton.SetStop();
+
+        inputLocked = false;
     }
-        /// <summary>
+
+    /// <summary>
     /// ラウンド終了
     /// </summary>
     private void StopRound()
     {
+        inputLocked = true;
+
         timerRunning = false;
 
-        // タイマー役へ停止指示
         timerGameManager.ReceiveStop();
 
-        // 計測時間取得
-        float time = timerGameManager.GetMeasuredTime();
+        float measuredTime = timerGameManager.GetMeasuredTime();
 
-        float target = gameData.GetCurrentTarget();
-
-        bool success =
-            time >= target - gameData.tolerance &&
-            time <= target + gameData.tolerance;
-
-        // ボタンをPLAY表示へ
         actionButton.SetPlay();
 
-        if (success)
+        if (IsSuccess(measuredTime))
         {
             StartCoroutine(SuccessRoutine());
         }
@@ -116,10 +131,26 @@ public class OperatorGameManager : MonoBehaviour
             operatorInstructionText.text = "MODULE FAILED!";
             timerInstructionText.text = "MODULE FAILED!";
 
+            operatorInstructionBoard.SetFailed();
+            timerInstructionBoard.SetFailed();
+            timerBoard.SetFailed();
+
             actionButton.SetFailed();
 
             gameData.gameFailed = true;
         }
+
+        inputLocked = false;
+    }
+
+    /// <summary>
+    /// 判定
+    /// </summary>
+    private bool IsSuccess(float measuredTime)
+    {
+        float target = gameData.GetCurrentTarget();
+
+        return Mathf.Abs(measuredTime - target) <= gameData.tolerance;
     }
 
     /// <summary>
@@ -132,6 +163,10 @@ public class OperatorGameManager : MonoBehaviour
         operatorInstructionText.text = "SUCCESS!";
         timerInstructionText.text = "SUCCESS!";
 
+        operatorInstructionBoard.SetSuccess();
+        timerInstructionBoard.SetSuccess();
+        timerBoard.SetSuccess();
+
         actionButton.SetSuccess();
 
         yield return new WaitForSeconds(1.0f);
@@ -140,16 +175,25 @@ public class OperatorGameManager : MonoBehaviour
 
         if (!hasNext)
         {
+            gameData.gameClear = true;
+
             operatorInstructionText.text = "MODULE CLEAR!";
             timerInstructionText.text = "MODULE CLEAR!";
+
+            operatorInstructionBoard.SetClear();
+            timerInstructionBoard.SetClear();
+            timerBoard.SetClear();
 
             actionButton.SetClear();
 
             yield break;
         }
 
-        // 次の問題へ
         timerGameManager.ResetTimer();
+
+        operatorInstructionBoard.SetNormal();
+        timerInstructionBoard.SetNormal();
+        timerBoard.SetNormal();
 
         actionButton.SetPlay();
 

@@ -14,21 +14,25 @@ public class BoardController : MonoBehaviour
 
     public void SetNormal()
     {
-        boardImage.color = normalColor;
+        if (boardImage != null)
+            boardImage.color = normalColor;
     }
 
     public void SetSuccess()
     {
-        boardImage.color = successColor;
+        if (boardImage != null)
+            boardImage.color = successColor;
     }
 
     public void SetFailed()
     {
-        boardImage.color = failedColor;
+        if (boardImage != null)
+            boardImage.color = failedColor;
     }
 
     public void SetClear()
     {
-        boardImage.color = clearColor;
+        if (boardImage != null)
+            boardImage.color = clearColor;
     }
 }
