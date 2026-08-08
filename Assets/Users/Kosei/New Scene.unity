@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!212 &111902840 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 3039690862846958635, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+  m_PrefabInstance: {fileID: 875965009}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &179874164
 GameObject:
   m_ObjectHideFlags: 0
@@ -163,9 +168,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfc32fd98d0958445b4e3aba49912fbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OperatorGameManager
-  operatorInstructionBoard: {fileID: 0}
-  timerInstructionBoard: {fileID: 0}
-  timerBoard: {fileID: 0}
+  operatorInstructionBoard: {fileID: 1083710305}
+  timerInstructionBoard: {fileID: 1083710305}
+  timerBoard: {fileID: 1083710305}
   gameData: {fileID: 843370723}
   timerGameManager: {fileID: 553065340}
   actionButton: {fileID: 1015112207}
@@ -283,6 +288,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimerManager
   timerText: {fileID: 2032719480}
+--- !u!212 &766768049 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 5362212591190289589, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
+  m_PrefabInstance: {fileID: 835642423}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &835642423
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -730,9 +740,9 @@ MonoBehaviour:
   playPosition: {x: 0.096, y: 0}
   stopPosition: {x: 0, y: 0}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  successColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  successColor: {r: 0, g: 1, b: 0, a: 1}
   failedColor: {r: 1, g: 0, b: 0, a: 1}
-  clearColor: {r: 0, g: 1, b: 0, a: 1}
+  clearColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &1083710303
 GameObject:
   m_ObjectHideFlags: 0
@@ -759,8 +769,8 @@ Transform:
   m_GameObject: {fileID: 1083710303}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 135.63031, y: -22.62097, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 135.63031, y: -22.620975, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1652382353}
@@ -777,11 +787,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c2066b2d0d7388488dfe1e75a4a27a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardController
-  boardImage: {fileID: 0}
+  boardRenderers:
+  - {fileID: 766768049}
+  - {fileID: 1148031505}
+  - {fileID: 111902840}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   successColor: {r: 0, g: 1, b: 0, a: 1}
   failedColor: {r: 1, g: 0, b: 0, a: 1}
   clearColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!212 &1148031505 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 1604085063746655419, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
+  m_PrefabInstance: {fileID: 835642423}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1630816858 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2128781582377820735, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
