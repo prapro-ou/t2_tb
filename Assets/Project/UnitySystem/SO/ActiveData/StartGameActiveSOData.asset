@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8689f826a81d41f459f1d4c9b457d6d3, type: 3}
+  m_Name: StartGameActiveSOData
+  m_EditorClassIdentifier: Assembly-CSharp::StartGameActiveSOData
+  _eosLobbyOperator: {fileID: 11400000, guid: 458dae190b4e3124ba15f549872c4dd2, type: 2}
+  _allModuleSOData: {fileID: 11400000, guid: 881108c709c541045bdf0b93ba867fb2, type: 2}
