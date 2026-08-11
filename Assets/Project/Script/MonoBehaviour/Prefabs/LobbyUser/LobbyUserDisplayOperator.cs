@@ -8,14 +8,14 @@ public class LobbyUserDisplayOperator : MonoBehaviour
     public void InitializeLobbyUserDisplay(ProductUserId productUserId, string userName, bool isHost)
     {
         UserId = productUserId;
-        isHost = IsHost;
+        IsHost = isHost;
         _settingOrchestrator.SetUserName(userName);
-        _settingOrchestrator.SetHostImage(isHost);
+        _settingOrchestrator.SetHostImage(IsHost);
     }
 
     public void HostChange(bool isHost)
     {
         IsHost = isHost;
-        _settingOrchestrator.SetHostImage(isHost);
+        _settingOrchestrator.SetHostImage(IsHost);
     }
 }

@@ -1,4 +1,4 @@
 public struct ModuleSuccessPacket : IPacketType
 {
-    public ModuleTypeEnum moduleType;
+    public int ModuleNumber;
 }

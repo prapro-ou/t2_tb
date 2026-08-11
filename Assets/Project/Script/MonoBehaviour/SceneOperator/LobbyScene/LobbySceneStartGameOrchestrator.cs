@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,53 +10,71 @@ using OriginalNameSpace.EOSMethod.P2P;
 public class LobbySceneStartGameOrchestrator : MonoBehaviour
 {
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
+    [SerializeField] private LobbySceneModuleCounterOrchestrator _moduleCounterOrchestrator;
+    [SerializeField] private LobbySceneTimeCounterOrchestrator _timeCounterOrchestrator;
     [SerializeField] private AllModuleSOData _allModuleSOData;
     [SerializeField] private ProjectOverseer _gameOverseer;
     [SerializeField] private GameSettingActiveSOData _gameStatusActiveSOData;
-    [SerializeField] private int _moduleTypeCount;
 
     public void OnClick()
     {
-        Debug.Log("StartGame");
-        HostStartGame(_moduleTypeCount);
+        HostStartGame();
+
     }
 
     /// <summary>
     /// ホストがゲームを開始する
     /// </summary>
-    /// <param name="moduleTypeCount"></param>
-    public void HostStartGame(int moduleTypeCount)
+    /// <param name="moduleCount"></param>
+    public void HostStartGame()
     {
+        int moduleCount = _moduleCounterOrchestrator.ModuleCounter;
         if (_gameStatusActiveSOData.IsStartGameSetting) return;
         // 0.初期確認
-        GameSettingPacket packet = new GameSettingPacket(); // 送信パケット
-        packet.HostUserId = EOSManager.Instance.GetProductUserId();
+        GameSettingPacket packet = new GameSettingPacket()
+        {
+            HostUserId = EOSManager.Instance.GetProductUserId(),
+            ModuleCount = moduleCount,
+            PlayerUserIds = EOSLobbyMethod.GetLobbyMembers(_eosLobbyOperator.CurrentLobbyId),
+            GameLimitTime = TimeSpan.FromSeconds(_timeCounterOrchestrator.TimeCounter * 15)
+        }; // 送信パケット
+        Debug.Log($"ゲーム開始。モジュール数：{moduleCount} 時間：{_timeCounterOrchestrator.TimeCounter}分");
         List<ModuleSettingData> moduleSettingDatas = new List<ModuleSettingData>(); // 送信モジュールデータ
         List<ProductUserId> members = EOSLobbyMethod.GetLobbyMembers(_eosLobbyOperator.CurrentLobbyId); // ロビーメンバー
-        int panelCount = 0; // パネル数
         List<ProductUserId> choiseMembers = new List<ProductUserId>(); // 選択メンバー
-        if (moduleTypeCount < members.Count && 8 * members.Count < moduleTypeCount)
+        if (moduleCount < members.Count && 8 * members.Count < moduleCount)
         {
             return;
         }
 
         // 2.送信モジュールデータ構築
         // 2.1.モジュール選択
-        List<ModuleTypeEnum> moduleTypes = EnumExtensions.GetUniqueEnumValues<ModuleTypeEnum>(moduleTypeCount);
-        // 2.2.モジュール情報構築
-        foreach (ModuleTypeEnum moduleType in moduleTypes)
+        List<ModuleTypeEnum> moduleTypeEnums = _allModuleSOData.ModuleDatas.Keys.ToList();
+        List<ModuleTypeEnum> removeList = new List<ModuleTypeEnum>()
         {
-            ModuleSettingData moduleSettingData = _allModuleSOData.ModuleDatas[moduleType].GenerateModuleSettingData();
-            panelCount += moduleSettingData.ModuleGroup.Count;
+            ModuleTypeEnum.None,
+            ModuleTypeEnum.Void,
+            ModuleTypeEnum.Time
+        };
+        moduleTypeEnums = moduleTypeEnums.Except(removeList).ToList();
+
+        // 2.2.モジュールデータ生成
+        for (int i = 0; i < moduleCount; i++)
+        {
+            ModuleSettingData moduleSettingData = new ModuleSettingData()
+            {
+                ModuleNumber = i
+            };
+            _allModuleSOData.ModuleDatas[ListExtensions.GetRandom(moduleTypeEnums)].GenerateModuleSettingData(ref moduleSettingData);
             moduleSettingDatas.Add(moduleSettingData);
+            Debug.Log(moduleSettingData.ModuleType);
         }
 
         // 3.メンバー順番決め
         System.Random rand = new System.Random();
-        choiseMembers = Enumerable.Range(0, panelCount)
-            .Select(i => members[i % members.Count]) // 均等にメンバーを抽出
-            .OrderBy(_ => rand.Next())               // ランダムに並び替え
-            .ToList();
+        choiseMembers = Enumerable.Range(0, moduleCount * 2)
+                .Select(i => members[i % members.Count])
+                .ToList();
         Queue<ProductUserId> queueMembers = new Queue<ProductUserId>(choiseMembers);
 
         // 4. データ生成
@@ -68,16 +87,13 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
         // 5. 色構築
         List<Color> colors = new List<Color>()
         {
-            new Color(255,  59,  48, 255), // 1P: 赤 (Red)
-            new Color(  0, 122, 255, 255), // 2P: 青 (Blue)
-            new Color(255, 204,   0, 255), // 3P: 黄 (Yellow)
-            new Color( 52, 199,  89, 255), // 4P: 緑 (Green)
-            new Color(175,  82, 222, 255), // 5P: 紫 (Purple)
-            new Color(255, 149,   0, 255), // 6P: 橙 (Orange)
-            new Color( 90, 200, 250, 255), // 7P: 水 (Cyan)
-            new Color(255,  45,  85, 255)  // 8P: 桃 (Pink)
+            Color.red,
+            Color.green,
+            Color.blue,
+            Color.yellow,
         };
-        colors.Shuffle();
+
+        colors = colors.Shuffle();
         Dictionary<ProductUserId, Color> playerColors = new Dictionary<ProductUserId, Color>();
         for (int i = 0; i < members.Count; i++)
         {
@@ -85,26 +101,27 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
         }
         packet.PlayerColors = playerColors;
 
-        // 5.データ構築
+        // 6.データ構築
         for (int i = 0; i < moduleSettingDatas.Count; i++)
         {
             ModuleSettingData originalData = moduleSettingDatas[i]; // 元データ
             if (originalData.ModuleGroup == null) continue;
 
-            // 5.1.担当者情報
-            foreach (ModuleVersionEnum versionKey in originalData.ModuleGroup.Keys.ToArray())
+            // 6.1.担当者情報
+            foreach (ModuleVersionEnum versionKey in originalData.ModuleGroup.Keys.ToList().Shuffle())
             {
                 ProductUserId ownerId = queueMembers.Dequeue();
                 originalData.ModuleGroup[versionKey] = ownerId;
             }
 
-            // 5.2.モジュール情報分配
+            // 6.2.モジュール情報分配
             foreach (var kvp in originalData.ModuleGroup)
             {
                 ModuleVersionEnum versionKey = kvp.Key;
                 ProductUserId ownerId = kvp.Value;
                 ModuleSettingData playerModuleData = new ModuleSettingData
                 {
+                    ModuleNumber = originalData.ModuleNumber,
                     ModuleType = originalData.ModuleType,
                     ModuleVersion = versionKey,
                     ModuleGroup = originalData.ModuleGroup,
@@ -123,8 +140,8 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
         _gameStatusActiveSOData.GameSettingEndRegister(members);
         foreach (ProductUserId userId in members)
         {
+            Debug.Log(userId + " " + packet);
             EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, userId, packet);
         }
     }
-
 }

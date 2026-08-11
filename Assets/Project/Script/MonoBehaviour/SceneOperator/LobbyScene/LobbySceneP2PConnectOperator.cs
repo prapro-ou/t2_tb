@@ -6,6 +6,7 @@ public class LobbySceneP2PConnectOperator : MonoBehaviour
 {
     [SerializeField] private ProjectOverseer _gameOverseer;
     [SerializeField] private GameSettingActiveSOData _gameStatusActiveSOData;
+    [SerializeField] private SceneBlockTransitionOrchestrator _sceneBlockTransitionOrchestrator;
     private string _gameSettingPacketReceiveUUID;
     public void Initialize()
     {
@@ -20,6 +21,7 @@ public class LobbySceneP2PConnectOperator : MonoBehaviour
 
     private async UniTask GameSceneChange()
     {
+        await _sceneBlockTransitionOrchestrator.SceneOut();
         await _gameOverseer.sceneOrchestrator.RemoveSceneMediator(SceneNameEnum.LobbyScene);
         await _gameOverseer.sceneOrchestrator.AddSceneMediator(SceneNameEnum.GameScene);
         EOSP2PMethod.UnregisterListener(_gameSettingPacketReceiveUUID);

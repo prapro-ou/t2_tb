@@ -44,7 +44,6 @@ public class LobbySceneLobbyPlayerDisplayOrchestrator : MonoBehaviour
         var targetID = info.TargetUserId;
         switch (info.CurrentStatus)
         {
-
             case LobbyMemberStatus.Joined:
                 AddUser(lobbyPlayerNames, targetID, _displayField, _displayPanel);
                 break;
