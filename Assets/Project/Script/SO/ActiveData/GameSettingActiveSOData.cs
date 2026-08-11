@@ -9,7 +9,6 @@ using OriginalNameSpace.EOSMethod.P2P;
 
 public class GameSettingActiveSOData : ScriptableObject
 {
-
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
     [SerializeField] private AllModuleSOData _allModuleSOData;
     public GameSettingPacket ThisGameSettingPacket { get; set; }
@@ -25,7 +24,7 @@ public class GameSettingActiveSOData : ScriptableObject
     /// </summary>
     public void GameSettingEndRegister(List<ProductUserId> userIdList)
     {
-        _isStartGameSetting = true;
+        _isStartGameSetting = false;
         _choiseDictionary = userIdList.ToDictionary(x => x, x => false);
         _gameSettingEndSignalReceiveUUID = EOSP2PMethod.RegisterListener<GameSettingEndSignalPacket>(OnGameSettingEnd);
     }
@@ -44,20 +43,18 @@ public class GameSettingActiveSOData : ScriptableObject
     /// <param name="packet"></param>
     private void OnGameSettingEnd(ProductUserId remoteUserId, string socketName, GameSettingEndSignalPacket packet)
     {
-        if (packet.IsSetting)
+        _choiseDictionary[remoteUserId] = true;
+        if (_choiseDictionary.Values.All(x => x == true))
         {
-            _choiseDictionary[remoteUserId] = true;
-            if (_choiseDictionary.Values.All(x => x == true))
+            EOSP2PMethod.UnregisterListener(_gameSettingEndSignalReceiveUUID);
+            foreach (ProductUserId userId in _choiseDictionary.Keys)
             {
-                Debug.Log("GameStartSettingEnd");
-                EOSP2PMethod.UnregisterListener(_gameSettingEndSignalReceiveUUID);
-
-                foreach (ProductUserId userId in _choiseDictionary.Keys)
+                EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, userId, new StartGamePacket()
                 {
-                    EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, userId, new StartGamePacket() { IsStart = true });
-                }
-                _isStartGameSetting = false;
+                    IsStart = true
+                });
             }
+            _isStartGameSetting = false;
         }
     }
 

@@ -10,22 +10,13 @@ public class ModuleSOData : ScriptableObject
     public SerializedDictionary<ModuleVersionEnum, GameObject> ModulePrefabsDictionary => _modulePrefabsDictionary;
     [SerializeField] private ModuleSettingDataGenerateSOMethod _dataGanerate;
 
-    public ModuleSettingData GenerateModuleSettingData()
+    public void GenerateModuleSettingData(ref ModuleSettingData moduleSettingData)
     {
-        // 0.初期確認
-        return new ModuleSettingData
-        {
-            // 1.モジュールタイプの確認
-            ModuleType = _moduleType,
-
-            // 2.モジュールバージョンの確認
-            ModuleGroup = _modulePrefabsDictionary.Keys.ToDictionary(
-                key => key,
-                key => (ProductUserId)null
-            ),
-
-            // 3.モジュールデータの取得
-            ModuleData = _dataGanerate.Generate()
-        };
+        moduleSettingData.ModuleType = _moduleType;
+        moduleSettingData.ModuleGroup = _modulePrefabsDictionary.Keys.ToDictionary(
+            key => key,
+            key => (ProductUserId)null
+        );
+        moduleSettingData.ModuleData = _dataGanerate.Generate();
     }
 }

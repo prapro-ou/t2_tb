@@ -19,20 +19,19 @@ public class GameSceneGameSettingOperator : MonoBehaviour
     public async UniTask Initialize()
     {
         await UniTask.WaitUntil(() => _eosLobbyOperator.LocalProductUserId != null);
-        TestDataGenerate();
-        // 0.初期確認
         ProductUserId userId = _eosLobbyOperator.LocalProductUserId;
+        List<ProductUserId> playerIds = _gameSettingActiveSOData?.ThisGameSettingPacket.PlayerUserIds ?? new List<ProductUserId>();
         List<ModuleSettingData> moduleSettingDatas =
             _gameSettingActiveSOData?.ThisGameSettingPacket.ModuleSettingDatas?.GetValueOrDefault(userId)
             ?? new List<ModuleSettingData>();
         List<UniTask> moduleInitializeTasks = new List<UniTask>();
         _gameStatusActiveSOData.Camera = _gameCamera;
-
         // 1.モジュール確認
         while (moduleSettingDatas.Count < 14)
         {
             moduleSettingDatas.Add(new ModuleSettingData()
             {
+                ModuleNumber = -1,
                 ModuleType = ModuleTypeEnum.Void,
                 ModuleVersion = ModuleVersionEnum.A,
                 ModuleGroup = new Dictionary<ModuleVersionEnum, ProductUserId>(),
@@ -40,15 +39,12 @@ public class GameSceneGameSettingOperator : MonoBehaviour
             }
             );
         }
-
         // 2.モジュール配置
         // 2.0.初期確認
         List<Object> modules = new List<Object>();
-
         // 2.1.モジュール配置
-        foreach (ModuleSettingData moduleSettingData in moduleSettingDatas)
+        foreach (ModuleSettingData moduleSettingData in moduleSettingDatas.Shuffle())
         {
-            Debug.Log(moduleSettingData.ModuleType);
             GameObject module = Instantiate(
                 _allModuleSOData.ModuleDatas[moduleSettingData.ModuleType].ModulePrefabsDictionary[moduleSettingData.ModuleVersion],
                 modulePlaceList[moduleSettingDatas.IndexOf(moduleSettingData)],
@@ -56,16 +52,29 @@ public class GameSceneGameSettingOperator : MonoBehaviour
                 modulePlaceParent
             );
             modules.Add(module);
-            moduleInitializeTasks.Add(module.GetComponentInChildren<ModuleInitializeOrchestrator>().Initialize(userId, _gameSettingActiveSOData.ThisGameSettingPacket.PlayerColors, moduleSettingData));
+            moduleInitializeTasks.Add(module.GetComponentInChildren<ModuleInitializeOrchestrator>().Initialize(userId, playerIds, _gameSettingActiveSOData.ThisGameSettingPacket.PlayerColors, moduleSettingData));
         }
         modules.Add(_timeObject);
-        moduleInitializeTasks.Add(_timeObject.GetComponentInChildren<ModuleInitializeOrchestrator>().Initialize(userId, _gameSettingActiveSOData.ThisGameSettingPacket.PlayerColors, _timeModuleSOData.GenerateModuleSettingData()));
+        Debug.Log(_gameSettingActiveSOData.ThisGameSettingPacket.GameLimitTime);
+        ModuleSettingData timeModuleSettingData = new ModuleSettingData()
+        {
+            ModuleNumber = -1,
+            ModuleType = ModuleTypeEnum.Time,
+            ModuleVersion = ModuleVersionEnum.A,
+            ModuleGroup = new Dictionary<ModuleVersionEnum, ProductUserId>(),
+            ModuleData = new TimeModuleSettingData()
+            {
+                Time = _gameSettingActiveSOData.ThisGameSettingPacket.GameLimitTime
+            }
+        };
+
+        moduleInitializeTasks.Add(_timeObject.GetComponentInChildren<ModuleInitializeOrchestrator>().Initialize(userId, playerIds, _gameSettingActiveSOData.ThisGameSettingPacket.PlayerColors, timeModuleSettingData));
 
         // 3.ゲーム準備完了
         await UniTask.WhenAll(moduleInitializeTasks);
-        Debug.Log("GameSettingEnd");
         EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, _gameSettingActiveSOData.ThisGameSettingPacket.HostUserId, new GameSettingEndSignalPacket() { IsSetting = true });
     }
+
     private void TestDataGenerate()
     {
         _gameSettingActiveSOData.ThisGameSettingPacket = new GameSettingPacket()
@@ -81,4 +90,5 @@ public class GameSceneGameSettingOperator : MonoBehaviour
             }
         };
     }
+
 }

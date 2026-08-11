@@ -14,5 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AllModuleSOData
   _moduleDatas:
     m_list:
-    - Key: 0
+    - Key: 1
       Value: {fileID: 11400000, guid: e65188ac6d14a2d48af822ce563c12a6, type: 2}
+    - Key: 2
+      Value: {fileID: 11400000, guid: 468e38c754ac0ea41a7670bd5c3417af, type: 2}
+    - Key: 7
+      Value: {fileID: 11400000, guid: 2fdf487d8cd1c7d44b1e44ed03072feb, type: 2}

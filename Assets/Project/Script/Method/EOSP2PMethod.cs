@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ComponentModel;
 using PlayEveryWare.EpicOnlineServices;
 using Epic.OnlineServices;
 using Epic.OnlineServices.P2P;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace OriginalNameSpace.EOSMethod.P2P
 {
@@ -13,6 +15,16 @@ namespace OriginalNameSpace.EOSMethod.P2P
     /// </summary>
     public static class EOSP2PMethod
     {
+        /// <summary>
+        /// ProductUserId は EOS SDK 提供の型でソースを修正できないため、
+        /// Dictionary&lt;ProductUserId, TValue&gt; のキーをNewtonsoft.Jsonが復元できるよう、
+        /// クラス初期化時に TypeConverter を実行時に紐付けておく。
+        /// </summary>
+        static EOSP2PMethod()
+        {
+            TypeDescriptor.AddAttributes(typeof(ProductUserId), new TypeConverterAttribute(typeof(ProductUserIdTypeConverter)));
+        }
+
 
         #region ========== クラス内共通処理 ==========
 
@@ -31,6 +43,47 @@ namespace OriginalNameSpace.EOSMethod.P2P
             }
         }
         private static readonly byte[] _receiveBuffer = new byte[1024 * 64];
+
+        /// <summary>
+        /// EOS P2Pで1パケットあたりに安全に送れる実データサイズの目安（ヘッダ込み）。
+        /// これを超えるペイロードは SendPacket / UpdateReceiveLoop 内で自動的に分割・結合される。
+        /// </summary>
+        private const int MaxPacketPayloadBytes = 1170;
+
+        /// <summary>
+        /// 受信中の分割パケットを組み立てるためのバッファ。
+        /// </summary>
+        private class ChunkAssembly
+        {
+            public byte[][] Chunks;
+            public int ReceivedCount;
+        }
+
+        /// <summary>
+        /// キー: (送信元, パケット型名, メッセージID) ごとに、全チャンクが揃うまで保持する。
+        /// </summary>
+        private static readonly Dictionary<(ProductUserId RemoteUserId, string TypeName, Guid MessageId), ChunkAssembly> _pendingChunks
+            = new Dictionary<(ProductUserId, string, Guid), ChunkAssembly>();
+
+        /// <summary>
+        /// 送受信で共通利用するJson.NETの設定。
+        /// ・ProductUserId は ProductUserIdConverter で文字列として変換する
+        /// ・SelfReferenceSafeContractResolver により、Color.linear や Vector3.normalized のような
+        ///   「setterを持たない計算プロパティ」を型を問わず一括で除外し、自己参照ループを防ぐ
+        ///   （個別の型ごとにConverterを書く必要が無くなる）
+        /// ・IModuleSettingData（DialModuleSettingData等）のような、
+        ///   インターフェース経由で保持されるフィールドを正しい具象型で復元できるよう
+        ///   TypeNameHandling.Auto で型情報($type)をJSONに埋め込む
+        /// ・TypeNameAssemblyFormatHandling.Simple により、$type文字列からバージョン/カルチャ/
+        ///   公開鍵トークンを省略し、P2Pパケットサイズの肥大化(EOS_LimitExceeded)を抑える
+        /// </summary>
+        private static readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
+        {
+            Converters = { new ProductUserIdConverter() },
+            ContractResolver = new SelfReferenceSafeContractResolver(),
+            TypeNameHandling = TypeNameHandling.Auto,
+            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+        };
 
         private static Dictionary<SocketNameEnum, ulong> _notificationIds = new Dictionary<SocketNameEnum, ulong>();
         /// <summary>
@@ -78,7 +131,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
                 SocketId = new SocketId() { SocketName = socketName }
             };
             ulong notificationId = P2P.AddNotifyPeerConnectionRequest(ref options, null, OnIncomingConnectionRequest);
-            Debug.Log($"[EOSP2PController] ソケット '{socketName}' での待ち受けを開始しました。ID: {notificationId}");
+            // Debug.Log($"[EOSP2PController] ソケット '{socketName}' での待ち受けを開始しました。ID: {notificationId}");
             _notificationIds[socketNameEnum] = notificationId;
         }
 
@@ -95,7 +148,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
 
             // 1.EOSのAPIを叩いて通知の登録を解除
             P2P.RemoveNotifyPeerConnectionRequest(notificationId);
-            Debug.Log($"[EOSP2PController] 待ち受けを停止しました。ID: {notificationId}");
+            // Debug.Log($"[EOSP2PController] 待ち受けを停止しました。ID: {notificationId}");
             _notificationIds.Remove(socketNameEnum);
         }
 
@@ -107,7 +160,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
             foreach (var notificationId in _notificationIds.Values)
             {
                 P2P.RemoveNotifyPeerConnectionRequest(notificationId);
-                Debug.Log($"[EOSP2PController] 待ち受けを停止しました。ID: {notificationId}");
+                // Debug.Log($"[EOSP2PController] 待ち受けを停止しました。ID: {notificationId}");
             }
             _notificationIds.Clear();
         }
@@ -135,7 +188,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
             Result result = P2P.AcceptConnection(ref acceptOptions); // 接続承認実行。承認されればパケットの送受信が可能に
             if (result == Result.Success)
             {
-                Debug.Log($"[EOSP2PController] 接続を承認しました: {data.RemoteUserId} (Socket: {data.SocketId?.SocketName})");
+                // Debug.Log($"[EOSP2PController] 接続を承認しました: {data.RemoteUserId} (Socket: {data.SocketId?.SocketName})");
             }
         }
 
@@ -156,6 +209,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
         public static void SendPacket<T>(SocketNameEnum socketNameEnum, ProductUserId remoteUserId, T packet, PacketReliability reliability = PacketReliability.ReliableOrdered)
             where T : IPacketType
         {
+            // Debug.Log($"[EOSP2PController] 送信開始: {remoteUserId} (Socket: {socketNameEnum}){packet}");
             // 0. 初期確認
             if (P2P == null || EOSManager.Instance.GetProductUserId() == null) // nullチェック
             {
@@ -175,27 +229,78 @@ namespace OriginalNameSpace.EOSMethod.P2P
             }
             byte classNameLength = (byte)classNameBytes.Length; // 型名の長さを1バイトに変換
             // 1.2. データ内部をバイト配列に変換
-            string json = JsonUtility.ToJson(packet); // JsonUtilityでシリアライズ
+            string json;
+            try
+            {
+                json = JsonConvert.SerializeObject(packet, _jsonSettings); // Newtonsoft.Jsonでシリアライズ（Dictionary/ProductUserId対応）
+            }
+            catch (Exception e)
+            {
+                // ここで例外が起きると呼び出し元のforeachが止まり、以降のユーザー全員に送信できなくなるため
+                // 必ず捕捉してログに残し、該当ユーザーだけスキップする
+                Debug.LogError($"[P2P] パケット型 '{className}' のシリアライズに失敗しました（送信先: {remoteUserId}）: {e}");
+                return;
+            }
+            // Debug.Log($"[P2P] 送信データサイズ(JSON文字数): {json.Length}");
             byte[] rawData = System.Text.Encoding.UTF8.GetBytes(json); // Json文字列をバイト配列に変換
-            // 1.3. 全体のバッファを確保
-            byte[] sendBuffer = new byte[1 + classNameBytes.Length + rawData.Length]; // 型名長+型名+Json文字列
-            // 1.4. バッファへの書き込み
-            sendBuffer[0] = classNameLength; // 型名長書き込み
-            Array.Copy(classNameBytes, 0, sendBuffer, 1, classNameBytes.Length); // 型名書き込み
-            Array.Copy(rawData, 0, sendBuffer, 1 + classNameBytes.Length, rawData.Length); // Json文字列書き込み
+
+            // 1.3. チャンク分割準備
+            // ヘッダ構成: [型名長 1byte][型名 classNameBytes.Length][チャンク番号 2byte][総チャンク数 2byte][メッセージID 16byte][チャンクデータ]
+            // EOS P2Pは1パケットあたりの実データ量に上限があり(目安1170byte程度)、超えるとSendPacketがResult.LimitExceededで失敗する。
+            // そのため、大きいペイロードはここで分割して複数パケットとして送信し、受信側で結合する。
+            const int chunkIndexBytes = 2;
+            const int totalChunksBytes = 2;
+            const int messageIdBytes = 16;
+            int headerSize = 1 + classNameBytes.Length + chunkIndexBytes + totalChunksBytes + messageIdBytes;
+            int maxChunkPayloadSize = MaxPacketPayloadBytes - headerSize;
+            if (maxChunkPayloadSize <= 0)
+            {
+                Debug.LogError($"[P2P] 型名が長すぎるため、パケットを分割できません: {className}");
+                return;
+            }
+
+            int totalChunks = Math.Max(1, (int)Math.Ceiling(rawData.Length / (double)maxChunkPayloadSize));
+            if (totalChunks > ushort.MaxValue)
+            {
+                Debug.LogError($"[P2P] パケットが大きすぎて分割数の上限を超えました。Size: {rawData.Length}bytes, 分割数: {totalChunks}");
+                return;
+            }
+            Guid messageId = Guid.NewGuid(); // 同じ相手に対して複数のパケットを並行送信しても混線しないようにするための識別子
 
             // 2. 送信
             var socketId = new SocketId() { SocketName = socketName }; // ソケット識別ID
-            var sendOptions = new SendPacketOptions() // 送信オプション
+
+            for (int chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++)
             {
-                LocalUserId = EOSManager.Instance.GetProductUserId(),
-                RemoteUserId = remoteUserId,
-                SocketId = socketId,
-                Channel = 0,
-                Reliability = reliability,
-                Data = new ArraySegment<byte>(sendBuffer)
-            };
-            P2P.SendPacket(ref sendOptions); // EOS経由でパケットを送信
+                int offset = chunkIndex * maxChunkPayloadSize;
+                int chunkLength = Math.Min(maxChunkPayloadSize, rawData.Length - offset);
+
+                byte[] sendBuffer = new byte[headerSize + chunkLength];
+                int writeOffset = 0;
+                sendBuffer[writeOffset] = classNameLength; writeOffset += 1; // 型名長書き込み
+                Array.Copy(classNameBytes, 0, sendBuffer, writeOffset, classNameBytes.Length); writeOffset += classNameBytes.Length; // 型名書き込み
+                Array.Copy(BitConverter.GetBytes((ushort)chunkIndex), 0, sendBuffer, writeOffset, chunkIndexBytes); writeOffset += chunkIndexBytes; // チャンク番号書き込み
+                Array.Copy(BitConverter.GetBytes((ushort)totalChunks), 0, sendBuffer, writeOffset, totalChunksBytes); writeOffset += totalChunksBytes; // 総チャンク数書き込み
+                Array.Copy(messageId.ToByteArray(), 0, sendBuffer, writeOffset, messageIdBytes); writeOffset += messageIdBytes; // メッセージID書き込み
+                Array.Copy(rawData, offset, sendBuffer, writeOffset, chunkLength); writeOffset += chunkLength; // Json文字列(の一部)書き込み
+
+                var sendOptions = new SendPacketOptions() // 送信オプション
+                {
+                    LocalUserId = EOSManager.Instance.GetProductUserId(),
+                    RemoteUserId = remoteUserId,
+                    SocketId = socketId,
+                    Channel = 0,
+                    Reliability = reliability,
+                    Data = new ArraySegment<byte>(sendBuffer)
+                };
+                Result sendResult = P2P.SendPacket(ref sendOptions); // EOS経由でパケットを送信
+                if (sendResult != Result.Success)
+                {
+                    Debug.LogError($"[P2P] SendPacketに失敗しました。Result: {sendResult} (送信先: {remoteUserId}, チャンク: {chunkIndex + 1}/{totalChunks}, サイズ: {sendBuffer.Length}bytes)");
+                    return; // 一部のチャンクだけ届いても受信側で復元できないため、失敗した時点で中断する
+                }
+            }
+            // Debug.Log($"[P2P] 送信完了: {remoteUserId} (総サイズ: {rawData.Length}bytes, 分割数: {totalChunks})");
         }
 
         /// <summary>
@@ -229,16 +334,26 @@ namespace OriginalNameSpace.EOSMethod.P2P
                 {
                     // バイト配列をJSON文字列に戻す
                     string jsonStr = System.Text.Encoding.UTF8.GetString(payload);
-
-                    // JSONから目的のクラス（T）へ自動復元
-                    T packetData = JsonUtility.FromJson<T>(jsonStr);
+                    T packetData;
+                    try
+                    {
+                        // JSONから目的のクラス（T）へ自動復元（Newtonsoft.Json）
+                        packetData = JsonConvert.DeserializeObject<T>(jsonStr, _jsonSettings);
+                    }
+                    catch (Exception deserializeEx)
+                    {
+                        // デシリアライズ自体で起きた例外。受信データやJson.NET設定側の問題である可能性が高い。
+                        Debug.LogError($"[P2P] パケット型 '{key}' のデシリアライズに失敗しました（受信バイト数: {payload.Length}, JSON文字数: {jsonStr.Length}）: {deserializeEx}\nJSON内容: {jsonStr}");
+                        return;
+                    }
 
                     // 復元された綺麗なデータ（T）を添えて、登録されたコールバック（イベント）を呼び出す
                     onPacketReceived?.Invoke(remoteUser, socketName, packetData);
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"[P2P] パケット型 '{key}' のデシリアライズに失敗しました: {e.Message}");
+                    // デシリアライズは成功したが、その後の onPacketReceived（呼び出し元の実装）側で起きた例外
+                    Debug.LogError($"[P2P] パケット型 '{key}' の受信コールバック処理中にエラーが発生しました: {e}");
                 }
             };
 
@@ -253,7 +368,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
             // 4. 「UUID → 型名」の逆引きも記録（解除時に型を意識せずアクセスできるようにするため）
             _listenerTypeById[listenerId] = key;
 
-            Debug.Log($"[P2P] パケット型 '{key}' にリスナーを登録しました。ID: {listenerId}");
+            // Debug.Log($"[P2P] パケット型 '{key}' にリスナーを登録しました。ID: {listenerId}");
 
             return listenerId.ToString();
         }
@@ -291,7 +406,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
             }
             _listenerTypeById.Remove(id);
 
-            Debug.Log($"[P2P] パケット型 '{key}' のリスナー（ID: {listenerId}）を解除しました。");
+            // Debug.Log($"[P2P] パケット型 '{key}' のリスナー（ID: {listenerId}）を解除しました。");
         }
 
         /// <summary>
@@ -307,7 +422,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
                     _listenerTypeById.Remove(id);
                 }
                 _packetCallbacksByType.Remove(key);
-                Debug.Log($"[P2P] パケット型 '{key}' の全リスナーを解除しました。");
+                // Debug.Log($"[P2P] パケット型 '{key}' の全リスナーを解除しました。");
             }
         }
 
@@ -318,7 +433,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
         {
             _packetCallbacksByType.Clear();
             _listenerTypeById.Clear();
-            Debug.Log("[P2P] 全リスナーを解除しました。");
+            // Debug.Log("[P2P] 全リスナーを解除しました。");
         }
 
         /// <summary>
@@ -387,7 +502,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
                     new ArraySegment<byte>(_receiveBuffer, 0, (int)packetSize),
                     out bytesWritten
                 );
-
+                // Debug.Log($"[P2P] ReceivePacket成功: Size={bytesWritten}bytes, From={remoteUserId}");
                 if (readResult != Result.Success)
                 {
                     Debug.LogWarning($"[P2P] ReceivePacketに失敗しました。Result: {readResult}");
@@ -402,7 +517,11 @@ namespace OriginalNameSpace.EOSMethod.P2P
 
                 {
                     int typeNameLength = _receiveBuffer[0];
-                    if (packetSize < 1 + typeNameLength)
+                    const int chunkIndexBytes = 2;
+                    const int totalChunksBytes = 2;
+                    const int messageIdBytes = 16;
+                    int headerSizeWithoutPayload = 1 + typeNameLength + chunkIndexBytes + totalChunksBytes + messageIdBytes;
+                    if (packetSize < headerSizeWithoutPayload)
                     {
                         Debug.LogError("[P2P] パケットサイズが不正です。");
                         continue;
@@ -410,17 +529,62 @@ namespace OriginalNameSpace.EOSMethod.P2P
 
                     // 文字列化は避けられないが、元の配列から直接デコードする
                     string typeName = System.Text.Encoding.UTF8.GetString(_receiveBuffer, 1, typeNameLength);
+                    int readOffset = 1 + typeNameLength;
+                    ushort chunkIndex = BitConverter.ToUInt16(_receiveBuffer, readOffset); readOffset += chunkIndexBytes;
+                    ushort totalChunks = BitConverter.ToUInt16(_receiveBuffer, readOffset); readOffset += totalChunksBytes;
+                    byte[] messageIdBuffer = new byte[messageIdBytes];
+                    Array.Copy(_receiveBuffer, readOffset, messageIdBuffer, 0, messageIdBytes);
+                    Guid messageId = new Guid(messageIdBuffer);
+                    readOffset += messageIdBytes;
 
-                    int payloadOffset = 1 + typeNameLength;
-                    int payloadLength = (int)packetSize - payloadOffset;
+                    int chunkPayloadLength = (int)packetSize - readOffset;
+                    byte[] chunkPayload = new byte[chunkPayloadLength]; // ※ここも理想はプールか文字列への直接変換
+                    Array.Copy(_receiveBuffer, readOffset, chunkPayload, 0, chunkPayloadLength);
+
+                    byte[] payload;
+                    if (totalChunks <= 1)
+                    {
+                        // 分割されていない通常のパケット
+                        payload = chunkPayload;
+                    }
+                    else
+                    {
+                        // 送信側で分割されたパケット。全チャンクが揃うまでバッファしておく。
+                        var key = (remoteUserId, typeName, messageId);
+                        if (!_pendingChunks.TryGetValue(key, out var assembly))
+                        {
+                            assembly = new ChunkAssembly { Chunks = new byte[totalChunks][], ReceivedCount = 0 };
+                            _pendingChunks[key] = assembly;
+                        }
+                        if (assembly.Chunks[chunkIndex] == null)
+                        {
+                            assembly.Chunks[chunkIndex] = chunkPayload;
+                            assembly.ReceivedCount++;
+                        }
+                        if (assembly.ReceivedCount < totalChunks)
+                        {
+                            // まだ全チャンクが揃っていないので、このパケット単体では処理せず次の受信へ進む
+                            continue;
+                        }
+
+                        // 全チャンクが揃ったので結合して1つのペイロードに復元する
+                        int totalLength = 0;
+                        foreach (var chunk in assembly.Chunks)
+                        {
+                            totalLength += chunk.Length;
+                        }
+                        payload = new byte[totalLength];
+                        int writePos = 0;
+                        foreach (var chunk in assembly.Chunks)
+                        {
+                            Array.Copy(chunk, 0, payload, writePos, chunk.Length);
+                            writePos += chunk.Length;
+                        }
+                        _pendingChunks.Remove(key);
+                    }
 
                     if (_packetCallbacksByType.TryGetValue(typeName, out var listenersForType) && listenersForType.Count > 0)
                     {
-                        // コールバック側（RegisterListener）も byte[] を直接受けるように変更するか、
-                        // ここで payloadString を直接生成して渡すように変更すると、さらに byte[] の new を削減できます。
-                        byte[] payload = new byte[payloadLength]; // ※ここも理想はプールか文字列への直接変換
-                        Array.Copy(_receiveBuffer, payloadOffset, payload, 0, payloadLength);
-
                         // 同じ型名(typeName)に対して複数のリスナーが登録されていても、型判別はここで一度だけ行い、
                         // 該当する全リスナーへ同じpayloadを配信する。
                         // 列挙中にコールバック側からUnregisterListenerが呼ばれるとコレクション変更例外になるため、
