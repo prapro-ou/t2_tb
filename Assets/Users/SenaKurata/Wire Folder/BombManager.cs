@@ -2,21 +2,26 @@ using UnityEngine;
 
 public class BombManager : MonoBehaviour
 {
+    [SerializeField] private WireToolsOrchestrator toolsOrchestrator; // 💡 通信通知用
+
     private int[] correctSequence;
     private int currentStep = 0;
     private bool isGameOver = false;
 
-    private void Start()
+    // 💡【ここを追加】この関数があることで Inspector で選択できるようになります
+    public void OnInitialize(WireModuleSettingData data)
     {
-        // GameData から生成済みの正解データを受け取る
-        if (WireData.Instance != null && WireData.Instance.correctSequence != null)
+        this.correctSequence = data.correctSequence;
+        this.currentStep = 0;
+        this.isGameOver = false;
+
+        // WireData 側にも正解を共有（AnswerDisplay などが参照できるように）
+        if (WireData.Instance != null)
         {
-            correctSequence = WireData.Instance.correctSequence;
+            WireData.Instance.correctSequence = data.correctSequence;
         }
-        else
-        {
-            Debug.LogError("WireDataが見つかりません！");
-        }
+
+        Debug.Log($"【SOからデータ受取完了】正解コード: {string.Join(", ", correctSequence)}");
     }
 
     public void OnWireCut(int wireId)
@@ -43,11 +48,23 @@ public class BombManager : MonoBehaviour
     {
         isGameOver = true;
         Debug.Log("GAME CLEAR!");
+        
+        // モジュール解除成功を通知
+        if (toolsOrchestrator != null)
+        {
+            toolsOrchestrator.ModuleSuccess();
+        }
     }
 
     private void Explode()
     {
         isGameOver = true;
         Debug.LogError("BOOM! GAME OVER");
+
+        // モジュール解除失敗を通知
+        if (toolsOrchestrator != null)
+        {
+            toolsOrchestrator.ModuleFailed();
+        }
     }
 }

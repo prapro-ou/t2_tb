@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class WireData : MonoBehaviour
 {
@@ -23,35 +22,7 @@ public class WireData : MonoBehaviour
         transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
 
-        // ★ゲーム開始（オブジェクト生成時）に1回だけランダム生成！
-        GenerateSequence();
-    }
-
-    // 正解の切断順番をランダム生成する処理
-    public void GenerateSequence()
-    {
-        correctSequence = new int[totalWires];
-
-        List<int> numbers = new List<int>();
-        for (int i = 0; i < totalWires; i++)
-        {
-            numbers.Add(i);
-        }
-
-        // Fisher-Yates シャッフル
-        for (int i = numbers.Count - 1; i > 0; i--)
-        {
-            int randomIndex = Random.Range(0, i + 1);
-            int temp = numbers[i];
-            numbers[i] = numbers[randomIndex];
-            numbers[randomIndex] = temp;
-        }
-
-        for (int i = 0; i < totalWires; i++)
-        {
-            correctSequence[i] = numbers[i];
-        }
-
-        Debug.Log($"【ゲーム開始】今回の正解コード: {string.Join(", ", correctSequence)}");
+        // 💡【変更】Awake での GenerateSequence(); は削除しました！
+        // データは SO 経由で BombManager からセットされます。
     }
 }

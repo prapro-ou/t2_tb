@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "WireModuleSettingDataGenerate", menuName = "SO/ModuleSettingData/Wire")]
 // TypeModuleSettingDataGenerateSOMethod<T> を継承する（Tには先ほど作った構造体を指定）
 public class WireModuleSettingDataGenerateSOMethod : TypeModuleSettingDataGenerateSOMethod<WireModuleSettingData>
 {

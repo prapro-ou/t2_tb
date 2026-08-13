@@ -1,14 +1,23 @@
+using UnityEngine;
+using TMPro;
+
 public class TextModuleController : MonoBehaviour
 {
+    // 💡【追加】UIテキストの参照枠を作る（インスペクターからアタッチ可能になります）
+    [SerializeField] private TextMeshProUGUI displayTextUI;
+
     private string correctText; // 受け取った正解文字列
     private string playerInput = ""; // プレイヤーが入力した文字列
 
-    // 初期化時に SO からデータを受け取る関数（プロジェクトの仕様に合わせて調整してください）
+    // 初期化時に SO からデータを受け取る関数
     public void Setup(TextModuleSettingData data)
     {
         correctText = data.targetText;
         // UI等のテキスト表示部に正解（またはお題）を表示する
-        displayTextUI.text = correctText; 
+        if (displayTextUI != null)
+        {
+            displayTextUI.text = correctText;
+        }
     }
 
     // プレイヤーがボタンを押したり入力したときに呼ぶ関数

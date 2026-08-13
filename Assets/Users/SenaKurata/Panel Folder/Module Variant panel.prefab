@@ -290,7 +290,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804815488203102992, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       propertyPath: m_Name
-      value: Module Variant 3
+      value: Module Variant 2
       objectReference: {fileID: 0}
     - target: {fileID: 7109649257563713957, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -303,46 +303,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8908989420974981861}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5889833901742782373, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2316886741661194176}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
 --- !u!4 &4361455217429945948 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
   m_PrefabInstance: {fileID: 1763251153442729710}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &5315574871112948043 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5889833901742782373, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
-  m_PrefabInstance: {fileID: 1763251153442729710}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2316886741661194176
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5315574871112948043}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7dbabf54bb7535348ae505059808ac96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WireToolsOrchestrator
-  _isInitialize: 1
-  _onInitialize:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
