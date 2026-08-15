@@ -1,0 +1,3 @@
+public struct StopwatchModuleSettingData : IModuleSettingData
+{
+}

@@ -1,28 +1,41 @@
 using UnityEngine;
 using TMPro;
-using System.Collections;
 
 public class OperatorGameManager : MonoBehaviour
 {
     [Header("Boards")]
     public BoardController operatorInstructionBoard;
-    public BoardController timerInstructionBoard;
-    public BoardController timerBoard;
 
     [Header("Manager")]
     public GameData gameData;
-    public TimerGameManager timerGameManager;
+    public StopwatchModuleToolsOrchestrator stopwatchTools;
     public ActionButtonController actionButton;
 
     [Header("UI")]
     public TMP_Text operatorInstructionText;
-    public TMP_Text timerInstructionText;
 
+    // 自分が操作側として担当しているバージョン
+    private ModuleVersionEnum myModuleVersion;
+
+    // 相手側のバージョン
+    private ModuleVersionEnum targetModuleVersion;
+
+    // 現在START中か
     private bool timerRunning = false;
+
+    // 入力受付をロックする
     private bool inputLocked = false;
+
+    // Time受信ListenerのUUID
+    private string timeListenerUUID;
 
     private void Start()
     {
+        Debug.Log("=== OperatorGameManager Start ===");
+        Debug.Log($"stopwatchTools = {stopwatchTools}");
+        Debug.Log($"gameData = {gameData}");
+        Debug.Log($"actionButton = {actionButton}");
+
         StartGame();
     }
 
@@ -31,6 +44,18 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     public void StartGame()
     {
+        Debug.Log("=== StartGame ===");
+        Debug.Log($"stopwatchTools = {stopwatchTools}");
+
+        if (stopwatchTools != null)
+        {
+            Debug.Log($"IsInitialize = {stopwatchTools.IsInitialize}");
+        }
+        else
+        {
+            Debug.LogError("stopwatchTools が null です。");
+        }
+
         gameData.GenerateQuestions();
 
         gameData.gameClear = false;
@@ -40,13 +65,33 @@ public class OperatorGameManager : MonoBehaviour
         timerRunning = false;
         inputLocked = false;
 
+        // 自分のモジュールバージョンを取得
+        myModuleVersion =
+            stopwatchTools.GetMyModuleVersion();
+
+        Debug.Log($"myModuleVersion = {myModuleVersion}");
+
+        // AならB、BならAを相手にする
+        targetModuleVersion =
+            myModuleVersion == ModuleVersionEnum.A
+                ? ModuleVersionEnum.B
+                : ModuleVersionEnum.A;
+
+        Debug.Log($"targetModuleVersion = {targetModuleVersion}");
+
+        // 計測時間の受信登録
+        timeListenerUUID =
+            stopwatchTools.RegisterTimeListener(OnTimeReceived);
+
+        Debug.Log($"timeListenerUUID = {timeListenerUUID}");
+
         actionButton.SetPlay();
 
         operatorInstructionBoard.SetNormal();
-        timerInstructionBoard.SetNormal();
-        timerBoard.SetNormal();
 
         ShowCurrentQuestion();
+
+        Debug.Log("=== StartGame 完了 ===");
     }
 
     /// <summary>
@@ -61,7 +106,6 @@ public class OperatorGameManager : MonoBehaviour
             $"{target - gameData.tolerance:F2} - {target + gameData.tolerance:F2}";
 
         operatorInstructionText.text = message;
-        timerInstructionText.text = message;
     }
 
     /// <summary>
@@ -69,6 +113,8 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     public void PressActionButton()
     {
+        Debug.Log("=== PressActionButton ===");
+
         if (inputLocked)
             return;
 
@@ -96,11 +142,23 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     private void StartRound()
     {
-        inputLocked = true;
+        Debug.Log("=== StartRound ===");
+        Debug.Log($"stopwatchTools = {stopwatchTools}");
+        Debug.Log($"myModuleVersion = {myModuleVersion}");
+        Debug.Log($"targetModuleVersion = {targetModuleVersion}");
 
+        inputLocked = true;
         timerRunning = true;
 
-        timerGameManager.ReceiveStart();
+        Debug.Log("SendAction 前");
+
+        // 指示側へSTARTを送信
+        stopwatchTools.SendAction(
+            targetModuleVersion,
+            true
+        );
+
+        Debug.Log("SendAction 後");
 
         actionButton.SetStop();
 
@@ -112,93 +170,147 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     private void StopRound()
     {
-        inputLocked = true;
+        Debug.Log("=== StopRound ===");
+        Debug.Log($"targetModuleVersion = {targetModuleVersion}");
 
+        inputLocked = true;
         timerRunning = false;
 
-        timerGameManager.ReceiveStop();
+        Debug.Log("SendAction(STOP) 前");
 
-        float measuredTime = timerGameManager.GetMeasuredTime();
+        // 指示側へSTOPを送信
+        stopwatchTools.SendAction(
+            targetModuleVersion,
+            false
+        );
+
+        Debug.Log("SendAction(STOP) 後");
 
         actionButton.SetPlay();
 
+        // ここではまだ判定しない
+        // 指示側から計測時間が送られてくるのを待つ
+    }
+
+    /// <summary>
+    /// 指示側から計測時間を受信
+    /// </summary>
+    private void OnTimeReceived(
+        ModuleVersionEnum moduleVersion,
+        float measuredTime)
+    {
+        Debug.Log("=== OnTimeReceived ===");
+        Debug.Log($"moduleVersion = {moduleVersion}");
+        Debug.Log($"targetModuleVersion = {targetModuleVersion}");
+        Debug.Log($"measuredTime = {measuredTime}");
+
+        // 自分が送った相手からの時間だけ処理
+        if (moduleVersion != targetModuleVersion)
+            return;
+
+        Debug.Log(
+            $"Received Time: {measuredTime:F2}"
+        );
+
         if (IsSuccess(measuredTime))
         {
-            StartCoroutine(SuccessRoutine());
+            SuccessRound();
         }
         else
         {
-            operatorInstructionText.text = "MODULE FAILED!";
-            timerInstructionText.text = "MODULE FAILED!";
-
-            operatorInstructionBoard.SetFailed();
-            timerInstructionBoard.SetFailed();
-            timerBoard.SetFailed();
-
-            actionButton.SetFailed();
-
-            gameData.gameFailed = true;
+            FailedRound();
         }
+    }
+
+    /// <summary>
+    /// 計測時間の判定
+    /// </summary>
+    private bool IsSuccess(float measuredTime)
+    {
+        float target =
+            gameData.GetCurrentTarget();
+
+        return Mathf.Abs(
+            measuredTime - target
+        ) <= gameData.tolerance;
+    }
+
+    /// <summary>
+    /// 成功処理
+    /// </summary>
+    private void SuccessRound()
+    {
+        gameData.waitingNextQuestion = true;
+
+        operatorInstructionText.text =
+            "SUCCESS!";
+
+        operatorInstructionBoard.SetSuccess();
+
+        actionButton.SetSuccess();
+
+        Invoke(
+            nameof(NextQuestion),
+            1.0f
+        );
+    }
+
+    /// <summary>
+    /// 失敗処理
+    /// </summary>
+    private void FailedRound()
+    {
+        operatorInstructionText.text =
+            "MODULE FAILED!";
+
+        operatorInstructionBoard.SetFailed();
+
+        actionButton.SetFailed();
+
+        gameData.gameFailed = true;
 
         inputLocked = false;
     }
 
     /// <summary>
-    /// 判定
+    /// 次の問題へ
     /// </summary>
-    private bool IsSuccess(float measuredTime)
+    private void NextQuestion()
     {
-        float target = gameData.GetCurrentTarget();
-
-        return Mathf.Abs(measuredTime - target) <= gameData.tolerance;
-    }
-
-    /// <summary>
-    /// SUCCESS表示
-    /// </summary>
-    private IEnumerator SuccessRoutine()
-    {
-        gameData.waitingNextQuestion = true;
-
-        operatorInstructionText.text = "SUCCESS!";
-        timerInstructionText.text = "SUCCESS!";
-
-        operatorInstructionBoard.SetSuccess();
-        timerInstructionBoard.SetSuccess();
-        timerBoard.SetSuccess();
-
-        actionButton.SetSuccess();
-
-        yield return new WaitForSeconds(1.0f);
-
-        bool hasNext = gameData.NextQuestion();
+        bool hasNext =
+            gameData.NextQuestion();
 
         if (!hasNext)
         {
             gameData.gameClear = true;
 
-            operatorInstructionText.text = "MODULE CLEAR!";
-            timerInstructionText.text = "MODULE CLEAR!";
+            operatorInstructionText.text =
+                "MODULE CLEAR!";
 
             operatorInstructionBoard.SetClear();
-            timerInstructionBoard.SetClear();
-            timerBoard.SetClear();
 
             actionButton.SetClear();
 
-            yield break;
+            return;
         }
 
-        timerGameManager.ResetTimer();
-
         operatorInstructionBoard.SetNormal();
-        timerInstructionBoard.SetNormal();
-        timerBoard.SetNormal();
 
         actionButton.SetPlay();
 
         ShowCurrentQuestion();
 
         gameData.waitingNextQuestion = false;
+        inputLocked = false;
+    }
+
+    private void OnDestroy()
+    {
+        if (!string.IsNullOrEmpty(timeListenerUUID))
+        {
+            stopwatchTools.ModuleDataUnregisterListener(
+                timeListenerUUID
+            );
+        }
     }
 }

@@ -167,7 +167,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &3076310564185131503
+--- !u!1 &226518648159899517
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -175,8 +175,58 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4630845601628587655}
-  - component: {fileID: 8480868207117526396}
+  - component: {fileID: 3610206026709488050}
+  - component: {fileID: 5653061649580962378}
+  m_Layer: 0
+  m_Name: BoardController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3610206026709488050
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 226518648159899517}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 10.18372, y: -0.74012005, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5826243596450892183}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5653061649580962378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 226518648159899517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c2066b2d0d7388488dfe1e75a4a27a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardController
+  boardRenderers:
+  - {fileID: 3039690862846958635}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  successColor: {r: 0, g: 1, b: 0, a: 1}
+  failedColor: {r: 1, g: 0, b: 0, a: 1}
+  clearColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!1 &2271682338164544603
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6848280461129538537}
+  - component: {fileID: 390568373877915239}
   m_Layer: 0
   m_Name: TimerManager
   m_TagString: Untagged
@@ -184,34 +234,34 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4630845601628587655
+--- !u!4 &6848280461129538537
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3076310564185131503}
+  m_GameObject: {fileID: 2271682338164544603}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 10.18372, y: -0.74012005, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5826243596450892183}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8480868207117526396
+--- !u!114 &390568373877915239
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3076310564185131503}
+  m_GameObject: {fileID: 2271682338164544603}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e455ea14bb014c14e89ab5c4bc99b059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimerManager
-  timerText: {fileID: 0}
+  timerText: {fileID: 2128781582377820735}
 --- !u!1 &3131048787522006173
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,7 +306,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6706cc8174ea37d44b6d6be58c6db010, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimerGameManager
-  timerManager: {fileID: 0}
+  timerManager: {fileID: 390568373877915239}
+--- !u!1 &3301784711581960060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6737338785952426320}
+  - component: {fileID: 3681609907420419789}
+  m_Layer: 0
+  m_Name: StopwatchOperatorController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6737338785952426320
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3301784711581960060}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 10.18372, y: -0.74012005, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5826243596450892183}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3681609907420419789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3301784711581960060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e674c893e5492d4cb89b732f403bcb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StopwatchOperatorController
+  _tools: {fileID: 5903202744452689099}
 --- !u!1 &3524668117939855977
 GameObject:
   m_ObjectHideFlags: 0
@@ -379,10 +474,12 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2338517169236921783}
-  - {fileID: 4630845601628587655}
   - {fileID: 5990563070621009168}
   - {fileID: 6414081736258425140}
   - {fileID: 9000517698706811474}
+  - {fileID: 6848280461129538537}
+  - {fileID: 3610206026709488050}
+  - {fileID: 6737338785952426320}
   m_Father: {fileID: 3841276982787749213}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3772923621722628968
@@ -429,10 +526,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfc32fd98d0958445b4e3aba49912fbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OperatorGameManager
-  gameData: {fileID: 0}
-  timerGameManager: {fileID: 0}
-  actionButton: {fileID: 0}
-  instructionText: {fileID: 0}
+  operatorInstructionBoard: {fileID: 5653061649580962378}
+  gameData: {fileID: 659160105346654737}
+  stopwatchTools: {fileID: 5903202744452689099}
+  actionButton: {fileID: 1398426995345182037}
+  operatorInstructionText: {fileID: 2128781582377820735}
 --- !u!1 &3972468761474119473
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,8 +663,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Instruction
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 4bd8ee3e3cffbcc498794ac83a917163, type: 2}
-  m_sharedMaterial: {fileID: 6110922111655716791, guid: 4bd8ee3e3cffbcc498794ac83a917163, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -679,10 +777,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ea4911add1dc3a4597ce88ac91f5781, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActionButtonController
-  backgroundImage: {fileID: 0}
-  iconImage: {fileID: 0}
-  playIcon: {fileID: 0}
-  stopIcon: {fileID: 0}
+  button: {fileID: 4797709881769167631}
+  iconImage: {fileID: 6620583612471195238}
+  iconRect: {fileID: 21733404309486566}
+  playSprite: {fileID: 2660195087753647290, guid: fec7048643f1ad2419e60da340eaace5, type: 3}
+  stopSprite: {fileID: -4721596366527860972, guid: 12292b8fd0d4a664cb19f7eb923030b9, type: 3}
+  playPosition: {x: 0.096, y: 0}
+  stopPosition: {x: 0, y: 0}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   successColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   failedColor: {r: 1, g: 0, b: 0, a: 1}
@@ -807,7 +908,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7701278487540150104}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3681609907420419789}
+        m_TargetAssemblyTypeName: StopwatchOperatorController, Assembly-CSharp
+        m_MethodName: PressActionButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6965790007881447009
 GameObject:
   m_ObjectHideFlags: 0
@@ -1199,13 +1312,34 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8777576315450867073, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7786339785910387486}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5889833901742782373, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5903202744452689099}
   m_SourcePrefab: {fileID: 100100000, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
 --- !u!4 &3841276982787749213 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
   m_PrefabInstance: {fileID: 1274983707074971119}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4615418136465977930 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5889833901742782373, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+  m_PrefabInstance: {fileID: 1274983707074971119}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5903202744452689099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4615418136465977930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f33943c32d7263643bca7facd8859008, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StopwatchModuleToolsOrchestrator
+  _isInitialize: 1
 --- !u!4 &7521453149820418158 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8777576315450867073, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}

@@ -124,6 +124,51 @@ SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 3039690862846958635, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
   m_PrefabInstance: {fileID: 875965009}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &178792069
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 178792070}
+  - component: {fileID: 178792071}
+  m_Layer: 0
+  m_Name: StopwatchOperatorController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &178792070
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178792069}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 174.81137, y: -33.373, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1652382353}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &178792071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178792069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e674c893e5492d4cb89b732f403bcb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StopwatchOperatorController
+  _tools: {fileID: 835642424}
 --- !u!1 &179874164
 GameObject:
   m_ObjectHideFlags: 0
@@ -169,13 +214,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OperatorGameManager
   operatorInstructionBoard: {fileID: 1083710305}
-  timerInstructionBoard: {fileID: 1083710305}
-  timerBoard: {fileID: 1083710305}
   gameData: {fileID: 843370723}
-  timerGameManager: {fileID: 553065340}
+  stopwatchTools: {fileID: 875965010}
   actionButton: {fileID: 1015112207}
   operatorInstructionText: {fileID: 1630816858}
-  timerInstructionText: {fileID: 1798804674}
 --- !u!114 &494497551 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4797709881769167631, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
@@ -301,6 +343,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 435683186820594323, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1608427180838008009, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
       propertyPath: m_Name
       value: TimerModule1
@@ -387,6 +433,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
+--- !u!114 &835642424 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 435683186820594323, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
+  m_PrefabInstance: {fileID: 835642423}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f33943c32d7263643bca7facd8859008, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StopwatchModuleToolsOrchestrator
 --- !u!1 &843370721
 GameObject:
   m_ObjectHideFlags: 0
@@ -551,6 +608,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+--- !u!114 &875965010 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5903202744452689099, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+  m_PrefabInstance: {fileID: 875965009}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f33943c32d7263643bca7facd8859008, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StopwatchModuleToolsOrchestrator
 --- !u!1 &993606875
 GameObject:
   m_ObjectHideFlags: 0
@@ -846,19 +914,9 @@ Transform:
   - {fileID: 179874165}
   - {fileID: 843370722}
   - {fileID: 1083710304}
+  - {fileID: 178792070}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1798804674 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1665455050626541392, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
-  m_PrefabInstance: {fileID: 835642423}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &2032719480 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4145740570117724566, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
