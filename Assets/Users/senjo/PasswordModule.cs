@@ -18,6 +18,7 @@ public class PasswordModule : MonoBehaviour
 
     void Start()
     {
+        SetPassword("0000");
         UpdateDisplay();
     }
 
