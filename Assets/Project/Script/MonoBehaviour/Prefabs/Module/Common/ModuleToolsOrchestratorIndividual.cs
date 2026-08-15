@@ -9,9 +9,10 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
 {
     #region  ========== Property ==========
     public ModuleSettingData ThisModuleSettingData { get; private set; }
-    [SerializeField] private UnityEvent<T> _onInitialize = new UnityEvent<T>();
+    [SerializeField] private UnityEvent<T> _onInitialize = new();
     private ProductUserId _hostUserId;
-    private List<string> listenerList = new List<string>();
+    private List<ProductUserId> _players;
+    private List<string> listenerList = new();
     #endregion ========== Property ==========
 
     /// <summary>
@@ -19,7 +20,7 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     /// <param name="moduleSettingData"></param>
     /// <returns></returns>
-    public override sealed void Initialize(ProductUserId productUserId, ModuleSettingData moduleSettingData)
+    public override sealed void Initialize(ProductUserId hostId, List<ProductUserId> players, ModuleSettingData moduleSettingData)
     {
         // 0.初期確認
 
@@ -27,7 +28,8 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
         listenerList.Clear();
 
         // 2.外部設定初期化
-        _hostUserId = productUserId;
+        _hostUserId = hostId;
+        _players = players;
         ThisModuleSettingData = moduleSettingData;
         if (moduleSettingData.ModuleData is T data)
         {
@@ -52,7 +54,13 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// <returns></returns>
     public void SendModuleInfoPacket<PacketT>(ModuleVersionEnum moduleVersion, PacketT packet) where PacketT : IPacketType
     {
-        EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, ThisModuleSettingData.ModuleGroup[moduleVersion], packet);
+        EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo,
+        ThisModuleSettingData.ModuleGroup[moduleVersion],
+        new InterModulePacket()
+        {
+            ModuleNumber = ThisModuleSettingData.ModuleNumber,
+            Data = packet
+        });
     }
 
     /// <summary>
@@ -62,9 +70,10 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// <param name="onPacketReceived"></param>
     public string ModuleDataRegisterListener<PacketT>(Action<ModuleVersionEnum, PacketT> onPacketReceived) where PacketT : IPacketType
     {
-        string uuid = EOSP2PMethod.RegisterListener<PacketT>((remoteUserId, socketName, payload) =>
+        string uuid = EOSP2PMethod.RegisterListener<InterModulePacket>((remoteUserId, socketName, payload) =>
         {
             if (socketName != SocketNameEnum.ModuleInfo.ToString()) return;
+            if (payload.ModuleNumber != ThisModuleSettingData.ModuleNumber) return;
             ModuleVersionEnum targetKey = new ModuleVersionEnum();
             foreach (var pair in ThisModuleSettingData.ModuleGroup)
             {
@@ -74,7 +83,10 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
                     break; // 最初に見つかった時点で抜ける
                 }
             }
-            onPacketReceived(targetKey, payload);
+            if (payload.Data is PacketT data)
+            {
+                onPacketReceived(targetKey, data);
+            }
         });
         listenerList.Add(uuid);
         return uuid;
@@ -85,6 +97,7 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     public void ModuleDataUnregisterListener(string uuid)
     {
+        if (string.IsNullOrEmpty(uuid) || !listenerList.Contains(uuid)) return;
         listenerList.Remove(uuid);
         EOSP2PMethod.UnregisterListener(uuid);
     }
@@ -109,7 +122,21 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     public void ModuleSuccess()
     {
-        EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, _hostUserId, new ModuleSuccessPacket());
+        foreach (var pair in ThisModuleSettingData.ModuleGroup)
+        {
+            EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, pair.Value, new ModuleSuccessPacket()
+            {
+                ModuleNumber = ThisModuleSettingData.ModuleNumber,
+            });
+        }
+        foreach (var player in _players)
+        {
+            EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, player, new ModuleCheckPacket()
+            {
+                ModuleNumber = ThisModuleSettingData.ModuleNumber,
+                CheckType = ModuleCheckEnum.Success
+            });
+        }
     }
 
     /// <summary>
@@ -117,7 +144,21 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     public void ModuleFailed()
     {
-        EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, _hostUserId, new ModuleFailedPacket());
+        foreach (var pair in ThisModuleSettingData.ModuleGroup)
+        {
+            EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, pair.Value, new ModuleFailedPacket()
+            {
+                ModuleNumber = ThisModuleSettingData.ModuleNumber,
+            });
+        }
+        foreach (var player in _players)
+        {
+            EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, player, new ModuleCheckPacket()
+            {
+                ModuleNumber = ThisModuleSettingData.ModuleNumber,
+                CheckType = ModuleCheckEnum.Failed
+            });
+        }
     }
 
     #endregion ========== GameInfo ==========

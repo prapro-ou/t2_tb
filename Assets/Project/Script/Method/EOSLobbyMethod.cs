@@ -141,13 +141,13 @@ namespace OriginalNameSpace.EOSMethod.Lobby
             ProductUserId localUserId = EOSManager.Instance.GetProductUserId();
             if (localUserId == null || !localUserId.IsValid())
             {
-                Debug.LogError("ログインしていないため、ロビー処理を実行できません。");
+                Debug.Log("ログインしていないため、ロビー処理を実行できません。");
                 return false;
             }
             var connectInterface = EOSManager.Instance.GetEOSConnectInterface();
             if (connectInterface == null)
             {
-                Debug.LogError("Connect Interface の取得に失敗しました。");
+                Debug.Log("Connect Interface の取得に失敗しました。");
                 return false;
             }
 
@@ -240,12 +240,12 @@ namespace OriginalNameSpace.EOSMethod.Lobby
             var createLobbyOptions = new CreateLobbyOptions() // ロビー制作オプション
             {
                 LocalUserId = localUserId,
-                MaxLobbyMembers = 8,
+                MaxLobbyMembers = 10,
                 PermissionLevel = LobbyPermissionLevel.Publicadvertised,
                 PresenceEnabled = false,
                 AllowInvites = true,
                 BucketId = "PRIVATE_ROOM",
-                LobbyId = deterministicLobbyId, // ★ 部屋名から導出した固定IDを明示指定（一意性チェックをEOSサーバーに委ねる）
+                LobbyId = deterministicLobbyId,
                 EnableJoinById = true,
                 EnableRTCRoom = false,
                 LocalRTCOptions = null,
@@ -261,14 +261,14 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                 createUtcs.TrySetResult(callbackInfo);
             });
             CreateLobbyCallbackInfo createResult = await createUtcs.Task.AttachExternalCancellation(cancellationToken);
-
+            Debug.Log($"ResultCode: {createResult.ResultCode}");
             if (createResult.ResultCode == Result.Success)
             {
                 Debug.Log($"ロビーの新規作成に成功しました！(ホストとして開始) LobbyId: {createResult.LobbyId}");
                 targetLobbyId = createResult.LobbyId;
                 isHost = true;
             }
-            else if (createResult.ResultCode == Result.RoomAlreadyExists)
+            else if (createResult.ResultCode == Result.LobbyLobbyAlreadyExists)
             {
                 // 既に他クライアントが同じLobbyIdでの作成に成功している → 参加側に回る
                 Debug.Log($"部屋名 [{roomName}] のロビーは既に他クライアントが作成済みのため、参加を試みます。");
@@ -514,12 +514,12 @@ namespace OriginalNameSpace.EOSMethod.Lobby
             ProductUserId localUserId = EOSManager.Instance.GetProductUserId();
             if (localUserId == null || !localUserId.IsValid())
             {
-                Debug.LogError("有効な ProductUserId が指定されていないため、退室できません。");
+                Debug.Log("有効な ProductUserId が指定されていないため、退室できません。");
                 return false;
             }
             if (string.IsNullOrEmpty(lobbyId))
             {
-                Debug.LogError("ロビーIDが空のため、退室できません。");
+                Debug.Log("ロビーIDが空のため、退室できません。");
                 return false;
             }
             var lobbyInterface = LobbyInterface;
@@ -555,6 +555,74 @@ namespace OriginalNameSpace.EOSMethod.Lobby
         #endregion ========== ログイン・ロビー入退出処理 ==========
 
         #region ========== ロビー情報取得 ==========
+
+        /// <summary>
+        /// ロビーの部屋名を取得する
+        /// </summary>
+        /// <param name="lobbyId">対象のロビーID</param>
+        /// <returns>ロビーの部屋名（取得失敗時または未設定時は空文字）</returns>
+        public static string GetLobbyName(string lobbyId)
+        {
+            // 0. 初期確認
+            if (string.IsNullOrEmpty(lobbyId))
+            {
+                Debug.LogError("ロビーIDが空のため、部屋名を取得できません。");
+                return string.Empty;
+            }
+
+            ProductUserId localUserId = EOSManager.Instance.GetProductUserId();
+            if (localUserId == null || !localUserId.IsValid())
+            {
+                Debug.LogError("ログインしていないため、ロビー処理を実行できません。");
+                return string.Empty;
+            }
+
+            var lobbyInterface = LobbyInterface;
+            if (lobbyInterface == null)
+            {
+                return string.Empty;
+            }
+
+            // 1. ロビー詳細ハンドルのコピー
+            var copyOptions = new CopyLobbyDetailsHandleOptions()
+            {
+                LobbyId = lobbyId,
+                LocalUserId = localUserId
+            };
+
+            Result result = lobbyInterface.CopyLobbyDetailsHandle(ref copyOptions, out LobbyDetails lobbyDetails);
+            if (result != Result.Success || lobbyDetails == null)
+            {
+                Debug.LogError($"部屋名取得用のロビー詳細のコピーに失敗しました: {result}");
+                return string.Empty;
+            }
+
+            try
+            {
+                // 2. ロビー属性から部屋名(ROOM_NAME)を取得
+                var getAttributeOptions = new LobbyDetailsCopyAttributeByKeyOptions()
+                {
+                    AttrKey = ATTRIBUTE_LOBBY_ROOM_NAME
+                };
+
+                if (lobbyDetails.CopyAttributeByKey(ref getAttributeOptions, out Epic.OnlineServices.Lobby.Attribute? attribute) == Result.Success && attribute != null)
+                {
+                    if (attribute.Value.Data != null && attribute.Value.Data.Value.Value.AsUtf8 != null)
+                    {
+                        Debug.Log($"ロビー [{lobbyId}] の部屋名は [{attribute.Value.Data.Value.Value.AsUtf8}] です。");
+                        return attribute.Value.Data.Value.Value.AsUtf8;
+                    }
+                }
+
+                Debug.LogWarning($"ロビー [{lobbyId}] の部屋名属性が見つかりませんでした。");
+                return string.Empty;
+            }
+            finally
+            {
+                // 3. ハンドルを確実に解放
+                lobbyDetails.Release();
+            }
+        }
 
         /// <summary>
         /// ロビー内メンバー取得

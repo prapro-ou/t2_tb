@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5853318378700049598}
-  - component: {fileID: 8927233935154849504}
-  m_Layer: 0
+  - component: {fileID: 2576654937970811691}
+  m_Layer: 6
   m_Name: Orchestrator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29,10 +29,11 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6780253483719403950}
   m_Father: {fileID: 496044037710293860}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8927233935154849504
+--- !u!114 &2576654937970811691
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,10 +42,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 787094300381998029}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 339cf5d170bd34e4ea30a64ebc8f136f, type: 3}
+  m_Script: {fileID: 11500000, guid: 2887842305c348746be3452bedc941ca, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TimeModuleTimeDisplayOrchestrator
-  _timeText: {fileID: 7744497008823766100}
+  m_EditorClassIdentifier: Assembly-CSharp::TimeModuleOrchestrator
+  _timeModuleTimeDisplayMediator: {fileID: 7178171314621505628}
 --- !u!1 &2453480842747633999
 GameObject:
   m_ObjectHideFlags: 0
@@ -55,7 +56,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8520528548171007325}
   - component: {fileID: 4441534332627034986}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -103,7 +104,7 @@ GameObject:
   - component: {fileID: 3472330857089641171}
   - component: {fileID: 2089110902893864087}
   - component: {fileID: 2231489556851442898}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: TimeArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -205,7 +206,7 @@ GameObject:
   - component: {fileID: 2595537832010734318}
   - component: {fileID: 885149723712688057}
   - component: {fileID: 7744497008823766100}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Time
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -259,7 +260,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 00.00
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 17fae87e9f2857247bc5bd9475ca11a9, type: 2}
   m_sharedMaterial: {fileID: 4473447439562540025, guid: 17fae87e9f2857247bc5bd9475ca11a9, type: 2}
@@ -286,12 +287,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 64
-  m_fontSizeBase: 64
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMin: 0
+  m_fontSizeMax: 32767
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -299,7 +300,7 @@ MonoBehaviour:
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: 3.4028235e+38
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -331,6 +332,51 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &4098331878443531035
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6780253483719403950}
+  - component: {fileID: 7178171314621505628}
+  m_Layer: 6
+  m_Name: DisplayMediator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6780253483719403950
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4098331878443531035}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5853318378700049598}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7178171314621505628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4098331878443531035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64bc71215c20cc41a590dc419ab1f41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TimeModuleTimeDisplayMediator
+  _timeText: {fileID: 7744497008823766100}
 --- !u!1001 &9165522657078712037
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -397,7 +443,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804815488203102992, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7059452385772376142, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       propertyPath: m_IsActive
@@ -444,8 +490,8 @@ MonoBehaviour:
   _onInitialize:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8927233935154849504}
-        m_TargetAssemblyTypeName: TimeModuleTimeDisplayOrchestrator, Assembly-CSharp
+      - m_Target: {fileID: 2576654937970811691}
+        m_TargetAssemblyTypeName: TimeModuleOrchestrator, Assembly-CSharp
         m_MethodName: Initialize
         m_Mode: 0
         m_Arguments:

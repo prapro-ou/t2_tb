@@ -3,6 +3,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TMPro;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using PlayEveryWare.EpicOnlineServices;
@@ -10,18 +11,19 @@ public class ModuleColorOrchestrator : MonoBehaviour
 {
     [SerializeField] private ModuleDataOrchestrator _moduleDataOrchestrator;
     [SerializeField] private SpriteRenderer _neon;
+    [SerializeField] private TMP_Text _text;
     [SerializeField] private List<Component> _colorComponents;
 
     public async UniTask Initialize()
     {
         ColorChange(_moduleDataOrchestrator.UserColors.Values.ToList()).Forget();
-        Color userColor = _moduleDataOrchestrator.UserColors[EOSManager.Instance.GetProductUserId()];
-        Tweener tweener;
+        _moduleDataOrchestrator.UserColors.TryGetValue(EOSManager.Instance.GetProductUserId(), out Color userColor);
+        _text.color = userColor;
         if (_colorComponents != null && _colorComponents.Count > 0)
         {
             foreach (Component component in _colorComponents)
             {
-                if (!component.TryDOColor(userColor, 1.0f, out tweener))
+                if (!component.TryDOColor(userColor, 1.0f, out var tweener))
                 {
                     Debug.Log("ColorChange task was canceled.");
                     continue;
@@ -32,19 +34,6 @@ public class ModuleColorOrchestrator : MonoBehaviour
         await UniTask.WaitForSeconds(1.0f);
     }
 
-    public void SuccessColor()
-    {
-        Tweener tweener;
-        foreach (Component component in _colorComponents)
-        {
-            if (!component.TryDOColor(Color.white, 1.0f, out tweener))
-            {
-                Debug.Log("ColorChange task was canceled.");
-                continue;
-            }
-        }
-    }
-
     private async UniTask ColorChange(List<Color> userColor)
     {
         CancellationToken cancellationToken = this.GetCancellationTokenOnDestroy();
@@ -53,6 +42,13 @@ public class ModuleColorOrchestrator : MonoBehaviour
             _neon.DOKill();
             while (!cancellationToken.IsCancellationRequested)
             {
+                if (_moduleDataOrchestrator.IsSuccess)
+                {
+                    _text.color = Color.white;
+                    await _neon.DOColor(Color.white, 0.25f)
+                               .ToUniTask(cancellationToken: cancellationToken);
+                    break;
+                }
                 foreach (Color color in userColor)
                 {
                     await _neon.DOColor(Color.white, 0.25f)
