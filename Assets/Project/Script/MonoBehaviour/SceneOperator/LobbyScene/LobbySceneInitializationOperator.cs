@@ -10,6 +10,7 @@ public class LobbySceneInitializationOperator : MonoBehaviour
     [SerializeField] LobbySceneModuleCounterOrchestrator _moduleCounterOrchestrator;
     [SerializeField] LobbySceneTimeCounterOrchestrator _timeCounterOrchestrator;
     [SerializeField] LobbySceneP2PConnectOperator _p2pConnectOperator;
+    [SerializeField] LobbySceneHostChange _hostChange;
     [SerializeField] TMP_Text _lobbyNameText;
 
     public void Initialize()
@@ -20,5 +21,6 @@ public class LobbySceneInitializationOperator : MonoBehaviour
         _p2pConnectOperator.Initialize();
         _moduleCounterOrchestrator.Initialize();
         _timeCounterOrchestrator.Initialize();
+        _hostChange.Initialize();
     }
 }

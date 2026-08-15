@@ -7,6 +7,7 @@ public class DialModuleMainOrchestrator : MonoBehaviour
     [SerializeField] private ModuleToolsOrchestratorBase _toolsOrchestratorBase;
     [SerializeField] private DialModuleAnimationMediator _animationMediator;
     [SerializeField] private DialModuleRotationMediator _rotationMediator;
+    [SerializeField] private DialModuleCheckMediator _checkMediator;
     [SerializeField] private DialModuleMarkerMediator _markerMediator;
     [SerializeField] private DialModuleLockMediator _lockMediator;
     [SerializeField] private DialModuleSuccessMediator _successMediator;
@@ -19,6 +20,8 @@ public class DialModuleMainOrchestrator : MonoBehaviour
 
     private async UniTask AsyncInitialize(DialModuleSettingData settingData)
     {
+        _rotationMediator.Initialize();
+        _checkMediator.Initialize();
         _markerMediator.Initialize(settingData);
         await _animationMediator.InitializeAnimation();
         _lockMediator.Initialize(settingData);

@@ -13,7 +13,7 @@ public class GameSceneStartGameOperator : MonoBehaviour
     [SerializeField] ProjectOverseer _projectOverseer;
     [SerializeField] SceneBlockTransitionOrchestrator _sceneBlockTransitionOrchestrator;
     [SerializeField] TMP_Text _endText;
-    [SerializeField] GameObject _clickBlocker;
+    [SerializeField] GameObject _clickBlocker, _endTextPanel;
     private float _timeCounter;
     private Dictionary<int, bool> _moduleCheck = new Dictionary<int, bool>();
     private string _uuidRadyGame, _uuidModuleCheck;
@@ -56,7 +56,7 @@ public class GameSceneStartGameOperator : MonoBehaviour
                 }
                 break;
             case ModuleCheckEnum.Failed:
-                _timeCounter += 15;
+                _timeCounter += 15f;
                 Debug.Log("ペナルティ");
                 break;
         }
@@ -80,8 +80,8 @@ public class GameSceneStartGameOperator : MonoBehaviour
             _timeModuleTimeDisplayMediator.UpdateTime(_limitTime - TimeSpan.FromSeconds(_timeCounter));
             await UniTask.Yield();
         }
+        _timeModuleTimeDisplayMediator.UpdateTime(TimeSpan.Zero);
         EndGame(EndGameTypeEnum.Failed).Forget();
-
     }
 
     public void OnDestroy()
@@ -95,6 +95,8 @@ public class GameSceneStartGameOperator : MonoBehaviour
         EOSP2PMethod.UnregisterListener(_uuidModuleCheck);
         EOSP2PMethod.StopListening(SocketNameEnum.ModuleInfo);
         if (endGameTypeEnum == EndGameTypeEnum.None) return;
+        _endTextPanel.SetActive(true);
+        Debug.Log(endGameTypeEnum);
         switch (endGameTypeEnum)
         {
             case EndGameTypeEnum.Success:

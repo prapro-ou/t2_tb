@@ -8,10 +8,9 @@ public class DialModuleLockMediator : MonoBehaviour
     [SerializeField] private DialModuleMainOrchestrator _dialModuleMain;
     [SerializeField] private Transform _dialTransform;
     private DialModuleSettingData _dialModuleSettingData;
-    private readonly float absArea = 5f;
+    private readonly float absArea = 17.5f;
     private int _lockAreaIndex = 0;
     private int _clearCount = 0;
-    private float _timer = 0f;
     private bool _isLock = false;
 
     public void Initialize(DialModuleSettingData dialModuleSettingData)
@@ -38,47 +37,42 @@ public class DialModuleLockMediator : MonoBehaviour
         _lockAreaIndex = markerList[index];
     }
 
-    private void Update()
+    public void Click()
     {
         if (_isLock)
         {
             float absArg = Mathf.Abs(Mathf.DeltaAngle(_dialTransform.localEulerAngles.z, _lockAreaIndex * (360 / _dialModuleMain.MarkerCount)));
             if (absArg < absArea)
             {
-                _timer += Time.deltaTime;
-                if (_timer > 3f)
+                _clearCount++;
+                _dialModuleSettingData.MarkIndexList.TryGetValue(_moduleData.ThisModuleSettingData.ModuleVersion, out List<int> markerList);
+                _dialModuleSettingData.HaveMarkerModule.TryGetValue(_dialModuleMain.ModuleVersionEnum, out ModuleVersionEnum moduleVersion);
+                _moduleTools.SendModuleInfoPacket(moduleVersion, new DialModuleMarkSetPacket()
                 {
-                    _clearCount++;
-                    _dialModuleSettingData.MarkIndexList.TryGetValue(_moduleData.ThisModuleSettingData.ModuleVersion, out List<int> markerList);
-                    _dialModuleSettingData.HaveMarkerModule.TryGetValue(_dialModuleMain.ModuleVersionEnum, out ModuleVersionEnum moduleVersion);
-                    _moduleTools.SendModuleInfoPacket(moduleVersion, new DialModuleMarkSetPacket()
+                    ModuleVersionEnum = _moduleData.ThisModuleSettingData.ModuleVersion,
+                    Index = _clearCount
+                });
+                if (_clearCount >= markerList.Count)
+                {
+                    _isLock = false;
+                    foreach (var item in _dialModuleSettingData.MarkIndexList.Keys)
                     {
-                        ModuleVersionEnum = _moduleData.ThisModuleSettingData.ModuleVersion,
-                        Index = _clearCount
-                    });
-                    Debug.Log(_clearCount);
-                    Debug.Log(markerList.Count);
-                    if (_clearCount >= markerList.Count)
-                    {
-                        Debug.Log("Clear");
-                        _isLock = false;
-                        foreach (var item in _dialModuleSettingData.MarkIndexList.Keys)
+                        _moduleTools.SendModuleInfoPacket(item, new DialModuleSuccessPacket()
                         {
-                            _moduleTools.SendModuleInfoPacket(item, new DialModuleSuccessPacket()
-                            {
-                                ModuleVersionEnum = _moduleData.ThisModuleSettingData.ModuleVersion
-                            });
-                        }
+                            ModuleVersionEnum = _moduleData.ThisModuleSettingData.ModuleVersion
+                        });
                     }
-                    else
-                    {
-                        LockAreaSet(_dialModuleMain.ModuleVersionEnum, _clearCount);
-                    }
-                    _timer = 0f;
+                }
+                else
+                {
+                    LockAreaSet(_dialModuleMain.ModuleVersionEnum, _clearCount);
                 }
                 return;
             }
+            else
+            {
+                _moduleTools.ModuleFailed();
+            }
         }
-        _timer = 0f;
     }
 }
