@@ -4,7 +4,7 @@ using Epic.OnlineServices;
 using OriginalNameSpace.EOSMethod.P2P;
 public class LobbySceneP2PConnectOperator : MonoBehaviour
 {
-    [SerializeField] private ProjectOverseer _gameOverseer;
+    [SerializeField] private ProjectOverseer _projectOverseer;
     [SerializeField] private GameSettingActiveSOData _gameStatusActiveSOData;
     [SerializeField] private SceneBlockTransitionOrchestrator _sceneBlockTransitionOrchestrator;
     private string _gameSettingPacketReceiveUUID;
@@ -22,8 +22,8 @@ public class LobbySceneP2PConnectOperator : MonoBehaviour
     private async UniTask GameSceneChange()
     {
         await _sceneBlockTransitionOrchestrator.SceneOut();
-        await _gameOverseer.sceneOrchestrator.RemoveSceneMediator(SceneNameEnum.LobbyScene);
-        await _gameOverseer.sceneOrchestrator.AddSceneMediator(SceneNameEnum.GameScene);
+        await _projectOverseer.sceneOrchestrator.RemoveSceneMediator(SceneNameEnum.LobbyScene);
+        await _projectOverseer.sceneOrchestrator.AddSceneMediator(SceneNameEnum.GameScene);
         EOSP2PMethod.UnregisterListener(_gameSettingPacketReceiveUUID);
     }
 

@@ -3,7 +3,6 @@ using UnityEngine;
 public class DialModuleSuccessMediator : MonoBehaviour
 {
     [SerializeField] private ModuleToolsOrchestratorIndividual<DialModuleSettingData> _moduleTools;
-    [SerializeField] private bool _isSuccess;
     private string _uuid;
     private Dictionary<ModuleVersionEnum, bool> _successModule;
     public void Initialize(DialModuleSettingData dialModuleSettingData)
@@ -18,8 +17,6 @@ public class DialModuleSuccessMediator : MonoBehaviour
 
     private void OnSuccess(ModuleVersionEnum moduleVersionEnum, DialModuleSuccessPacket dialModuleMarkSetPacket)
     {
-        Debug.Log("OnSuccess");
-        if (_isSuccess) return;
         _successModule[dialModuleMarkSetPacket.ModuleVersionEnum] = true;
         foreach (var item in _successModule.Values)
         {

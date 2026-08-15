@@ -15,11 +15,12 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
     [SerializeField] private AllModuleSOData _allModuleSOData;
     [SerializeField] private ProjectOverseer _gameOverseer;
     [SerializeField] private GameSettingActiveSOData _gameStatusActiveSOData;
+    [SerializeField] private GameObject _blockPanel;
 
     public void OnClick()
     {
         HostStartGame();
-
+        _blockPanel.SetActive(true);
     }
 
     /// <summary>

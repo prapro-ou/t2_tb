@@ -48,7 +48,9 @@ public class EOSLobbyOperator : ScriptableObject
         // すでにどこかのロビーに入っている場合は、一度退出するなどの処理が必要
         if (IsInLobby)
         {
-            return false;
+            bool leaveSuccess = await LeaveRoomAsync();
+            if (!leaveSuccess)
+                return false;
         }
 
         string lobbyId = await EOSLobbyMethod.JoinOrCreateGameLobbyWithDisplayNameAsync(roomName, userName);
@@ -65,7 +67,12 @@ public class EOSLobbyOperator : ScriptableObject
         return true;
     }
 
-
+    public async UniTask<bool> LeaveRoomAsync()
+    {
+        bool success = await EOSLobbyMethod.LeaveLobbyAsync(CurrentLobbyId);
+        if (success) CurrentLobbyId = null;
+        return success;
+    }
     #region ========== ゲーム入退出処理 ==========
 
     #region ========== 入出処理 ==========

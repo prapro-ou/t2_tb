@@ -19,7 +19,15 @@ public class DialModuleRotationMediator : MonoBehaviour,
     private bool _isDragging;        // 扇形内でクリックされたかどうかの判定用フラグ
     private bool _isHoveredInFan;
 
+    public void Initialize()
+    {
+        _moduleDataOrchestrator.ThisModuleSettingData.ModuleGroup.TryGetValue(_moduleDataOrchestrator.ThisModuleSettingData.ModuleVersion, out var userId);
+        _moduleDataOrchestrator.UserColors.TryGetValue(userId, out Color userColor);
+        _dialRenderer.color = userColor;
+    }
+
     #region ========== IHandler ==========
+
 
     public void OnPointerEnter(PointerEventData eventData)
     {
