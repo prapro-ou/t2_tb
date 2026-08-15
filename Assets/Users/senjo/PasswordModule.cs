@@ -18,11 +18,16 @@ public class PasswordModule : MonoBehaviour
 
     void Start()
     {
+        SetPassword("0000");
         UpdateDisplay();
     }
 
     public void PressNumber(int number)
     {
+        Debug.Log("click: " + number);
+
+        resultText.text = "";
+
         if (input.Length >= maxLength)
             return;
 
@@ -41,6 +46,7 @@ public class PasswordModule : MonoBehaviour
         if(input == correctcode)
         {
             resultText.text = "EXIT";
+            ClearInput();
         }
         else
         {
