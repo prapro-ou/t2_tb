@@ -7,9 +7,27 @@
             "id": "b4a9a986-6091-430b-a463-08f428f557cc",
             "actions": [
                 {
-                    "name": "Move",
+                    "name": "RightClick",
                     "type": "PassThrough",
-                    "id": "c29db51b-c388-43d2-9924-6834daa6e40f",
+                    "id": "c2132dd1-900a-4ed2-b449-755e67b0df6d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LeftClick",
+                    "type": "PassThrough",
+                    "id": "72280576-741c-43a8-b5cb-dd19cd459aaf",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PointerPosition",
+                    "type": "PassThrough",
+                    "id": "8932f506-98d4-44d9-97e9-956c023b316c",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -18,59 +36,37 @@
             ],
             "bindings": [
                 {
-                    "name": "2D Vector",
-                    "id": "fdaa1294-69d2-4ae5-a1eb-d599bd5e4f17",
-                    "path": "2DVector",
+                    "name": "",
+                    "id": "12f7dfd5-0666-40bf-99e3-f7cd6a261deb",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
-                    "isComposite": true,
+                    "action": "RightClick",
+                    "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "up",
-                    "id": "bdeb7b01-54be-4a01-bba3-caee5a9d35d4",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "67c72407-dd53-4dd2-8c82-a155b1c1e259",
-                    "path": "<Keyboard>/s",
+                    "name": "",
+                    "id": "fe44c5f7-cf50-4fbc-90da-0759075e01ab",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "LeftClick",
                     "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 },
                 {
-                    "name": "left",
-                    "id": "7795da9f-fa19-4bf3-b6a7-48aaaa258f0a",
-                    "path": "<Keyboard>/a",
+                    "name": "",
+                    "id": "90bafb19-49b6-44e8-93d5-915355a12107",
+                    "path": "<Pointer>/position",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "PointerPosition",
                     "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "dda02c9d-78d2-4be8-a51e-cdb2b02511f8",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 }
             ]
         }

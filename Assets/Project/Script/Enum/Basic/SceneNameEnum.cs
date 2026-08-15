@@ -1,5 +1,9 @@
 public enum SceneNameEnum
 {
     None,
-    CoreScene
+    CoreScene,
+    BootScene,
+    HomeScene,
+    LobbyScene,
+    GameScene
 }
