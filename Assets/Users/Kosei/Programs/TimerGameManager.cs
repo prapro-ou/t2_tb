@@ -1,19 +1,78 @@
 using UnityEngine;
+using TMPro;
 
 public class TimerGameManager : MonoBehaviour
 {
     [Header("Manager")]
     public TimerManager timerManager;
 
-    // 最後に計測した時間
-    private float measuredTime = 0f;
+    [Header("Board")]
+    public BoardController timerInstructionBoard;
+
+    [Header("UI")]
+    public TMP_Text instructionText;
+
+    /// <summary>
+    /// 指示文を表示
+    /// </summary>
+    private void ShowInstruction(string message)
+    {
+        if (instructionText != null)
+        {
+            instructionText.text = message;
+        }
+        else
+        {
+            Debug.LogError(
+                "TimerGameManager: InstructionText が設定されていません。"
+            );
+        }
+    }
+
+    /// <summary>
+    /// 問題を表示
+    /// </summary>
+    public void ShowQuestion(
+        float target,
+        float tolerance)
+    {
+        float min = target - tolerance;
+        float max = target + tolerance;
+
+        ShowInstruction(
+            $"STOP\n{min:F2} - {max:F2}"
+        );
+
+        // 通常色
+        if (timerInstructionBoard != null)
+        {
+            timerInstructionBoard.SetNormal();
+        }
+        else
+        {
+            Debug.LogError(
+                "TimerInstructionBoard が設定されていません。"
+            );
+        }
+    }
 
     /// <summary>
     /// STARTを受信
     /// </summary>
     public void ReceiveStart()
     {
-        Debug.Log("ReceiveStart");
+        Debug.Log("=== TimerGameManager ReceiveStart ===");
+
+        if (timerManager == null)
+        {
+            Debug.LogError(
+                "TimerManager が設定されていません。"
+            );
+
+            ShowInstruction("TIMER ERROR");
+
+            return;
+        }
 
         timerManager.ResetTimer();
         timerManager.StartTimer();
@@ -24,26 +83,103 @@ public class TimerGameManager : MonoBehaviour
     /// </summary>
     public void ReceiveStop()
     {
-        timerManager.StopTimer();
+        Debug.Log("=== TimerGameManager ReceiveStop ===");
 
-        measuredTime =
-            timerManager.GetCurrentTime();
+        if (timerManager == null)
+        {
+            Debug.LogError(
+                "TimerManager が設定されていません。"
+            );
+
+            ShowInstruction("TIMER ERROR");
+
+            return;
+        }
+
+        timerManager.StopTimer();
     }
 
     /// <summary>
-    /// 最後に計測した時間
+    /// 成功
+    /// </summary>
+    public void SetSuccess()
+    {
+        ShowInstruction("SUCCESS!");
+
+        if (timerInstructionBoard != null)
+        {
+            timerInstructionBoard.SetSuccess();
+        }
+    }
+
+    /// <summary>
+    /// 失敗
+    /// </summary>
+    public void SetFailed()
+    {
+        ShowInstruction("MODULE FAILED!");
+
+        if (timerInstructionBoard != null)
+        {
+            timerInstructionBoard.SetFailed();
+        }
+    }
+
+    /// <summary>
+    /// クリア
+    /// </summary>
+    public void SetClear()
+    {
+        ShowInstruction("MODULE CLEAR!");
+
+        if (timerInstructionBoard != null)
+        {
+            timerInstructionBoard.SetClear();
+        }
+    }
+
+    /// <summary>
+    /// 通常状態
+    /// </summary>
+    public void SetNormal()
+    {
+        if (timerInstructionBoard != null)
+        {
+            timerInstructionBoard.SetNormal();
+        }
+    }
+
+    /// <summary>
+    /// 現在の計測時間を取得
     /// </summary>
     public float GetMeasuredTime()
     {
-        return measuredTime;
+        if (timerManager == null)
+        {
+            Debug.LogError(
+                "TimerManager が設定されていません。"
+            );
+
+            return 0f;
+        }
+
+        return timerManager.GetCurrentTime();
     }
 
     /// <summary>
-    /// リセット
+    /// タイマーをリセット
     /// </summary>
     public void ResetTimer()
     {
-        measuredTime = 0f;
+        if (timerManager == null)
+        {
+            Debug.LogError(
+                "TimerManager が設定されていません。"
+            );
+
+            return;
+        }
+
         timerManager.ResetTimer();
     }
 }

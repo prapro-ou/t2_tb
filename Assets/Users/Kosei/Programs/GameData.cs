@@ -8,22 +8,35 @@ public class GameData : MonoBehaviour
     public float tolerance = 0.25f;
 
     [Header("Question")]
-    public int questionCount = 2;
+    public int questionCount = 3;
 
-    // 各問題の目標時間
     public float[] targetTimes;
 
-    // 現在の問題番号
     public int currentQuestion = 0;
 
-    // ゲーム状態
     public bool gameClear = false;
     public bool gameFailed = false;
     public bool waitingNextQuestion = false;
 
     /// <summary>
-    /// ゲーム開始時に問題を生成
+    /// SettingDataからゲーム設定を初期化
     /// </summary>
+    public void Initialize(StopwatchModuleSettingData data)
+    {
+        minTargetTime = data.minTargetTime;
+        maxTargetTime = data.maxTargetTime;
+        tolerance = data.tolerance;
+        questionCount = data.questionCount;
+
+        Debug.Log(
+            $"Stopwatch Initialize: " +
+            $"min={minTargetTime}, " +
+            $"max={maxTargetTime}, " +
+            $"tolerance={tolerance}, " +
+            $"questionCount={questionCount}"
+        );
+    }
+
     public void GenerateQuestions()
     {
         targetTimes = new float[questionCount];
@@ -40,17 +53,11 @@ public class GameData : MonoBehaviour
         waitingNextQuestion = false;
     }
 
-    /// <summary>
-    /// 現在の目標時間
-    /// </summary>
     public float GetCurrentTarget()
     {
         return targetTimes[currentQuestion];
     }
 
-    /// <summary>
-    /// 次の問題へ
-    /// </summary>
     public bool NextQuestion()
     {
         currentQuestion++;

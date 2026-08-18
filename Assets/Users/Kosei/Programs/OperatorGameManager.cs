@@ -8,17 +8,11 @@ public class OperatorGameManager : MonoBehaviour
 
     [Header("Manager")]
     public GameData gameData;
-    public StopwatchModuleToolsOrchestrator stopwatchTools;
+    public TimerGameManager timerGameManager;
     public ActionButtonController actionButton;
 
     [Header("UI")]
     public TMP_Text operatorInstructionText;
-
-    // 自分が操作側として担当しているバージョン
-    private ModuleVersionEnum myModuleVersion;
-
-    // 相手側のバージョン
-    private ModuleVersionEnum targetModuleVersion;
 
     // 現在START中か
     private bool timerRunning = false;
@@ -26,15 +20,15 @@ public class OperatorGameManager : MonoBehaviour
     // 入力受付をロックする
     private bool inputLocked = false;
 
-    // Time受信ListenerのUUID
-    private string timeListenerUUID;
-
     private void Start()
     {
         Debug.Log("=== OperatorGameManager Start ===");
-        Debug.Log($"stopwatchTools = {stopwatchTools}");
+
         Debug.Log($"gameData = {gameData}");
+        Debug.Log($"timerGameManager = {timerGameManager}");
         Debug.Log($"actionButton = {actionButton}");
+        Debug.Log($"operatorInstructionBoard = {operatorInstructionBoard}");
+        Debug.Log($"operatorInstructionText = {operatorInstructionText}");
 
         StartGame();
     }
@@ -45,19 +39,52 @@ public class OperatorGameManager : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("=== StartGame ===");
-        Debug.Log($"stopwatchTools = {stopwatchTools}");
 
-        if (stopwatchTools != null)
+        // 必要なコンポーネント確認
+        if (gameData == null)
         {
-            Debug.Log($"IsInitialize = {stopwatchTools.IsInitialize}");
-        }
-        else
-        {
-            Debug.LogError("stopwatchTools が null です。");
+            Debug.LogError(
+                "GameData が設定されていません。"
+            );
+            return;
         }
 
+        if (timerGameManager == null)
+        {
+            Debug.LogError(
+                "TimerGameManager が設定されていません。"
+            );
+            return;
+        }
+
+        if (actionButton == null)
+        {
+            Debug.LogError(
+                "ActionButtonController が設定されていません。"
+            );
+            return;
+        }
+
+        if (operatorInstructionBoard == null)
+        {
+            Debug.LogError(
+                "OperatorInstructionBoard が設定されていません。"
+            );
+            return;
+        }
+
+        if (operatorInstructionText == null)
+        {
+            Debug.LogError(
+                "OperatorInstructionText が設定されていません。"
+            );
+            return;
+        }
+
+        // 問題生成
         gameData.GenerateQuestions();
 
+        // 状態初期化
         gameData.gameClear = false;
         gameData.gameFailed = false;
         gameData.waitingNextQuestion = false;
@@ -65,30 +92,16 @@ public class OperatorGameManager : MonoBehaviour
         timerRunning = false;
         inputLocked = false;
 
-        // 自分のモジュールバージョンを取得
-        myModuleVersion =
-            stopwatchTools.GetMyModuleVersion();
-
-        Debug.Log($"myModuleVersion = {myModuleVersion}");
-
-        // AならB、BならAを相手にする
-        targetModuleVersion =
-            myModuleVersion == ModuleVersionEnum.A
-                ? ModuleVersionEnum.B
-                : ModuleVersionEnum.A;
-
-        Debug.Log($"targetModuleVersion = {targetModuleVersion}");
-
-        // 計測時間の受信登録
-        timeListenerUUID =
-            stopwatchTools.RegisterTimeListener(OnTimeReceived);
-
-        Debug.Log($"timeListenerUUID = {timeListenerUUID}");
-
+        // 操作側を初期状態にする
         actionButton.SetPlay();
 
         operatorInstructionBoard.SetNormal();
 
+        // タイマー側も初期状態にする
+        timerGameManager.ResetTimer();
+        timerGameManager.SetNormal();
+
+        // 現在の問題を表示
         ShowCurrentQuestion();
 
         Debug.Log("=== StartGame 完了 ===");
@@ -102,10 +115,17 @@ public class OperatorGameManager : MonoBehaviour
         float target = gameData.GetCurrentTarget();
 
         string message =
+            $"PRESS BUTTON\n" +
             $"STOP\n" +
             $"{target - gameData.tolerance:F2} - {target + gameData.tolerance:F2}";
 
         operatorInstructionText.text = message;
+
+        // タイマー側にも問題を表示
+        timerGameManager.ShowQuestion(
+            target,
+            gameData.tolerance
+        );
     }
 
     /// <summary>
@@ -115,17 +135,26 @@ public class OperatorGameManager : MonoBehaviour
     {
         Debug.Log("=== PressActionButton ===");
 
+        // 入力ロック中
         if (inputLocked)
+        {
+            Debug.Log("入力がロックされています。");
             return;
+        }
 
+        // ゲームクリア済み
         if (gameData.gameClear)
+        {
+            Debug.Log("ゲームはすでにクリアしています。");
             return;
+        }
 
-        if (gameData.gameFailed)
-            return;
-
+        // 次の問題への待機中
         if (gameData.waitingNextQuestion)
+        {
+            Debug.Log("次の問題への移行待ちです。");
             return;
+        }
 
         if (!timerRunning)
         {
@@ -143,26 +172,21 @@ public class OperatorGameManager : MonoBehaviour
     private void StartRound()
     {
         Debug.Log("=== StartRound ===");
-        Debug.Log($"stopwatchTools = {stopwatchTools}");
-        Debug.Log($"myModuleVersion = {myModuleVersion}");
-        Debug.Log($"targetModuleVersion = {targetModuleVersion}");
 
         inputLocked = true;
         timerRunning = true;
 
-        Debug.Log("SendAction 前");
-
-        // 指示側へSTARTを送信
-        stopwatchTools.SendAction(
-            targetModuleVersion,
-            true
-        );
-
-        Debug.Log("SendAction 後");
+        // 操作側の表示を変更
+        operatorInstructionText.text = "STOP";
 
         actionButton.SetStop();
 
+        // タイマー側にSTARTを直接通知
+        timerGameManager.ReceiveStart();
+
         inputLocked = false;
+
+        Debug.Log("=== StartRound 完了 ===");
     }
 
     /// <summary>
@@ -171,47 +195,25 @@ public class OperatorGameManager : MonoBehaviour
     private void StopRound()
     {
         Debug.Log("=== StopRound ===");
-        Debug.Log($"targetModuleVersion = {targetModuleVersion}");
 
         inputLocked = true;
         timerRunning = false;
 
-        Debug.Log("SendAction(STOP) 前");
+        // タイマー側にSTOPを直接通知
+        timerGameManager.ReceiveStop();
 
-        // 指示側へSTOPを送信
-        stopwatchTools.SendAction(
-            targetModuleVersion,
-            false
-        );
-
-        Debug.Log("SendAction(STOP) 後");
-
+        // 操作側のボタンをPLAY状態に戻す
         actionButton.SetPlay();
 
-        // ここではまだ判定しない
-        // 指示側から計測時間が送られてくるのを待つ
-    }
-
-    /// <summary>
-    /// 指示側から計測時間を受信
-    /// </summary>
-    private void OnTimeReceived(
-        ModuleVersionEnum moduleVersion,
-        float measuredTime)
-    {
-        Debug.Log("=== OnTimeReceived ===");
-        Debug.Log($"moduleVersion = {moduleVersion}");
-        Debug.Log($"targetModuleVersion = {targetModuleVersion}");
-        Debug.Log($"measuredTime = {measuredTime}");
-
-        // 自分が送った相手からの時間だけ処理
-        if (moduleVersion != targetModuleVersion)
-            return;
+        // 停止した時間を取得
+        float measuredTime =
+            timerGameManager.GetMeasuredTime();
 
         Debug.Log(
-            $"Received Time: {measuredTime:F2}"
+            $"Measured Time = {measuredTime:F2}"
         );
 
+        // 時間を判定
         if (IsSuccess(measuredTime))
         {
             SuccessRound();
@@ -230,9 +232,17 @@ public class OperatorGameManager : MonoBehaviour
         float target =
             gameData.GetCurrentTarget();
 
-        return Mathf.Abs(
-            measuredTime - target
-        ) <= gameData.tolerance;
+        float difference =
+            Mathf.Abs(measuredTime - target);
+
+        Debug.Log(
+            $"Target = {target:F2}, " +
+            $"Measured = {measuredTime:F2}, " +
+            $"Difference = {difference:F2}, " +
+            $"Tolerance = {gameData.tolerance:F2}"
+        );
+
+        return difference <= gameData.tolerance;
     }
 
     /// <summary>
@@ -240,8 +250,12 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     private void SuccessRound()
     {
+        Debug.Log("=== SuccessRound ===");
+
+        // 次の問題への待機
         gameData.waitingNextQuestion = true;
 
+        // 操作側
         operatorInstructionText.text =
             "SUCCESS!";
 
@@ -249,6 +263,10 @@ public class OperatorGameManager : MonoBehaviour
 
         actionButton.SetSuccess();
 
+        // タイマー側
+        timerGameManager.SetSuccess();
+
+        // 1秒後に次の問題へ
         Invoke(
             nameof(NextQuestion),
             1.0f
@@ -260,6 +278,9 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     private void FailedRound()
     {
+        Debug.Log("=== FailedRound ===");
+
+        // 操作側
         operatorInstructionText.text =
             "MODULE FAILED!";
 
@@ -267,9 +288,54 @@ public class OperatorGameManager : MonoBehaviour
 
         actionButton.SetFailed();
 
-        gameData.gameFailed = true;
+        // タイマー側
+        timerGameManager.SetFailed();
 
+        // ゲームオーバーにはしない
+        gameData.gameFailed = false;
+
+        // 1秒後に同じ問題を再挑戦
+        Invoke(
+            nameof(RetryCurrentQuestion),
+            1.0f
+        );
+    }
+
+    /// <summary>
+    /// 現在の問題を再挑戦
+    /// </summary>
+    private void RetryCurrentQuestion()
+    {
+        Debug.Log("=== RetryCurrentQuestion ===");
+
+        // ゲームクリア済みなら何もしない
+        if (gameData.gameClear)
+            return;
+
+        // タイマーをリセット
+        timerGameManager.ResetTimer();
+
+        // タイマー側を通常状態へ
+        timerGameManager.SetNormal();
+
+        // 操作側を通常状態へ
+        operatorInstructionBoard.SetNormal();
+
+        // 同じ問題を再表示
+        ShowCurrentQuestion();
+
+        // ボタンをPLAY状態へ
+        actionButton.SetPlay();
+
+        // 状態を初期化
+        timerRunning = false;
         inputLocked = false;
+
+        gameData.waitingNextQuestion = false;
+
+        Debug.Log(
+            $"問題 {gameData.currentQuestion + 1} を再挑戦します。"
+        );
     }
 
     /// <summary>
@@ -277,13 +343,18 @@ public class OperatorGameManager : MonoBehaviour
     /// </summary>
     private void NextQuestion()
     {
+        Debug.Log("=== NextQuestion ===");
+
         bool hasNext =
             gameData.NextQuestion();
 
+        // 指定問題数すべて成功
         if (!hasNext)
         {
             gameData.gameClear = true;
+            gameData.waitingNextQuestion = false;
 
+            // 操作側
             operatorInstructionText.text =
                 "MODULE CLEAR!";
 
@@ -291,26 +362,36 @@ public class OperatorGameManager : MonoBehaviour
 
             actionButton.SetClear();
 
+            // タイマー側
+            timerGameManager.SetClear();
+
+            Debug.Log("=== MODULE CLEAR ===");
+
             return;
         }
 
+        // まだ次の問題がある
         operatorInstructionBoard.SetNormal();
 
         actionButton.SetPlay();
 
+        // 次の問題を表示
         ShowCurrentQuestion();
 
         gameData.waitingNextQuestion = false;
         inputLocked = false;
+        timerRunning = false;
+
+        Debug.Log(
+            $"次の問題へ: " +
+            $"{gameData.currentQuestion + 1} / " +
+            $"{gameData.questionCount}"
+        );
     }
 
     private void OnDestroy()
     {
-        if (!string.IsNullOrEmpty(timeListenerUUID))
-        {
-            stopwatchTools.ModuleDataUnregisterListener(
-                timeListenerUUID
-            );
-        }
+        // 現在は通信を使用していないため、
+        // 通信Listenerの解除処理はありません。
     }
 }
