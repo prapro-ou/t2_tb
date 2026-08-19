@@ -10,6 +10,7 @@ public class OperatorGameManager : MonoBehaviour
     public GameData gameData;
     public TimerGameManager timerGameManager;
     public ActionButtonController actionButton;
+    public StopwatchModuleToolsOrchestrator stopwatchTools;
 
     [Header("UI")]
     public TMP_Text operatorInstructionText;
@@ -45,14 +46,6 @@ public class OperatorGameManager : MonoBehaviour
         {
             Debug.LogError(
                 "GameData が設定されていません。"
-            );
-            return;
-        }
-
-        if (timerGameManager == null)
-        {
-            Debug.LogError(
-                "TimerGameManager が設定されていません。"
             );
             return;
         }
@@ -97,10 +90,6 @@ public class OperatorGameManager : MonoBehaviour
 
         operatorInstructionBoard.SetNormal();
 
-        // タイマー側も初期状態にする
-        timerGameManager.ResetTimer();
-        timerGameManager.SetNormal();
-
         // 現在の問題を表示
         ShowCurrentQuestion();
 
@@ -115,17 +104,9 @@ public class OperatorGameManager : MonoBehaviour
         float target = gameData.GetCurrentTarget();
 
         string message =
-            $"PRESS BUTTON\n" +
-            $"STOP\n" +
-            $"{target - gameData.tolerance:F2} - {target + gameData.tolerance:F2}";
+            $"PRESS BUTTON\n";
 
         operatorInstructionText.text = message;
-
-        // タイマー側にも問題を表示
-        timerGameManager.ShowQuestion(
-            target,
-            gameData.tolerance
-        );
     }
 
     /// <summary>
@@ -182,7 +163,21 @@ public class OperatorGameManager : MonoBehaviour
         actionButton.SetStop();
 
         // タイマー側にSTARTを直接通知
-        timerGameManager.ReceiveStart();
+        // タイマー側にSTARTを直接通知
+Debug.Log("=== stopwatchTools 確認 ===");
+Debug.Log($"stopwatchTools = {stopwatchTools}");
+
+if (stopwatchTools == null)
+{
+    Debug.LogError("!!! stopwatchTools が null です !!!");
+    inputLocked = false;
+    timerRunning = false;
+    return;
+}
+
+Debug.Log("stopwatchTools.SendStart() 呼び出し");
+stopwatchTools.SendStart();
+Debug.Log("stopwatchTools.SendStart() 完了");
 
         inputLocked = false;
 
@@ -200,7 +195,7 @@ public class OperatorGameManager : MonoBehaviour
         timerRunning = false;
 
         // タイマー側にSTOPを直接通知
-        timerGameManager.ReceiveStop();
+        stopwatchTools.SendStop();
 
         // 操作側のボタンをPLAY状態に戻す
         actionButton.SetPlay();

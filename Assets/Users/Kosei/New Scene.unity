@@ -119,17 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &257585362 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5226480500616420001, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
-  m_PrefabInstance: {fileID: 1426811922}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6706cc8174ea37d44b6d6be58c6db010, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TimerGameManager
 --- !u!1 &397743350
 GameObject:
   m_ObjectHideFlags: 0
@@ -346,7 +335,7 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!1001 &1010646055
+--- !u!1001 &1325642809
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -354,13 +343,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1392098615950234206, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
-      propertyPath: timerGameManager
-      value: 
-      objectReference: {fileID: 257585362}
     - target: {fileID: 3841276982787749213, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 100
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 3841276982787749213, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -398,28 +383,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4797709881769167631, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 1813480880}
-    - target: {fileID: 4797709881769167631, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: PressActionButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 4797709881769167631, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: OperatorGameManager, Assembly-CSharp
-      objectReference: {fileID: 0}
     - target: {fileID: 5989652092325289727, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
       propertyPath: m_Name
-      value: TimerModule2
+      value: TimerModule_Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
---- !u!1001 &1426811922
+--- !u!1001 &1501861317
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -429,15 +402,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1608427180838008009, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
       propertyPath: m_Name
-      value: TimerModule1
+      value: TimerModule_Instructor
       objectReference: {fileID: 0}
-    - target: {fileID: 5226480500616420001, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
-      propertyPath: instructionText
-      value: 
-      objectReference: {fileID: 1522054266}
     - target: {fileID: 8071354573356621675, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -100
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8071354573356621675, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -480,33 +449,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
---- !u!114 &1522054266 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1665455050626541392, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
-  m_PrefabInstance: {fileID: 1426811922}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!114 &1813480880 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1392098615950234206, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
-  m_PrefabInstance: {fileID: 1010646055}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfc32fd98d0958445b4e3aba49912fbf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OperatorGameManager
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 885452003}
-  - {fileID: 1426811922}
-  - {fileID: 1010646055}
+  - {fileID: 1325642809}
+  - {fileID: 1501861317}
   - {fileID: 397743353}
