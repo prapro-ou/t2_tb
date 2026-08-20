@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &16509346 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5366381855641649318, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+  m_PrefabInstance: {fileID: 1325642809}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4422248cfa545a4b87a109b8ca3945c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StopwatchPlayerToolsOrchestrator
 --- !u!1 &397743350
 GameObject:
   m_ObjectHideFlags: 0
@@ -198,6 +209,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &649024880 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1392098615950234206, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+  m_PrefabInstance: {fileID: 1325642809}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc32fd98d0958445b4e3aba49912fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OperatorGameManager
 --- !u!1 &885452000
 GameObject:
   m_ObjectHideFlags: 0
@@ -343,6 +365,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 659160105346654737, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: questionCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1392098615950234206, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: stopwatchTools
+      value: 
+      objectReference: {fileID: 16509346}
+    - target: {fileID: 1392098615950234206, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: timerGameManager
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 3841276982787749213, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -100
@@ -383,11 +417,40 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4653756368340545285, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653756368340545285, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653756368340545285, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 649024880}
+    - target: {fileID: 4653756368340545285, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653756368340545285, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: StartGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653756368340545285, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: OperatorGameManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4653756368340545285, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 5989652092325289727, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
       propertyPath: m_Name
       value: TimerModule_Player
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4653756368340545285, guid: c7588afcd3fb4c0408b68a3acaeaeb5e, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -403,6 +466,14 @@ PrefabInstance:
     - target: {fileID: 1608427180838008009, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
       propertyPath: m_Name
       value: TimerModule_Instructor
+      objectReference: {fileID: 0}
+    - target: {fileID: 4409855054594274047, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7469405894354540290, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
+      propertyPath: questionCount
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8071354573356621675, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -444,7 +515,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4409855054594274047, guid: e7b6fc6585d6d244da6abf406a598a3e, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

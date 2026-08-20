@@ -23,37 +23,23 @@ public class TimerGameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError(
-                "TimerGameManager: InstructionText が設定されていません。"
-            );
+            Debug.LogError("TimerGameManager: InstructionText が設定されていません。");
         }
     }
 
     /// <summary>
-    /// 問題を表示
+    /// 問題を表示（通常時は WATCH!!、再挑戦時は RETRY!）
     /// </summary>
-    public void ShowQuestion(
-        float target,
-        float tolerance)
+    public void ShowQuestion(float target, float tolerance, bool isRetry = false)
     {
         float min = target - tolerance;
         float max = target + tolerance;
 
-        ShowInstruction(
-            $"STOP\n{min:F2} - {max:F2}"
-        );
+        string header = isRetry ? "RETRY!" : "WATCH!!";
+        ShowInstruction($"{header}\n{min:F2} - {max:F2}");
 
-        // 通常色
-        if (timerInstructionBoard != null)
-        {
-            timerInstructionBoard.SetNormal();
-        }
-        else
-        {
-            Debug.LogError(
-                "TimerInstructionBoard が設定されていません。"
-            );
-        }
+        // 通常色に戻す（緑・赤枠を解除）
+        SetNormal();
     }
 
     /// <summary>
@@ -65,12 +51,8 @@ public class TimerGameManager : MonoBehaviour
 
         if (timerManager == null)
         {
-            Debug.LogError(
-                "TimerManager が設定されていません。"
-            );
-
+            Debug.LogError("TimerManager が設定されていません。");
             ShowInstruction("TIMER ERROR");
-
             return;
         }
 
@@ -87,12 +69,8 @@ public class TimerGameManager : MonoBehaviour
 
         if (timerManager == null)
         {
-            Debug.LogError(
-                "TimerManager が設定されていません。"
-            );
-
+            Debug.LogError("TimerManager が設定されていません。");
             ShowInstruction("TIMER ERROR");
-
             return;
         }
 
@@ -117,7 +95,7 @@ public class TimerGameManager : MonoBehaviour
     /// </summary>
     public void SetFailed()
     {
-        ShowInstruction("MODULE FAILED!");
+        ShowInstruction("FAILED!");
 
         if (timerInstructionBoard != null)
         {
@@ -156,10 +134,7 @@ public class TimerGameManager : MonoBehaviour
     {
         if (timerManager == null)
         {
-            Debug.LogError(
-                "TimerManager が設定されていません。"
-            );
-
+            Debug.LogError("TimerManager が設定されていません。");
             return 0f;
         }
 
@@ -173,10 +148,7 @@ public class TimerGameManager : MonoBehaviour
     {
         if (timerManager == null)
         {
-            Debug.LogError(
-                "TimerManager が設定されていません。"
-            );
-
+            Debug.LogError("TimerManager が設定されていません。");
             return;
         }
 

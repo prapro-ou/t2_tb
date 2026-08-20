@@ -392,7 +392,7 @@ MonoBehaviour:
   gameData: {fileID: 659160105346654737}
   timerGameManager: {fileID: 0}
   actionButton: {fileID: 1398426995345182037}
-  stopwatchTools: {fileID: 4653756368340545285}
+  stopwatchTools: {fileID: 5366381855641649318}
   operatorInstructionText: {fileID: 2128781582377820735}
 --- !u!1 &3972468761474119473
 GameObject:
@@ -831,7 +831,7 @@ MonoBehaviour:
   minTargetTime: 2
   maxTargetTime: 8
   tolerance: 0.25
-  questionCount: 2
+  questionCount: 3
   targetTimes: []
   currentQuestion: 0
   gameClear: 0
@@ -1082,7 +1082,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804815488203102992, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       propertyPath: m_Name
-      value: TimerModule_Player
+      value: StopwatchModule_Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1096,7 +1096,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5889833901742782373, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4653756368340545285}
+      addedObject: {fileID: 5366381855641649318}
   m_SourcePrefab: {fileID: 100100000, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
 --- !u!4 &3841276982787749213 stripped
 Transform:
@@ -1108,7 +1108,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5889833901742782373, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
   m_PrefabInstance: {fileID: 1274983707074971119}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4653756368340545285
+--- !u!114 &5366381855641649318
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1117,16 +1117,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 4615418136465977930}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea6d10255bae80f4dba93d3a482e0027, type: 3}
+  m_Script: {fileID: 11500000, guid: f4422248cfa545a4b87a109b8ca3945c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StopwatchModuleToolsOrchestrator
+  m_EditorClassIdentifier: Assembly-CSharp::StopwatchPlayerToolsOrchestrator
   _isInitialize: 1
   _onInitialize:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 659160105346654737}
-        m_TargetAssemblyTypeName: GameData, Assembly-CSharp
-        m_MethodName: Initialize
+      - m_Target: {fileID: 5366381855641649318}
+        m_TargetAssemblyTypeName: StopwatchPlayerToolsOrchestrator, Assembly-CSharp
+        m_MethodName: InitializeModule
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1136,6 +1136,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  gameData: {fileID: 659160105346654737}
+  operatorGameManager: {fileID: 1392098615950234206}
 --- !u!4 &7521453149820418158 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8777576315450867073, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
