@@ -23,6 +23,17 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
         _blockPanel.SetActive(true);
     }
 
+    // public async UniTask HostStartGameTest()
+    // {
+    //     List<ProductUserId> members = EOSLobbyMethod.GetLobbyMembers(_eosLobbyOperator.CurrentLobbyId); // ロビーメンバー
+    //     foreach (ProductUserId userId in members)
+    //     {
+    //         Debug.Log(userId + "に送信");
+    //         EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, userId, new TestLogPacket());
+    //     }
+    //     await UniTask.WaitForSeconds(10.0f);
+    //     HostStartGame();
+    // }
     /// <summary>
     /// ホストがゲームを開始する
     /// </summary>
@@ -142,7 +153,7 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
         foreach (ProductUserId userId in members)
         {
             Debug.Log(userId + " " + packet);
-            EOSP2PMethod.SendPacket(SocketNameEnum.Fallback, userId, packet);
+            EOSP2PMethod.SendPacketSafeAsync(SocketNameEnum.Fallback, userId, packet).Forget();
         }
     }
 }

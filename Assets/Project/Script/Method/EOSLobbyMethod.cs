@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks; // UniTaskの非同期処理（async/await）を利用するために必要
@@ -7,6 +8,7 @@ using PlayEveryWare.EpicOnlineServices;
 using Epic.OnlineServices.Connect;
 using Epic.OnlineServices.Lobby;
 using Epic.OnlineServices;
+using OriginalNameSpace.EOSMethod.P2P; // ロビー入退室に連動したP2P接続の確立・切断のために使用
 
 namespace OriginalNameSpace.EOSMethod.Lobby
 {
@@ -695,6 +697,44 @@ namespace OriginalNameSpace.EOSMethod.Lobby
         }
 
         /// <summary>
+        /// ロビー内の全メンバー（自分を除く）に対してP2P接続の確立を試みる。
+        /// 主に「自分がロビーに入室した直後」に、既に居るメンバー全員との接続をまとめて張るために使う。
+        /// （自分より後から入ってくるメンバーとの接続は RegisterAutoP2PConnection の Joined 通知側で処理される）
+        /// </summary>
+        /// <param name="lobbyId">対象のロビーID</param>
+        /// <param name="socketNameEnum">P2P通信に使うソケット</param>
+        /// <param name="timeoutSecondsPerMember">1人あたりの接続確立タイムアウト秒数</param>
+        /// <param name="cancellationToken">シーン遷移等での中断用</param>
+        /// <returns>接続に失敗した相手のリスト（空なら全員成功）</returns>
+        public static async UniTask<List<ProductUserId>> ConnectToAllLobbyMembersAsync(string lobbyId, SocketNameEnum socketNameEnum, float timeoutSecondsPerMember = 15f, CancellationToken cancellationToken = default)
+        {
+            ProductUserId localUserId = EOSManager.Instance.GetProductUserId();
+            List<ProductUserId> members = GetLobbyMembers(lobbyId);
+            List<ProductUserId> targets = members.Where(m => m != localUserId).ToList();
+
+            // 全員へ並列で接続を試みる（1人ずつ待つと人数分×タイムアウトの待ち時間になってしまうため）
+            List<UniTask<bool>> connectTasks = targets
+                .Select(target => EOSP2PMethod.ConnectAsync(socketNameEnum, target, timeoutSecondsPerMember, cancellationToken))
+                .ToList();
+
+            bool[] results = await UniTask.WhenAll(connectTasks);
+
+            List<ProductUserId> failedTargets = new List<ProductUserId>();
+            for (int i = 0; i < targets.Count; i++)
+            {
+                if (!results[i])
+                {
+                    failedTargets.Add(targets[i]);
+                }
+            }
+            if (failedTargets.Count > 0)
+            {
+                Debug.LogError($"[Lobby] {failedTargets.Count}人との接続確立に失敗しました。");
+            }
+            return failedTargets;
+        }
+
+        /// <summary>
         /// ロビーのメンバー属性から全員の表示名を取得する
         /// </summary>
         /// <param name="lobbyId">対象のロビーID</param>
@@ -934,7 +974,6 @@ namespace OriginalNameSpace.EOSMethod.Lobby
 
             // 2. 通知のオプション設定
             var memberStatusOptions = new AddNotifyLobbyMemberStatusReceivedOptions();
-
             // 3. EOSサーバーに通知イベント（リスナー）を登録
             notificationId = lobbyInterface.AddNotifyLobbyMemberStatusReceived(
                 ref memberStatusOptions,
@@ -957,6 +996,41 @@ namespace OriginalNameSpace.EOSMethod.Lobby
                 Debug.Log($"ロビーメンバー変更通知を登録しました。");
             }
             return notificationId;
+        }
+
+        /// <summary>
+        /// ロビーメンバーの入退室にあわせて、P2P接続の確立・切断を自動で行うリスナーを登録する。
+        /// ・Joined（入室）: 新しく入ってきたメンバーへ接続を試みる
+        /// ・Left / Disconnected / Kicked / Closed（退室・切断系）: 該当メンバーとのP2P接続を明示的に閉じる
+        /// 呼び出し前に、対象ソケットで EOSP2PMethod.StartListening が呼ばれている必要がある
+        /// （そうでないと相手からの接続要求を受け取れない）。
+        /// 既存メンバー分（自分より先に入っていた人）はこの通知の対象外のため、
+        /// 別途 ConnectToAllLobbyMembersAsync を入室直後に呼ぶこと。
+        /// </summary>
+        /// <param name="lobbyId">対象のロビーID</param>
+        /// <param name="socketNameEnum">P2P通信に使うソケット</param>
+        /// <param name="cancellationToken">シーン遷移等での中断用</param>
+        /// <returns>通知ID（UnregisterLobbyNotificationsで解除する）</returns>
+        public static ulong RegisterAutoP2PConnection(string lobbyId, SocketNameEnum socketNameEnum, CancellationToken cancellationToken = default)
+        {
+            return RegisterLobbyNotifications(lobbyId, info =>
+            {
+                switch (info.CurrentStatus)
+                {
+                    case LobbyMemberStatus.Joined:
+                        // 自分自身の入室通知が来ることもあるため、念のため除外
+                        if (info.TargetUserId == EOSManager.Instance.GetProductUserId()) return;
+                        EOSP2PMethod.ConnectAsync(socketNameEnum, info.TargetUserId, 15f, cancellationToken).Forget();
+                        break;
+
+                    case LobbyMemberStatus.Left:
+                    case LobbyMemberStatus.Disconnected:
+                    case LobbyMemberStatus.Kicked:
+                    case LobbyMemberStatus.Closed:
+                        EOSP2PMethod.CloseConnection(socketNameEnum, info.TargetUserId);
+                        break;
+                }
+            });
         }
 
         /// <summary>

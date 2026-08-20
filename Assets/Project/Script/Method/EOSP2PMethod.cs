@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using PlayEveryWare.EpicOnlineServices;
 using Epic.OnlineServices;
 using Epic.OnlineServices.P2P;
@@ -86,6 +88,24 @@ namespace OriginalNameSpace.EOSMethod.P2P
         };
 
         private static Dictionary<SocketNameEnum, ulong> _notificationIds = new Dictionary<SocketNameEnum, ulong>();
+
+        /// <summary>
+        /// 接続確立通知(AddNotifyPeerConnectionEstablished)のソケット毎の登録ID。
+        /// </summary>
+        private static readonly Dictionary<SocketNameEnum, ulong> _establishedNotificationIds = new Dictionary<SocketNameEnum, ulong>();
+
+        /// <summary>
+        /// 切断通知(AddNotifyPeerConnectionClosed)のソケット毎の登録ID。
+        /// </summary>
+        private static readonly Dictionary<SocketNameEnum, ulong> _closedNotificationIds = new Dictionary<SocketNameEnum, ulong>();
+
+        /// <summary>
+        /// 現在「接続確立済み(Established)」になっているリモートユーザーの集合。
+        /// SendPacketの直前にこの集合を見て、確立済みかどうかを判定する。
+        /// キー: (ソケット名, 相手のProductUserId)
+        /// </summary>
+        private static readonly HashSet<(SocketNameEnum SocketName, ProductUserId RemoteUserId)> _establishedPeers
+            = new HashSet<(SocketNameEnum, ProductUserId)>();
         /// <summary>
         /// 内側をUUIDキーの辞書にすることで、同一のパケット型に対して複数のリスナーを同時登録できるようにしています。
         /// </summary>
@@ -133,6 +153,46 @@ namespace OriginalNameSpace.EOSMethod.P2P
             ulong notificationId = P2P.AddNotifyPeerConnectionRequest(ref options, null, OnIncomingConnectionRequest);
             // Debug.Log($"[EOSP2PController] ソケット '{socketName}' での待ち受けを開始しました。ID: {notificationId}");
             _notificationIds[socketNameEnum] = notificationId;
+
+            // 2. 接続確立通知の登録
+            // 「AcceptConnectionが成功した」だけでは実通信はまだできない（NAT越え等のネゴシエーションが必要）。
+            // 実際に送受信可能になったタイミングを正しく知るためにこの通知を使う。
+            var establishedOptions = new AddNotifyPeerConnectionEstablishedOptions()
+            {
+                LocalUserId = EOSManager.Instance.GetProductUserId(),
+                SocketId = new SocketId() { SocketName = socketName }
+            };
+            ulong establishedId = P2P.AddNotifyPeerConnectionEstablished(ref establishedOptions, socketNameEnum, OnPeerConnectionEstablished);
+            _establishedNotificationIds[socketNameEnum] = establishedId;
+
+            // 3. 切断通知の登録
+            var closedOptions = new AddNotifyPeerConnectionClosedOptions()
+            {
+                LocalUserId = EOSManager.Instance.GetProductUserId(),
+                SocketId = new SocketId() { SocketName = socketName }
+            };
+            ulong closedId = P2P.AddNotifyPeerConnectionClosed(ref closedOptions, socketNameEnum, OnPeerConnectionClosed);
+            _closedNotificationIds[socketNameEnum] = closedId;
+        }
+
+        /// <summary>
+        /// 接続確立コールバック。この通知が来て初めて、実際にパケットが送受信可能な状態になる。
+        /// </summary>
+        private static void OnPeerConnectionEstablished(ref OnPeerConnectionEstablishedInfo data)
+        {
+            SocketNameEnum socketNameEnum = (SocketNameEnum)data.ClientData;
+            _establishedPeers.Add((socketNameEnum, data.RemoteUserId));
+            // Debug.Log($"[P2P] 接続確立しました。Remote: {data.RemoteUserId}, Socket: {data.SocketId?.SocketName}, ConnectionType: {data.ConnectionType}");
+        }
+
+        /// <summary>
+        /// 切断コールバック。確立済み集合から取り除き、以後のSendPacketでは再接続待ちとして扱われるようにする。
+        /// </summary>
+        private static void OnPeerConnectionClosed(ref OnRemoteConnectionClosedInfo data)
+        {
+            SocketNameEnum socketNameEnum = (SocketNameEnum)data.ClientData;
+            _establishedPeers.Remove((socketNameEnum, data.RemoteUserId));
+            Debug.LogWarning($"[P2P] 接続が切断されました。Remote: {data.RemoteUserId}, Socket: {data.SocketId?.SocketName}, Reason: {data.Reason}");
         }
 
         /// <summary>
@@ -150,6 +210,19 @@ namespace OriginalNameSpace.EOSMethod.P2P
             P2P.RemoveNotifyPeerConnectionRequest(notificationId);
             // Debug.Log($"[EOSP2PController] 待ち受けを停止しました。ID: {notificationId}");
             _notificationIds.Remove(socketNameEnum);
+
+            if (_establishedNotificationIds.TryGetValue(socketNameEnum, out ulong establishedId))
+            {
+                P2P.RemoveNotifyPeerConnectionEstablished(establishedId);
+                _establishedNotificationIds.Remove(socketNameEnum);
+            }
+            if (_closedNotificationIds.TryGetValue(socketNameEnum, out ulong closedId))
+            {
+                P2P.RemoveNotifyPeerConnectionClosed(closedId);
+                _closedNotificationIds.Remove(socketNameEnum);
+            }
+            // このソケットに関する確立済み状態もクリアしておく
+            _establishedPeers.RemoveWhere(entry => entry.SocketName == socketNameEnum);
         }
 
         /// <summary>
@@ -163,6 +236,20 @@ namespace OriginalNameSpace.EOSMethod.P2P
                 // Debug.Log($"[EOSP2PController] 待ち受けを停止しました。ID: {notificationId}");
             }
             _notificationIds.Clear();
+
+            foreach (var establishedId in _establishedNotificationIds.Values)
+            {
+                P2P.RemoveNotifyPeerConnectionEstablished(establishedId);
+            }
+            _establishedNotificationIds.Clear();
+
+            foreach (var closedId in _closedNotificationIds.Values)
+            {
+                P2P.RemoveNotifyPeerConnectionClosed(closedId);
+            }
+            _closedNotificationIds.Clear();
+
+            _establishedPeers.Clear();
         }
 
 
@@ -301,6 +388,122 @@ namespace OriginalNameSpace.EOSMethod.P2P
                 }
             }
             // Debug.Log($"[P2P] 送信完了: {remoteUserId} (総サイズ: {rawData.Length}bytes, 分割数: {totalChunks})");
+        }
+
+        /// <summary>
+        /// 指定した相手との接続が「確立済み(Established)」かどうかを返す。
+        /// Acceptされただけの状態(NAT越え等のネゴシエーション中)ではtrueにならない点に注意。
+        /// </summary>
+        public static bool IsConnectionEstablished(SocketNameEnum socketNameEnum, ProductUserId remoteUserId)
+        {
+            return _establishedPeers.Contains((socketNameEnum, remoteUserId));
+        }
+
+        /// <summary>
+        /// 指定した相手とのP2P接続を明示的に閉じる。
+        /// ロビー退出等、相手ともう通信する必要が無くなったタイミングで呼ぶ。
+        /// </summary>
+        public static void CloseConnection(SocketNameEnum socketNameEnum, ProductUserId remoteUserId)
+        {
+            if (P2P == null || EOSManager.Instance.GetProductUserId() == null)
+            {
+                return;
+            }
+            var closeOptions = new CloseConnectionOptions()
+            {
+                LocalUserId = EOSManager.Instance.GetProductUserId(),
+                RemoteUserId = remoteUserId,
+                SocketId = new SocketId() { SocketName = socketNameEnum.ToString() }
+            };
+            Result result = P2P.CloseConnection(ref closeOptions);
+            if (result != Result.Success && result != Result.NotFound)
+            {
+                Debug.LogWarning($"[P2P] CloseConnectionに失敗しました。Result: {result} (相手: {remoteUserId})");
+            }
+            _establishedPeers.Remove((socketNameEnum, remoteUserId));
+        }
+
+        /// <summary>
+        /// 指定した相手との接続確立を待つ。まだ接続要求すら出していない相手の場合は、
+        /// 空のパケットを1つ送ることで接続要求のトリガーとする（EOS P2Pは送信呼び出しで暗黙的に接続を開始する仕様のため）。
+        /// 既に確立済みなら即座にtrueを返す。
+        /// </summary>
+        /// <param name="socketNameEnum">通信チャネル</param>
+        /// <param name="remoteUserId">接続したい相手</param>
+        /// <param name="timeoutSeconds">確立を待つ最大秒数。NAT越えに失敗した場合の無限待ちを防ぐため必須</param>
+        /// <param name="cancellationToken">シーン遷移などでの中断用</param>
+        /// <returns>確立に成功したかどうか</returns>
+        public static async UniTask<bool> ConnectAsync(SocketNameEnum socketNameEnum, ProductUserId remoteUserId, float timeoutSeconds = 15f, CancellationToken cancellationToken = default)
+        {
+            if (P2P == null || EOSManager.Instance.GetProductUserId() == null)
+            {
+                Debug.LogError("[P2P] 接続できません。EOSManagerの初期化を確認してください。");
+                return false;
+            }
+            if (IsConnectionEstablished(socketNameEnum, remoteUserId))
+            {
+                return true;
+            }
+
+            // 接続要求のトリガーとして、空の捨てパケットを送る。
+            // ※中身は不要だが、UpdateReceiveLoop側のヘッダー解析で「不正なパケット」扱いされないよう、
+            //   型名長=0のみの最小限の正規ヘッダー形式に合わせる（受信側では「未登録のパケット」警告で無害に処理される）。
+            const int chunkIndexBytes = 2;
+            const int totalChunksBytes = 2;
+            const int messageIdBytes = 16;
+            byte[] triggerBuffer = new byte[1 + chunkIndexBytes + totalChunksBytes + messageIdBytes];
+            triggerBuffer[0] = 0; // 型名長 = 0
+            Array.Copy(BitConverter.GetBytes((ushort)0), 0, triggerBuffer, 1, chunkIndexBytes); // チャンク番号 = 0
+            Array.Copy(BitConverter.GetBytes((ushort)1), 0, triggerBuffer, 1 + chunkIndexBytes, totalChunksBytes); // 総チャンク数 = 1
+            Array.Copy(Guid.NewGuid().ToByteArray(), 0, triggerBuffer, 1 + chunkIndexBytes + totalChunksBytes, messageIdBytes);
+
+            var socketId = new SocketId() { SocketName = socketNameEnum.ToString() };
+            var sendOptions = new SendPacketOptions()
+            {
+                LocalUserId = EOSManager.Instance.GetProductUserId(),
+                RemoteUserId = remoteUserId,
+                SocketId = socketId,
+                Channel = 0,
+                Reliability = PacketReliability.ReliableOrdered,
+                Data = new ArraySegment<byte>(triggerBuffer)
+            };
+            Result triggerResult = P2P.SendPacket(ref sendOptions);
+            if (triggerResult != Result.Success)
+            {
+                Debug.LogError($"[P2P] 接続要求の送信に失敗しました。Result: {triggerResult} (相手: {remoteUserId})");
+                return false;
+            }
+
+            float elapsed = 0f;
+            const float pollIntervalSeconds = 0.1f;
+            while (!IsConnectionEstablished(socketNameEnum, remoteUserId))
+            {
+                if (elapsed >= timeoutSeconds)
+                {
+                    Debug.LogError($"[P2P] 接続確立がタイムアウトしました。相手: {remoteUserId} ({timeoutSeconds}秒)");
+                    return false;
+                }
+                await UniTask.Delay(TimeSpan.FromSeconds(pollIntervalSeconds), cancellationToken: cancellationToken);
+                elapsed += pollIntervalSeconds;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// SendPacketの安全版。接続が未確立なら確立を待ってから送信する。
+        /// HostStartGame等、確実に相手に届けたい重要なパケットはこちらを使う。
+        /// </summary>
+        /// <returns>送信できたかどうか（タイムアウト等で失敗した場合はfalse）</returns>
+        public static async UniTask<bool> SendPacketSafeAsync<T>(SocketNameEnum socketNameEnum, ProductUserId remoteUserId, T packet, float timeoutSeconds = 15f, PacketReliability reliability = PacketReliability.ReliableOrdered, CancellationToken cancellationToken = default)
+            where T : IPacketType
+        {
+            bool connected = await ConnectAsync(socketNameEnum, remoteUserId, timeoutSeconds, cancellationToken);
+            if (!connected)
+            {
+                return false;
+            }
+            SendPacket(socketNameEnum, remoteUserId, packet, reliability);
+            return true;
         }
 
         /// <summary>
@@ -455,6 +658,7 @@ namespace OriginalNameSpace.EOSMethod.P2P
 
             while (P2P.GetNextReceivedPacketSize(ref getNextSizeOptions, out uint packetSize) == Result.Success && packetSize > 0)
             {
+                Debug.Log("受け取りました。");
                 // 確保した固定バッファより大きいパケットはエラー
                 if (packetSize > _receiveBuffer.Length)
                 {

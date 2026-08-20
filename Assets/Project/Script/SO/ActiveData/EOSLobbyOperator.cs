@@ -8,6 +8,7 @@ public class EOSLobbyOperator : ScriptableObject
     public ProductUserId LocalProductUserId { get; private set; } // 自身のPUDI保持プロパティ
     public string CurrentLobbyId { get; private set; } // 参加ロビーID保持プロパティ
     public bool IsInLobby => !string.IsNullOrEmpty(CurrentLobbyId); // 現在ロビーに参加しているかどうか
+    private ulong _conenecteduuid;
 
     /// <summary>
     /// 初期化ログイン処理を行います
@@ -63,14 +64,20 @@ public class EOSLobbyOperator : ScriptableObject
 
         // ロビーIDを保持
         CurrentLobbyId = lobbyId;
-
+        _conenecteduuid = EOSLobbyMethod.RegisterAutoP2PConnection(lobbyId, SocketNameEnum.Fallback);    // ②以降の入退室に自動対応
+        await EOSLobbyMethod.ConnectToAllLobbyMembersAsync(lobbyId, SocketNameEnum.Fallback); // ③既存メンバーと接続
         return true;
     }
 
     public async UniTask<bool> LeaveRoomAsync()
     {
         bool success = await EOSLobbyMethod.LeaveLobbyAsync(CurrentLobbyId);
-        if (success) CurrentLobbyId = null;
+        if (success)
+        {
+            CurrentLobbyId = null;
+            EOSLobbyMethod.UnregisterLobbyNotifications(_conenecteduuid);
+            _conenecteduuid = 0;
+        }
         return success;
     }
     #region ========== ゲーム入退出処理 ==========

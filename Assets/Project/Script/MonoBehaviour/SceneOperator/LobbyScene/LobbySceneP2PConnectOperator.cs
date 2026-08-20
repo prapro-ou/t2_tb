@@ -1,10 +1,12 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Epic.OnlineServices;
+using OriginalNameSpace.EOSMethod.Lobby;
 using OriginalNameSpace.EOSMethod.P2P;
 public class LobbySceneP2PConnectOperator : MonoBehaviour
 {
     [SerializeField] private ProjectOverseer _projectOverseer;
+    [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
     [SerializeField] private GameSettingActiveSOData _gameStatusActiveSOData;
     [SerializeField] private SceneBlockTransitionOrchestrator _sceneBlockTransitionOrchestrator;
     private string _gameSettingPacketReceiveUUID;
@@ -15,6 +17,7 @@ public class LobbySceneP2PConnectOperator : MonoBehaviour
 
     private void OnGameSettingPacketReceived(ProductUserId remoteUserId, string socketName, GameSettingPacket packet)
     {
+        Debug.Log(remoteUserId);
         _gameStatusActiveSOData.ThisGameSettingPacket = packet;
         GameSceneChange().Forget();
     }
