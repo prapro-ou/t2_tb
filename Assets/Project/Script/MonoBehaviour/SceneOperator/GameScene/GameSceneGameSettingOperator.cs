@@ -18,6 +18,7 @@ public class GameSceneGameSettingOperator : MonoBehaviour
 
     public async UniTask Initialize()
     {
+        EOSP2PMethod.StartListening(SocketNameEnum.ModuleInfo);
         await UniTask.WaitUntil(() => _eosLobbyOperator.LocalProductUserId != null);
         ProductUserId userId = _eosLobbyOperator.LocalProductUserId;
         List<ProductUserId> playerIds = _gameSettingActiveSOData?.ThisGameSettingPacket.PlayerUserIds ?? new List<ProductUserId>();

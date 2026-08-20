@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 using Epic.OnlineServices;
 using Epic.OnlineServices.Lobby;
 using OriginalNameSpace.EOSMethod.Lobby;
@@ -12,18 +13,19 @@ public class LobbySceneHostChange : MonoBehaviour
     public void Initialize()
     {
         var hostID = EOSLobbyMethod.GetLobbyHostPuid(_eosLobbyOperator.CurrentLobbyId);
-        ChangeHost(hostID);
-        _notificationId = EOSLobbyMethod.RegisterLobbyNotifications(_eosLobbyOperator.CurrentLobbyId, HostChange);
+        ChangeHostDisplay(hostID).Forget();
+        _notificationId = EOSLobbyMethod.RegisterLobbyNotifications(_eosLobbyOperator.CurrentLobbyId, ChangeHost);
     }
 
-    public void HostChange(LobbyMemberStatusReceivedCallbackInfo info)
+    public void ChangeHost(LobbyMemberStatusReceivedCallbackInfo info)
     {
         if (info.CurrentStatus != LobbyMemberStatus.Promoted) return;
-        ChangeHost(info.TargetUserId);
+        ChangeHostDisplay(info.TargetUserId).Forget();
     }
 
-    private void ChangeHost(ProductUserId targetUserID)
+    private async UniTask ChangeHostDisplay(ProductUserId targetUserID)
     {
+        await UniTask.WaitForSeconds(1.0f);
         if (targetUserID == _eosLobbyOperator.LocalProductUserId)
         {
             _hostPanel.SetActive(true);

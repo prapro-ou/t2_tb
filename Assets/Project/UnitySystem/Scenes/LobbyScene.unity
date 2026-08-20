@@ -535,12 +535,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 366010864}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1545289384}
+  m_Father: {fileID: 1136935389}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &366010866
 MonoBehaviour:
@@ -655,6 +655,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoreSceneEOSOrchestorator
   _projectOverseer: {fileID: 11400000, guid: 62a8de7bb6363de4689fdec72866c727, type: 2}
+  _eosLobbyOperator: {fileID: 0}
   _gameStatusActiveSOData: {fileID: 11400000, guid: 11428505091f9774e8623ff72c67dcbf, type: 2}
   _sceneBlockTransitionOrchestrator: {fileID: 4945325}
 --- !u!1 &775514274
@@ -860,7 +861,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1045594991
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1046,6 +1047,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1566880222}
+  - {fileID: 366010865}
   m_Father: {fileID: 1545289384}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1136935390
@@ -1107,7 +1109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d1b4f264ebba46459d32c4d7a120702, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbySceneHostChange
-  _hostPanel: {fileID: 272208482}
+  _hostPanel: {fileID: 1045594990}
   _eosLobbyOperator: {fileID: 11400000, guid: 458dae190b4e3124ba15f549872c4dd2, type: 2}
 --- !u!1 &1184015918
 GameObject:
@@ -1832,7 +1834,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1136935389}
-  - {fileID: 366010865}
   - {fileID: 775514275}
   - {fileID: 738731365}
   - {fileID: 1424344434}

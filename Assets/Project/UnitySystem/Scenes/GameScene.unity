@@ -575,12 +575,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneStartGameOperator
   _timeModuleTimeDisplayMediator: {fileID: 1526078729}
+  _eosLobbyOperator: {fileID: 11400000, guid: 458dae190b4e3124ba15f549872c4dd2, type: 2}
   _gameSettingActiveSOData: {fileID: 11400000, guid: 11428505091f9774e8623ff72c67dcbf, type: 2}
   _projectOverseer: {fileID: 11400000, guid: 62a8de7bb6363de4689fdec72866c727, type: 2}
   _sceneBlockTransitionOrchestrator: {fileID: 7024799837261464888}
-  _endText: {fileID: 1223164779}
+  _text: {fileID: 1223164779}
   _clickBlocker: {fileID: 1943638944}
-  _endTextPanel: {fileID: 1781176194}
+  _textPanel: {fileID: 1781176194}
 --- !u!1 &772546605
 GameObject:
   m_ObjectHideFlags: 0

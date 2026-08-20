@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 using Epic.OnlineServices;
 using Epic.OnlineServices.Lobby;
 using OriginalNameSpace.EOSMethod.Lobby;
@@ -25,6 +26,7 @@ public class LobbySceneLobbyPlayerDisplayOrchestrator : MonoBehaviour
         SetPlayerName(lobbyPlayerNames, hostID, _displayField, _displayPanel);
 
         // 2. 通知登録
+        Debug.Log("登録");
         _notificationId = EOSLobbyMethod.RegisterLobbyNotifications(_eosLobbyOperator.CurrentLobbyId, LobbyMemberDisplay);
     }
 
@@ -38,8 +40,15 @@ public class LobbySceneLobbyPlayerDisplayOrchestrator : MonoBehaviour
 
 
     #region ========== Lobby入退出処理 ==========
-    public void LobbyMemberDisplay(LobbyMemberStatusReceivedCallbackInfo info)
+
+    private void LobbyMemberDisplay(LobbyMemberStatusReceivedCallbackInfo info)
     {
+        LobbyMemberDisplayAsync(info).Forget();
+    }
+
+    private async UniTask LobbyMemberDisplayAsync(LobbyMemberStatusReceivedCallbackInfo info)
+    {
+        await UniTask.WaitForSeconds(1.0f);
         var lobbyPlayerNames = EOSLobbyMethod.GetLobbyMemberDisplayNames(_eosLobbyOperator.CurrentLobbyId);
         var targetID = info.TargetUserId;
         switch (info.CurrentStatus)
@@ -112,12 +121,13 @@ public class LobbySceneLobbyPlayerDisplayOrchestrator : MonoBehaviour
     /// <param name="displayField">表示場所</param>
     public void RemoveUser(ProductUserId targetID, GameObject displayField)
     {
+        Debug.Log(targetID);
         foreach (Transform child in displayField.transform)
         {
-            if (child.GetComponent<LobbyUserDisplayOperator>()?.UserId == targetID)
+            if (child.GetComponentInChildren<LobbyUserDisplayOperator>()?.UserId == targetID)
             {
+                Debug.Log("a");
                 Destroy(child.gameObject);
-                break;
             }
         }
     }
@@ -131,7 +141,8 @@ public class LobbySceneLobbyPlayerDisplayOrchestrator : MonoBehaviour
     {
         foreach (Transform child in displayField.transform)
         {
-            LobbyUserDisplayOperator displayOperator = child.GetComponent<LobbyUserDisplayOperator>();
+            LobbyUserDisplayOperator displayOperator = child.GetComponentInChildren<LobbyUserDisplayOperator>();
+            if (displayOperator == null) return;
             if (hostID == displayOperator.UserId)
             {
                 displayOperator.HostChange(true);

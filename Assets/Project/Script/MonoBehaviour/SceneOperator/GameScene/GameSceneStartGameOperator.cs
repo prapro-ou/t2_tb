@@ -3,17 +3,19 @@ using System.Linq;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Epic.OnlineServices;
+using OriginalNameSpace.EOSMethod.Lobby;
 using OriginalNameSpace.EOSMethod.P2P;
 using System.Collections.Generic;
 using TMPro;
 public class GameSceneStartGameOperator : MonoBehaviour
 {
     [SerializeField] TimeModuleTimeDisplayMediator _timeModuleTimeDisplayMediator;
+    [SerializeField] EOSLobbyOperator _eosLobbyOperator;
     [SerializeField] GameSettingActiveSOData _gameSettingActiveSOData;
     [SerializeField] ProjectOverseer _projectOverseer;
     [SerializeField] SceneBlockTransitionOrchestrator _sceneBlockTransitionOrchestrator;
-    [SerializeField] TMP_Text _endText;
-    [SerializeField] GameObject _clickBlocker, _endTextPanel;
+    [SerializeField] TMP_Text _text;
+    [SerializeField] GameObject _clickBlocker, _textPanel;
     private float _timeCounter;
     private Dictionary<int, bool> _moduleCheck = new Dictionary<int, bool>();
     private string _uuidRadyGame, _uuidModuleCheck;
@@ -57,7 +59,6 @@ public class GameSceneStartGameOperator : MonoBehaviour
                 break;
             case ModuleCheckEnum.Failed:
                 _timeCounter += 15f;
-                Debug.Log("ペナルティ");
                 break;
         }
     }
@@ -65,9 +66,22 @@ public class GameSceneStartGameOperator : MonoBehaviour
 
     private async UniTask StartGameAsync()
     {
+        await EOSLobbyMethod.ConnectToAllLobbyMembersAsync(_eosLobbyOperator.CurrentLobbyId, SocketNameEnum.ModuleInfo);
+        await StartGameAnimationAsync();
         GameTimer().Forget();
         _clickBlocker.SetActive(false);
-        EOSP2PMethod.StartListening(SocketNameEnum.ModuleInfo);
+    }
+
+    private async UniTask StartGameAnimationAsync()
+    {
+        _textPanel.SetActive(true);
+        _text.text = "3";
+        await UniTask.WaitForSeconds(1f);
+        _text.text = "2";
+        await UniTask.WaitForSeconds(1f);
+        _text.text = "1";
+        await UniTask.WaitForSeconds(1f);
+        _textPanel.SetActive(false);
     }
 
     public async UniTask GameTimer()
@@ -95,15 +109,14 @@ public class GameSceneStartGameOperator : MonoBehaviour
         EOSP2PMethod.UnregisterListener(_uuidModuleCheck);
         EOSP2PMethod.StopListening(SocketNameEnum.ModuleInfo);
         if (endGameTypeEnum == EndGameTypeEnum.None) return;
-        _endTextPanel.SetActive(true);
-        Debug.Log(endGameTypeEnum);
+        _textPanel.SetActive(true);
         switch (endGameTypeEnum)
         {
             case EndGameTypeEnum.Success:
-                _endText.text = "Success";
+                _text.text = "Success";
                 break;
             case EndGameTypeEnum.Failed:
-                _endText.text = "Failed";
+                _text.text = "Failed";
                 break;
         }
         await UniTask.WaitForSeconds(3.0f);
