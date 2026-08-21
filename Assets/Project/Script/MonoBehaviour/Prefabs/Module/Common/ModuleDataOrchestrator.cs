@@ -19,6 +19,7 @@ public class ModuleDataOrchestrator : MonoBehaviour
         IsSuccess = false;
         HostId = hostId;
         Players = players;
+        Debug.Log(userColor);
         UserColors = userColor;
         ThisModuleSettingData = moduleSettingData;
     }
