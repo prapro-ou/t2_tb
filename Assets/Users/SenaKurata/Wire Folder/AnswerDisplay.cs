@@ -15,23 +15,18 @@ public class AnswerDisplay : MonoBehaviour
         Color.green 
     };
 
-    private void Start()
+    // 💡 オーケストレーターの OnInitialize イベントから呼ばれるメソッド
+    public void OnInitialize(WireModuleSettingData data)
     {
-        DisplayAnswer();
+        if (data.correctSequence == null) return;
+
+        DisplayAnswer(data.correctSequence);
     }
 
-    public void DisplayAnswer()
+    public void DisplayAnswer(int[] sequence)
     {
         if (guideText == null) return;
 
-        // GameDataから保存された正解データを取得
-        if (WireData.Instance == null || WireData.Instance.correctSequence == null)
-        {
-            guideText.text = "Code: No Data";
-            return;
-        }
-
-        int[] sequence = WireData.Instance.correctSequence;
         string sequenceText = "Code: ";
 
         for (int i = 0; i < sequence.Length; i++)
@@ -51,11 +46,12 @@ public class AnswerDisplay : MonoBehaviour
         }
 
         guideText.text = sequenceText;
+        Debug.Log($"【解答表示完了】{sequenceText}");
     }
 
     private Color GetWireColor(int wireId)
     {
-        if (wireColors != null && wireId < wireColors.Length)
+        if (wireColors != null && wireId >= 0 && wireId < wireColors.Length)
         {
             return wireColors[wireId];
         }
