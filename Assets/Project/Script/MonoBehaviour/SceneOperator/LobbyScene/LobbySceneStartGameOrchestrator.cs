@@ -14,7 +14,7 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
     [SerializeField] private LobbySceneTimeCounterOrchestrator _timeCounterOrchestrator;
     [SerializeField] private AllModuleSOData _allModuleSOData;
     [SerializeField] private ProjectOverseer _gameOverseer;
-    [SerializeField] private GameSettingActiveSOData _gameStatusActiveSOData;
+    [SerializeField] private GameSettingActiveSOData _gameSettingActiveSOData;
     [SerializeField] private GameObject _blockPanel;
 
     public void OnClick()
@@ -41,7 +41,7 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
     public void HostStartGame()
     {
         int moduleCount = _moduleCounterOrchestrator.ModuleCounter;
-        if (_gameStatusActiveSOData.IsStartGameSetting) return;
+        if (_gameSettingActiveSOData.IsStartGameSetting) return;
         // 0.初期確認
         GameSettingPacket packet = new GameSettingPacket()
         {
@@ -149,7 +149,7 @@ public class LobbySceneStartGameOrchestrator : MonoBehaviour
         }
 
         // 6. モジュール情報送信
-        _gameStatusActiveSOData.GameSettingEndRegister(members);
+        _gameSettingActiveSOData.GameSettingEndRegister(members);
         foreach (ProductUserId userId in members)
         {
             Debug.Log(userId + " " + packet);
