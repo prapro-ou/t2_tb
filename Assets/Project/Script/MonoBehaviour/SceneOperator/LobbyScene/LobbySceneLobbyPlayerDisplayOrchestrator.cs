@@ -10,6 +10,7 @@ public class LobbySceneLobbyPlayerDisplayOrchestrator : MonoBehaviour
     [SerializeField] private GameObject _displayField;
     [SerializeField] private GameObject _displayPanel;
     [SerializeField] EOSLobbyOperator _eosLobbyOperator;
+    [SerializeField] private AudioSource _audioSource;
     private ulong _notificationId = 0;
     #endregion ========== 定数・変数 ==========
 
@@ -49,6 +50,7 @@ public class LobbySceneLobbyPlayerDisplayOrchestrator : MonoBehaviour
     private async UniTask LobbyMemberDisplayAsync(LobbyMemberStatusReceivedCallbackInfo info)
     {
         await UniTask.WaitForSeconds(1.0f);
+        _audioSource.Play();
         var lobbyPlayerNames = EOSLobbyMethod.GetLobbyMemberDisplayNames(_eosLobbyOperator.CurrentLobbyId);
         var targetID = info.TargetUserId;
         switch (info.CurrentStatus)
