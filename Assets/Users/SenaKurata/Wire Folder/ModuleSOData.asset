@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e493afce11006c64cbfc2bc62db1818d, type: 3}
   m_Name: ModuleSOData
   m_EditorClassIdentifier: Assembly-CSharp::ModuleSOData
-  _moduleType: 2
+  _moduleType: 3
   _modulePrefabsDictionary:
     m_list:
+    - Key: 1
+      Value: {fileID: 6545544101564282366, guid: a567b468cda689349b3d8e24bea37cf9, type: 3}
     - Key: 0
-      Value: {fileID: 0}
+      Value: {fileID: 6545544101564282366, guid: 2771bf52479091f429466bca6a220f93, type: 3}
   _dataGanerate: {fileID: 11400000, guid: 4a1167b8c48307c45b61f1d02728e4aa, type: 2}
