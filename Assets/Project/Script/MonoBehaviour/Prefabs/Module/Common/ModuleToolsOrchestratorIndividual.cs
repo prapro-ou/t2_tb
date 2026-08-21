@@ -122,6 +122,7 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     public void ModuleSuccess()
     {
+        Debug.Log("ModuleSuccess");
         foreach (var pair in ThisModuleSettingData.ModuleGroup)
         {
             EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, pair.Value, new ModuleSuccessPacket()
@@ -144,6 +145,7 @@ public abstract class ModuleToolsOrchestratorIndividual<T> : ModuleToolsOrchestr
     /// </summary>
     public void ModuleFailed()
     {
+        Debug.Log("ModuleFailed");
         foreach (var pair in ThisModuleSettingData.ModuleGroup)
         {
             EOSP2PMethod.SendPacket(SocketNameEnum.ModuleInfo, pair.Value, new ModuleFailedPacket()
