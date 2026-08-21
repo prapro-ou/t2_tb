@@ -8,18 +8,12 @@ public class BombManager : MonoBehaviour
     private int currentStep = 0;
     private bool isGameOver = false;
 
-    // 💡【ここを追加】この関数があることで Inspector で選択できるようになります
+    // 💡 オーケストレーターの OnInitialize イベントから呼ばれる初期化処理
     public void OnInitialize(WireModuleSettingData data)
     {
         this.correctSequence = data.correctSequence;
         this.currentStep = 0;
         this.isGameOver = false;
-
-        // WireData 側にも正解を共有（AnswerDisplay などが参照できるように）
-        if (WireData.Instance != null)
-        {
-            WireData.Instance.correctSequence = data.correctSequence;
-        }
 
         Debug.Log($"【SOからデータ受取完了】正解コード: {string.Join(", ", correctSequence)}");
     }

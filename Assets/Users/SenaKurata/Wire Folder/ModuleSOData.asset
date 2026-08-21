@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModuleSOData
   _moduleType: 2
   _modulePrefabsDictionary:
-    m_list: []
+    m_list:
+    - Key: 0
+      Value: {fileID: 0}
   _dataGanerate: {fileID: 11400000, guid: 4a1167b8c48307c45b61f1d02728e4aa, type: 2}
