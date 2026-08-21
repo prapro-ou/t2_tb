@@ -16,6 +16,7 @@ public class GameSceneStartGameOperator : MonoBehaviour
     [SerializeField] SceneBlockTransitionOrchestrator _sceneBlockTransitionOrchestrator;
     [SerializeField] TMP_Text _text;
     [SerializeField] GameObject _clickBlocker, _textPanel;
+    [SerializeField] AudioSource _successAudioSource, _failedAudioSource;
     private float _timeCounter;
     private Dictionary<int, bool> _moduleCheck = new Dictionary<int, bool>();
     private string _uuidRadyGame, _uuidModuleCheck;
@@ -50,6 +51,7 @@ public class GameSceneStartGameOperator : MonoBehaviour
         switch (packet.CheckType)
         {
             case ModuleCheckEnum.Success:
+                _successAudioSource.Play();
                 if (_moduleCheck[packet.ModuleNumber]) break;
                 _moduleCheck[packet.ModuleNumber] = true;
                 if (_moduleCheck.Values.All(x => x == true))
@@ -58,6 +60,7 @@ public class GameSceneStartGameOperator : MonoBehaviour
                 }
                 break;
             case ModuleCheckEnum.Failed:
+                _failedAudioSource.Play();
                 _timeCounter += 15f;
                 break;
         }
