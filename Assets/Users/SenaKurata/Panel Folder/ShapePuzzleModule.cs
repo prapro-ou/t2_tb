@@ -3,9 +3,13 @@ using UnityEngine.UI;
 
 public class ShapePuzzleModule : MonoBehaviour
 {
+    [Header("UI設定")]
     public Button[] slotButtons = new Button[4];
     public Image[] slotImages = new Image[4];
     public Sprite[] shapeSprites;
+
+    [Header("親マネージャーへの参照")]
+    [SerializeField] private ShapePuzzleManager puzzleManager;
 
     private int[] currentGrid = new int[4];
     private int[] correctGrid = new int[4];
@@ -13,11 +17,9 @@ public class ShapePuzzleModule : MonoBehaviour
 
     private void Start()
     {
-        // ボタンのクリックイベントを安全に登録
         for (int i = 0; i < slotButtons.Length; i++)
         {
             int index = i;
-            // ★安全装置：ボタンが存在する場合のみ登録する
             if (slotButtons != null && i < slotButtons.Length && slotButtons[i] != null)
             {
                 slotButtons[i].onClick.RemoveAllListeners();
@@ -26,7 +28,6 @@ public class ShapePuzzleModule : MonoBehaviour
         }
     }
 
-    // GameManagerから正解と初期配置を受け取る関数
     public void SetupPuzzle(int[] correctOrder, int[] initialOrder)
     {
         correctGrid = (int[])correctOrder.Clone();
@@ -34,14 +35,12 @@ public class ShapePuzzleModule : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
-            // ★安全装置：画像が正しく設定されている場合のみ反映
             if (slotImages != null && i < slotImages.Length && slotImages[i] != null &&
                 shapeSprites != null && currentGrid[i] < shapeSprites.Length)
             {
                 slotImages[i].sprite = shapeSprites[currentGrid[i]];
             }
 
-            // ★安全装置：ボタンの色を初期化
             if (slotButtons != null && i < slotButtons.Length && slotButtons[i] != null)
             {
                 slotButtons[i].image.color = Color.white;
@@ -54,7 +53,6 @@ public class ShapePuzzleModule : MonoBehaviour
     {
         if (firstSelectedIndex == -1)
         {
-            // 1回目の選択（黄色くする）
             firstSelectedIndex = index;
             if (slotButtons[index] != null)
             {
@@ -63,7 +61,6 @@ public class ShapePuzzleModule : MonoBehaviour
         }
         else
         {
-            // 同じボタンを押したらキャンセル
             if (firstSelectedIndex == index)
             {
                 if (slotButtons[firstSelectedIndex] != null)
@@ -74,7 +71,7 @@ public class ShapePuzzleModule : MonoBehaviour
                 return;
             }
 
-            // 画像と数値データの入れ替え
+            // 画像とデータの入れ替え
             int temp = currentGrid[firstSelectedIndex];
             currentGrid[firstSelectedIndex] = currentGrid[index];
             currentGrid[index] = temp;
@@ -108,7 +105,11 @@ public class ShapePuzzleModule : MonoBehaviour
 
         if (isClear)
         {
-            Debug.Log("★パズルクリア！正解です！★");
+            Debug.Log("★このラウンドのパズルが揃いました！★");
+            if (puzzleManager != null)
+            {
+                puzzleManager.OnRoundCleared();
+            }
         }
     }
 }

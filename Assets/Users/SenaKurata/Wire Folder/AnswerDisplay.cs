@@ -3,29 +3,48 @@ using TMPro;
 
 public class AnswerDisplay : MonoBehaviour
 {
+    [System.Serializable]
+    public struct WireColorData
+    {
+        public string colorName;
+        public Color color;
+    }
+
     [Header("UI設定")]
     [SerializeField] private TextMeshProUGUI guideText;
 
-    [Header("配線の色設定 (BombManagerと要素順を揃える)")]
-    [SerializeField] private Color[] wireColors = new Color[] 
-    { 
-        Color.red, 
-        Color.blue, 
-        Color.yellow, 
-        Color.green 
+    [Header("配線の設定 (ID順に設定)")]
+    [SerializeField] private WireColorData[] wireColorDefinitions = new WireColorData[]
+    {
+        new WireColorData { colorName = "RED", color = Color.red },
+        new WireColorData { colorName = "BLUE", color = Color.blue },
+        new WireColorData { colorName = "YELLOW", color = Color.yellow },
+        new WireColorData { colorName = "GREEN", color = Color.green }
     };
 
-    // 💡 オーケストレーターの OnInitialize イベントから呼ばれるメソッド
+    // オーケストレーターの OnInitialize イベントから呼ばれるメソッド
     public void OnInitialize(WireModuleSettingData data)
     {
-        if (data.correctSequence == null) return;
+        Debug.Log($"【AnswerDisplay】OnInitializeが呼び出されました！データ存在: {data.correctSequence != null}");
+
+        if (data.correctSequence == null)
+        {
+            Debug.LogError("【AnswerDisplay】correctSequence が null です！データが正しく渡されていません。");
+            return;
+        }
 
         DisplayAnswer(data.correctSequence);
     }
 
     public void DisplayAnswer(int[] sequence)
     {
-        if (guideText == null) return;
+        if (guideText == null)
+        {
+            Debug.LogError("【AnswerDisplay】guideText (TextMeshProUGUI) が Inspector で未設定です！");
+            return;
+        }
+
+    // （以降の処理はそのまま）
 
         string sequenceText = "Code: ";
 
@@ -33,11 +52,11 @@ public class AnswerDisplay : MonoBehaviour
         {
             int wireId = sequence[i];
 
-            string colorName = GetColorName(wireId);
-            string hexColor = ColorUtility.ToHtmlStringRGB(GetWireColor(wireId));
+            WireColorData info = GetWireColorInfo(wireId);
+            string hexColor = ColorUtility.ToHtmlStringRGB(info.color);
 
             // Rich Text形式でカラー表示
-            sequenceText += $"<color=#{hexColor}>{colorName}</color>";
+            sequenceText += $"<color=#{hexColor}>{info.colorName}</color>";
 
             if (i < sequence.Length - 1)
             {
@@ -49,26 +68,18 @@ public class AnswerDisplay : MonoBehaviour
         Debug.Log($"【解答表示完了】{sequenceText}");
     }
 
-    private Color GetWireColor(int wireId)
+    private WireColorData GetWireColorInfo(int wireId)
     {
-        if (wireColors != null && wireId >= 0 && wireId < wireColors.Length)
+        if (wireColorDefinitions != null && wireId >= 0 && wireId < wireColorDefinitions.Length)
         {
-            return wireColors[wireId];
+            return wireColorDefinitions[wireId];
         }
-        return Color.white;
-    }
 
-    private string GetColorName(int wireId)
-    {
-        Color color = GetWireColor(wireId);
-
-        if (color == Color.red) return "RED";
-        if (color == Color.blue) return "BLUE";
-        if (color == Color.yellow) return "YELLOW";
-        if (color == Color.green) return "GREEN";
-        if (color == Color.white) return "WHITE";
-        if (color == Color.black) return "BLACK";
-
-        return $"WIRE{wireId}";
+        // 定義外のIDが渡された場合のフォールバック
+        return new WireColorData 
+        { 
+            colorName = $"WIRE{wireId}", 
+            color = Color.white 
+        };
     }
 }

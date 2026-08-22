@@ -610,7 +610,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 300b7b9896e7fd5459cf0774c68cd603, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestGameSceneGameSettingOperator
-  _moduleSOData: {fileID: 11400000, guid: 2fdf487d8cd1c7d44b1e44ed03072feb, type: 2}
+  _moduleSOData: {fileID: 11400000, guid: 4b1dd4706fce8cc4b9b4b207f55e8ac0, type: 2}
   _eosLobbyOperator: {fileID: 11400000, guid: 458dae190b4e3124ba15f549872c4dd2, type: 2}
   _gameStatusActiveSOData: {fileID: 11400000, guid: 3d9fe250793a0a548b4f5c62b9c99a3c, type: 2}
   _gameSettingActiveSOData: {fileID: 11400000, guid: 11428505091f9774e8623ff72c67dcbf, type: 2}

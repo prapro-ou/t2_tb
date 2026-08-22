@@ -206,7 +206,7 @@ Transform:
   m_GameObject: {fileID: 48258390}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -515.489, y: -1200.446, z: -3463.1724}
+  m_LocalPosition: {x: -515.489, y: -1200.446, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -501,6 +501,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6b965268d3faa5a4c86824a8d02599b2, type: 3}
+--- !u!114 &141074482 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7893840256666404718, guid: a567b468cda689349b3d8e24bea37cf9, type: 3}
+  m_PrefabInstance: {fileID: 499926404}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d91695a44b04ce345b9d25d6d02467c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnswerDisplay
 --- !u!114 &302580513 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8181322423912532195, guid: 4942699fb30d7324f82e92f03612caad, type: 3}
@@ -567,13 +578,21 @@ PrefabInstance:
       propertyPath: m_RenderMode
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 4332232548647109035, guid: a567b468cda689349b3d8e24bea37cf9, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 141074482}
+    - target: {fileID: 4332232548647109035, guid: a567b468cda689349b3d8e24bea37cf9, type: 3}
+      propertyPath: _onInitialize.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnInitialize
+      objectReference: {fileID: 0}
     - target: {fileID: 4361455217429945948, guid: a567b468cda689349b3d8e24bea37cf9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -350
       objectReference: {fileID: 0}
     - target: {fileID: 4361455217429945948, guid: a567b468cda689349b3d8e24bea37cf9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1522
+      value: -1376
       objectReference: {fileID: 0}
     - target: {fileID: 4361455217429945948, guid: a567b468cda689349b3d8e24bea37cf9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -718,17 +737,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &609452614 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6592898372247477046, guid: 4942699fb30d7324f82e92f03612caad, type: 3}
-  m_PrefabInstance: {fileID: 1054281645}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e664c718ee3dfbe439020c83ef51a75c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShapePuzzleModule
 --- !u!114 &709271620 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1711918205867100030, guid: 4942699fb30d7324f82e92f03612caad, type: 3}
@@ -751,39 +759,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &793378187 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8553458137090959394, guid: 6b965268d3faa5a4c86824a8d02599b2, type: 3}
-  m_PrefabInstance: {fileID: 96020030}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &858405840 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 328533238447675532, guid: 6b965268d3faa5a4c86824a8d02599b2, type: 3}
-  m_PrefabInstance: {fileID: 96020030}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &1039877426 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 110592074513203226, guid: 6b965268d3faa5a4c86824a8d02599b2, type: 3}
-  m_PrefabInstance: {fileID: 96020030}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1001 &1054281645
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1026,61 +1001,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4942699fb30d7324f82e92f03612caad, type: 3}
---- !u!1 &1167048222
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1167048224}
-  - component: {fileID: 1167048223}
-  m_Layer: 0
-  m_Name: ShapePuzzleManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1167048223
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167048222}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90f76861f41cb574282a7c9af04cfa43, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShapePuzzleManager
-  workerModule: {fileID: 609452614}
-  manualAnswerImages:
-  - {fileID: 1039877426}
-  - {fileID: 858405840}
-  - {fileID: 1670231690}
-  - {fileID: 793378187}
-  shapeSprites:
-  - {fileID: -1887117448, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
-  - {fileID: 738615110, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
-  - {fileID: -2074024709, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
-  - {fileID: -1457898000, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
---- !u!4 &1167048224
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167048222}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 412.5611, y: 165.23286, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1249231392
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1266,17 +1186,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2771bf52479091f429466bca6a220f93, type: 3}
---- !u!114 &1670231690 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6046701498448881157, guid: 6b965268d3faa5a4c86824a8d02599b2, type: 3}
-  m_PrefabInstance: {fileID: 96020030}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!114 &1954046869 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4993946310727582209, guid: 4942699fb30d7324f82e92f03612caad, type: 3}
@@ -1307,5 +1216,4 @@ SceneRoots:
   - {fileID: 499926404}
   - {fileID: 1249231392}
   - {fileID: 1054281645}
-  - {fileID: 1167048224}
   - {fileID: 96020030}

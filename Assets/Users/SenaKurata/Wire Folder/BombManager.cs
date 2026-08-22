@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class BombManager : MonoBehaviour
 {
-    [SerializeField] private WireToolsOrchestrator toolsOrchestrator; // 💡 通信通知用
+    [SerializeField] private WireToolsOrchestrator toolsOrchestrator; // 通信通知用
 
     private int[] correctSequence;
     private int currentStep = 0;
     private bool isGameOver = false;
 
-    // 💡 オーケストレーターの OnInitialize イベントから呼ばれる初期化処理
+    // オーケストレーターの OnInitialize イベントから呼ばれる初期化処理
     public void OnInitialize(WireModuleSettingData data)
     {
         this.correctSequence = data.correctSequence;
@@ -22,6 +22,7 @@ public class BombManager : MonoBehaviour
     {
         if (isGameOver || correctSequence == null) return;
 
+        // 正解の配線を選んだ場合
         if (wireId == correctSequence[currentStep])
         {
             currentStep++;
@@ -32,33 +33,38 @@ public class BombManager : MonoBehaviour
                 GameClear();
             }
         }
+        // 間違えた配線を選んだ場合（やり直し）
         else
         {
-            Explode();
+            Debug.LogWarning($"Wrong Wire! Resetting step from {currentStep} back to 0.");
+            ResetModule();
         }
+    }
+
+    // ★ 間違えた時に最初からやり直す処理
+    private void ResetModule()
+    {
+        currentStep = 0; // ステップを最初に戻す
+
+        // シーン内のすべての Wire スクリプトを探して元に戻す
+        Wire[] wires = Object.FindObjectsByType<Wire>(FindObjectsSortMode.None);
+        foreach (Wire wire in wires)
+        {
+            wire.ResetWire();
+        }
+
+        // ※もし間違えた時に失敗カウントや通知を送りたい場合はここで toolsOrchestrator.ModuleFailed() を呼ぶこともできます。
     }
 
     private void GameClear()
     {
         isGameOver = true;
         Debug.Log("GAME CLEAR!");
-        
+
         // モジュール解除成功を通知
         if (toolsOrchestrator != null)
         {
             toolsOrchestrator.ModuleSuccess();
-        }
-    }
-
-    private void Explode()
-    {
-        isGameOver = true;
-        Debug.LogError("BOOM! GAME OVER");
-
-        // モジュール解除失敗を通知
-        if (toolsOrchestrator != null)
-        {
-            toolsOrchestrator.ModuleFailed();
         }
     }
 }
