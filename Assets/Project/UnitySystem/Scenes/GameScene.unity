@@ -1344,6 +1344,8 @@ MonoBehaviour:
   _gameSceneGameSettingOperator: {fileID: 465037305}
   _gameSceneStartGameOperator: {fileID: 567148821}
   _sceneBlockTransitionOrchestrator: {fileID: 7024799837261464888}
+  _bgmOperator: {fileID: 11400000, guid: 4c25a39fa0b9fff4d8a6fb0ae165a8c3, type: 2}
+  _bgmClip: {fileID: 8300000, guid: 34608e28770c86243b136f742a1bbc43, type: 3}
 --- !u!4 &1707892533 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2411669210494224890, guid: 783e3c71b6a347e4483336da9dd9184c, type: 3}

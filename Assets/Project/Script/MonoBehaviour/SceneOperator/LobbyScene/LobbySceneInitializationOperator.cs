@@ -12,6 +12,8 @@ public class LobbySceneInitializationOperator : MonoBehaviour
     [SerializeField] LobbySceneP2PConnectOperator _p2pConnectOperator;
     [SerializeField] LobbySceneHostChange _hostChange;
     [SerializeField] TMP_Text _lobbyNameText;
+    [SerializeField] BGMOperator _bgmOperator;
+    [SerializeField] AudioClip _bgmClip;
 
     public void Initialize()
     {
@@ -22,5 +24,6 @@ public class LobbySceneInitializationOperator : MonoBehaviour
         _moduleCounterOrchestrator.Initialize();
         _timeCounterOrchestrator.Initialize();
         _hostChange.Initialize();
+        _bgmOperator.SetPlay(_bgmClip);
     }
 }
