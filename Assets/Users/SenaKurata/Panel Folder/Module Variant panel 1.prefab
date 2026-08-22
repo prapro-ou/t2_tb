@@ -318,6 +318,7 @@ MonoBehaviour:
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 1
   m_ConstraintCount: 2
+<<<<<<< HEAD
 --- !u!1 &6193622524213232860
 GameObject:
   m_ObjectHideFlags: 0
@@ -368,6 +369,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   shapeSprites: []
+=======
+>>>>>>> fc563ea5e495d36be31e221292bafd615bc57d12
 --- !u!1 &7483128989413410803
 GameObject:
   m_ObjectHideFlags: 0
@@ -622,7 +625,10 @@ MonoBehaviour:
   - {fileID: 738615110, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
   - {fileID: -2074024709, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
   - {fileID: -1457898000, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
+<<<<<<< HEAD
   puzzleManager: {fileID: 0}
+=======
+>>>>>>> fc563ea5e495d36be31e221292bafd615bc57d12
 --- !u!1 &9156984036729112340
 GameObject:
   m_ObjectHideFlags: 0
@@ -843,13 +849,44 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8908989420974981861}
+<<<<<<< HEAD
     - targetCorrespondingSourceObject: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2033891434642244234}
     m_AddedComponents: []
+=======
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5889833901742782373, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1036429486833567871}
+>>>>>>> fc563ea5e495d36be31e221292bafd615bc57d12
   m_SourcePrefab: {fileID: 100100000, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
 --- !u!4 &4361455217429945948 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
   m_PrefabInstance: {fileID: 1763251153442729710}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
+=======
+--- !u!1 &5315574871112948043 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5889833901742782373, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+  m_PrefabInstance: {fileID: 1763251153442729710}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1036429486833567871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5315574871112948043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cda81bc7584eab40aea826e2164826b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShapePuzzleToolsOrchestrator
+  _isInitialize: 1
+  _onInitialize:
+    m_PersistentCalls:
+      m_Calls: []
+>>>>>>> fc563ea5e495d36be31e221292bafd615bc57d12

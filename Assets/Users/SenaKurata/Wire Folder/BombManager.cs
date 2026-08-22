@@ -60,7 +60,6 @@ public class BombManager : MonoBehaviour
     {
         isGameOver = true;
         Debug.Log("GAME CLEAR!");
-
         // モジュール解除成功を通知
         if (toolsOrchestrator != null)
         {
