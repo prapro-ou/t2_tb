@@ -1,11 +1,21 @@
 using UnityEngine;
-
+using Epic.OnlineServices;
 public class LobbyUserDisplayOperator : MonoBehaviour
 {
     [SerializeField] private LobbyUserDisplaySettingOrchestrator _settingOrchestrator = null;
-
-    public void InitializeLobbyUserDisplay(string userName, bool host)
+    public ProductUserId UserId;
+    public bool IsHost = false;
+    public void InitializeLobbyUserDisplay(ProductUserId productUserId, string userName, bool isHost)
     {
-        _settingOrchestrator.SetLobbyUserDisplaySetting(userName, host);
+        UserId = productUserId;
+        IsHost = isHost;
+        _settingOrchestrator.SetUserName(userName);
+        _settingOrchestrator.SetHostImage(IsHost);
+    }
+
+    public void HostChange(bool isHost)
+    {
+        IsHost = isHost;
+        _settingOrchestrator.SetHostImage(IsHost);
     }
 }

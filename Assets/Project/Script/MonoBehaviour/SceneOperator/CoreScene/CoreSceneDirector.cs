@@ -1,9 +1,12 @@
 using UnityEngine;
-public class CoreSceneDirector : MonoBehaviour
+namespace Project
 {
-    [SerializeField] CoreSceneInitializationOperator _initializationOperator;
-    void Start()
+    public class CoreSceneDirector : MonoBehaviour
     {
-        _initializationOperator.Intialize();
+        [SerializeField] CoreSceneInitializationOperator _initializationOperator;
+        void Start()
+        {
+            _initializationOperator.Intialize();
+        }
     }
 }

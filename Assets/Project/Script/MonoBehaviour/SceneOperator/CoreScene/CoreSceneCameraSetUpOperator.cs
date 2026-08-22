@@ -1,7 +1,7 @@
 using UnityEngine;
 public class CoreSceneCameraSetUpOperator : MonoBehaviour
 {
-    [SerializeField] private GameOverseer _gameOverseer;
+    [SerializeField] private ProjectOverseer _gameOverseer;
     [SerializeField] private Camera _baseCamera;
     public void Initialize()
     {

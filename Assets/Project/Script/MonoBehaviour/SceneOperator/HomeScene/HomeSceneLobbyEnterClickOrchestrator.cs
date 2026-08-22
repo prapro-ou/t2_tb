@@ -6,7 +6,8 @@ public class HomeSceneLobbyEnterClickOrchestrator : MonoBehaviour
 {
     [SerializeField] private TMP_Text _userName, _roomName;
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
-    [SerializeField] private GameOverseer _gameOverseer;
+    [SerializeField] private ProjectOverseer _gameOverseer;
+    [SerializeField] private SceneBlockTransitionOrchestrator _sceneBlockTransitionOrchestrator;
     private bool isEnter = false;
 
     public void OnClick()
@@ -37,7 +38,7 @@ public class HomeSceneLobbyEnterClickOrchestrator : MonoBehaviour
                 Debug.LogError("ロビーへの参加または作成に失敗したため、処理を中断します。");
                 return;
             }
-
+            await _sceneBlockTransitionOrchestrator.SceneOut();
             await _gameOverseer.sceneOrchestrator.RemoveSceneMediator(SceneNameEnum.HomeScene);
             await _gameOverseer.sceneOrchestrator.AddSceneMediator(SceneNameEnum.LobbyScene);
 

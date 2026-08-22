@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 public class SceneCameraOperator : MonoBehaviour
 {
-    [SerializeField] private GameOverseer _gameOverseer;
+    [SerializeField] private ProjectOverseer _gameOverseer;
     [SerializeField] private List<Camera> _overlayCamera;
     void Awake()
     {

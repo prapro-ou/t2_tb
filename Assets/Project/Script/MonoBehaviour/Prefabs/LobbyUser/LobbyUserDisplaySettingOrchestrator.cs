@@ -5,11 +5,13 @@ public class LobbyUserDisplaySettingOrchestrator : MonoBehaviour
 {
     [SerializeField] private Image _hostImage;
     [SerializeField] private TMP_Text _userNameText;
-    public void SetLobbyUserDisplaySetting(string userName, bool host)
+    public void SetUserName(string userName)
     {
-        Debug.Log("LobbyUserDisplaySettingOrchestrator.SetLobbyUserDisplaySetting");
-        Debug.Log(userName);
         _userNameText.text = userName;
-        _hostImage.enabled = host;
+    }
+
+    public void SetHostImage(bool isHost)
+    {
+        _hostImage.enabled = isHost;
     }
 }

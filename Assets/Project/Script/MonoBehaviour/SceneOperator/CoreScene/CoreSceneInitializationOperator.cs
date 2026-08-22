@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class CoreSceneInitializationOperator : MonoBehaviour
@@ -8,6 +9,6 @@ public class CoreSceneInitializationOperator : MonoBehaviour
     public void Intialize()
     {
         _cameraSetUpOperator.Initialize();
-        _eosOrchestrator.Initialize();
+        _eosOrchestrator.Initialize().Forget();
     }
 }
