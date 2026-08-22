@@ -1,5 +1,6 @@
 public enum SocketNameEnum
 {
     Test,
-    ModuleData
+    Fallback,
+    ModuleInfo,
 }
