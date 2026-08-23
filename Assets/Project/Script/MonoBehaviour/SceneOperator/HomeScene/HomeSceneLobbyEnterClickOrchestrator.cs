@@ -9,10 +9,12 @@ public class HomeSceneLobbyEnterClickOrchestrator : MonoBehaviour
     [SerializeField] private ProjectOverseer _gameOverseer;
     [SerializeField] private SceneBlockTransitionOrchestrator _sceneBlockTransitionOrchestrator;
     private bool isEnter = false;
+    [SerializeField] private AudioSource _audioSource;
 
     public void OnClick()
     {
         if (isEnter) return;
+        _audioSource.Play();
         isEnter = true;
         // TMPのテキストはインプットフィールド経由の場合、末尾に不可視文字が入ることがあるためクレンジング
         string cleanedUserName = _userName.text.Trim().Replace("\u200b", "");
