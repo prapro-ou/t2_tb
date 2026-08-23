@@ -6,6 +6,7 @@ public class DialModuleLockMediator : MonoBehaviour
     [SerializeField] private ModuleToolsOrchestratorIndividual<DialModuleSettingData> _moduleTools;
     [SerializeField] private ModuleDataOrchestrator _moduleData;
     [SerializeField] private DialModuleMainOrchestrator _dialModuleMain;
+    [SerializeField] private AudioSource _audioSource;
     [SerializeField] private Transform _dialTransform;
     private DialModuleSettingData _dialModuleSettingData;
     private readonly float absArea = 17.5f;
@@ -41,6 +42,7 @@ public class DialModuleLockMediator : MonoBehaviour
     {
         if (_isLock)
         {
+            _audioSource.Play();
             float absArg = Mathf.Abs(Mathf.DeltaAngle(_dialTransform.localEulerAngles.z, _lockAreaIndex * (360 / _dialModuleMain.MarkerCount)));
             if (absArg < absArea)
             {

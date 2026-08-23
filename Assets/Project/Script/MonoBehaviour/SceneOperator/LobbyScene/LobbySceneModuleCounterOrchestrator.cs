@@ -7,6 +7,7 @@ public class LobbySceneModuleCounterOrchestrator : MonoBehaviour
     [SerializeField] private TMP_Text text;
     private int _moduleCounter = 0;
     public int ModuleCounter => CountCheck();
+    [SerializeField] private AudioSource _audioSource;
     public void Initialize()
     {
         CountCheck();
@@ -14,12 +15,14 @@ public class LobbySceneModuleCounterOrchestrator : MonoBehaviour
 
     public void OnAddClick()
     {
+        _audioSource.Play();
         _moduleCounter++;
         CountCheck();
     }
 
     public void OnSubClick()
     {
+        _audioSource.Play();
         _moduleCounter--;
         CountCheck();
     }

@@ -6,6 +6,7 @@ public class LobbySceneTimeCounterOrchestrator : MonoBehaviour
     [SerializeField] private TMP_Text text;
     private int _timeCounter = 0;
     public int TimeCounter => _timeCounter;
+    [SerializeField] private AudioSource _audioSource;
     public void Initialize()
     {
         TimeCheck();
@@ -13,12 +14,14 @@ public class LobbySceneTimeCounterOrchestrator : MonoBehaviour
 
     public void OnAddClick()
     {
+        _audioSource.Play();
         _timeCounter++;
         TimeCheck();
     }
 
     public void OnSubClick()
     {
+        _audioSource.Play();
         _timeCounter--;
         TimeCheck();
     }
