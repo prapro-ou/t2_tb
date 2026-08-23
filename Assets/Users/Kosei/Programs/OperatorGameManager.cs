@@ -63,7 +63,7 @@ public class OperatorGameManager : MonoBehaviour
     {
         isLocked = true;
 
-        if (instructionText != null) instructionText.text = "MODULE CLEAR!";
+        if (instructionText != null) instructionText.text = "CLEAR";
         if (actionButtonController != null) actionButtonController.SetClear();
 
         // 💡 背景板（InstructionBoard）の色を黄色に変更
@@ -75,23 +75,29 @@ public class OperatorGameManager : MonoBehaviour
         isRunning = false;
         isLocked = false;
 
-        if (instructionText != null) instructionText.text = "PRESS BUTTON";
+        if (instructionText != null) instructionText.text = "START";
         if (actionButtonController != null) actionButtonController.SetPlay();
 
         // 💡 背景板（InstructionBoard）の色を白色（Normal）にリセット
         if (boardController != null) boardController.SetNormal();
     }
 
-    public void PressActionButton()
+public void PressActionButton()
     {
         if (!isInitialized || isLocked) return;
 
         isRunning = !isRunning;
 
+        // 💡 ボタンアイコンと指示テキストを同時に切り替える
         if (actionButtonController != null)
         {
             if (isRunning) actionButtonController.SetStop();
             else actionButtonController.SetPlay();
+        }
+
+        if (instructionText != null)
+        {
+            instructionText.text = isRunning ? "STOP" : "START";
         }
 
         if (toolsOrchestrator != null)

@@ -138,8 +138,7 @@ private void CheckAnswer()
     {
         float min = target - tolerance;
         float max = target + tolerance;
-        string header = isRetry ? "RETRY!" : "WATCH!!";
-        ShowInstruction($"{header}\n{min:F2} - {max:F2}");
+        ShowInstruction($"{min:F2} - {max:F2}");
         SetNormal();
     }
 
@@ -158,19 +157,19 @@ private void CheckAnswer()
 
     public void SetSuccess()
     {
-        ShowInstruction("SUCCESS!");
+        ShowInstruction("SUCCESS");
         if (timerInstructionBoard != null) timerInstructionBoard.SetSuccess();
     }
 
     public void SetFailed()
     {
-        ShowInstruction("FAILED!");
+        ShowInstruction("FAILED");
         if (timerInstructionBoard != null) timerInstructionBoard.SetFailed();
     }
 
     public void SetClear()
     {
-        ShowInstruction("MODULE CLEAR!");
+        ShowInstruction("CLEAR");
         if (timerInstructionBoard != null) timerInstructionBoard.SetClear();
     }
 

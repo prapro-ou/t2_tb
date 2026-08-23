@@ -402,15 +402,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: Instruction
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 17fae87e9f2857247bc5bd9475ca11a9, type: 2}
+  m_sharedMaterial: {fileID: 4473447439562540025, guid: 17fae87e9f2857247bc5bd9475ca11a9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281874488
-  m_fontColor: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 1}
+    rgba: 4279900698
+  m_fontColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -427,13 +427,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.1
+  m_fontSize: 0.15
   m_fontSizeBase: 0.1
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 0.01
+  m_fontSizeMax: 0.2
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -742,6 +742,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoardController
   boardRenderers:
   - {fileID: 3039690862846958635}
+  boardText: {fileID: 0}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   successColor: {r: 0, g: 1, b: 0, a: 1}
   failedColor: {r: 1, g: 0, b: 0, a: 1}
@@ -991,6 +992,10 @@ PrefabInstance:
     - target: {fileID: 4804815488203102992, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       propertyPath: m_Name
       value: StopwatchModule_Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 9074292086101992889, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
