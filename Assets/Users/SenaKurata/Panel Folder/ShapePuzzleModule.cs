@@ -11,11 +11,12 @@ public class ShapePuzzleModule : MonoBehaviour
     [Header("親マネージャーへの参照")]
     [SerializeField] private ShapePuzzleManager puzzleManager;
 
-    private int[] currentGrid = new int[4];
-    private int[] correctGrid = new int[4];
+    private int[] currentGrid;
+    private int[] correctGrid;
     private int firstSelectedIndex = -1;
+    private bool isLocked = false; // クリア後の連打・操作防止フラグ
 
-    private void Start()
+    private void Awake()
     {
         for (int i = 0; i < slotButtons.Length; i++)
         {
@@ -30,27 +31,34 @@ public class ShapePuzzleModule : MonoBehaviour
 
     public void SetupPuzzle(int[] correctOrder, int[] initialOrder)
     {
+        if (correctOrder == null || initialOrder == null) return;
+
         correctGrid = (int[])correctOrder.Clone();
         currentGrid = (int[])initialOrder.Clone();
+        isLocked = false; // 操作ロック解除
 
-        for (int i = 0; i < 4; i++)
+        int count = Mathf.Min(currentGrid.Length, slotImages.Length);
+
+        for (int i = 0; i < count; i++)
         {
-            if (slotImages != null && i < slotImages.Length && slotImages[i] != null &&
-                shapeSprites != null && currentGrid[i] < shapeSprites.Length)
+            if (slotImages[i] != null && shapeSprites != null && currentGrid[i] < shapeSprites.Length)
             {
                 slotImages[i].sprite = shapeSprites[currentGrid[i]];
             }
 
             if (slotButtons != null && i < slotButtons.Length && slotButtons[i] != null)
             {
+                slotButtons[i].interactable = true;
                 slotButtons[i].image.color = Color.white;
             }
         }
         firstSelectedIndex = -1;
     }
 
-    void OnSlotClicked(int index)
+    private void OnSlotClicked(int index)
     {
+        if (isLocked) return; // ロック中なら操作不可
+
         if (firstSelectedIndex == -1)
         {
             firstSelectedIndex = index;
@@ -71,7 +79,7 @@ public class ShapePuzzleModule : MonoBehaviour
                 return;
             }
 
-            // 画像とデータの入れ替え
+            // 入れ替え
             int temp = currentGrid[firstSelectedIndex];
             currentGrid[firstSelectedIndex] = currentGrid[index];
             currentGrid[index] = temp;
@@ -91,25 +99,28 @@ public class ShapePuzzleModule : MonoBehaviour
         }
     }
 
-    void CheckClear()
+    private void CheckClear()
     {
-        bool isClear = true;
-        for (int i = 0; i < 4; i++)
-        {
-            if (currentGrid[i] != correctGrid[i])
-            {
-                isClear = false;
-                break;
-            }
-        }
+        bool isClear = ShapePuzzleUtility.IsSequenceEqual(currentGrid, correctGrid);
 
         if (isClear)
         {
-            Debug.Log("★このラウンドのパズルが揃いました！★");
+            isLocked = true; // 揃ったら操作不可にする
+            SetButtonsInteractable(false);
+            Debug.Log("★自分のパズルが揃いました！相手の完了を待っています...★");
+
             if (puzzleManager != null)
             {
-                puzzleManager.OnRoundCleared();
+                puzzleManager.OnLocalPlayerCleared();
             }
+        }
+    }
+
+    private void SetButtonsInteractable(bool state)
+    {
+        foreach (var btn in slotButtons)
+        {
+            if (btn != null) btn.interactable = state;
         }
     }
 }

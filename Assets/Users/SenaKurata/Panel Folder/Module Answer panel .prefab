@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8181322423912532195}
   - component: {fileID: 1325290639183441018}
   m_Layer: 6
-  m_Name: Slot_2
+  m_Name: Answer_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -120,58 +120,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!1 &1314099630675103274
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2554499608427748439}
-  - component: {fileID: 9046247556779525756}
-  m_Layer: 6
-  m_Name: PuzzlManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2554499608427748439
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1314099630675103274}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 79.40514, y: 26.15937, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4361455217429945948}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &9046247556779525756
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1314099630675103274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90f76861f41cb574282a7c9af04cfa43, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShapePuzzleManager
-  toolsOrchestrator: {fileID: 282359460408487055}
-  puzzleModule: {fileID: 6592898372247477046}
-  shapeSprites:
-  - {fileID: -1887117448, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
-  - {fileID: 738615110, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
-  - {fileID: -2074024709, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
-  - {fileID: -1457898000, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
-  requiredClearCount: 3
 --- !u!1 &1623975058348810184
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,7 +148,7 @@ RectTransform:
   m_GameObject: {fileID: 1623975058348810184}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1013086, y: 0.10291667, z: 0.12864584}
+  m_LocalScale: {x: 0.09970052, y: 0.1013086, z: 0.12864584}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1143162460540556173}
@@ -275,6 +223,58 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!1 &3229933322239274010
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3714245456406518463}
+  - component: {fileID: 1739581099567557244}
+  m_Layer: 0
+  m_Name: PuzzlManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3714245456406518463
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3229933322239274010}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -32.30949, y: -26.92462, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4361455217429945948}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1739581099567557244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3229933322239274010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90f76861f41cb574282a7c9af04cfa43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShapePuzzleManager
+  toolsOrchestrator: {fileID: 282359460408487055}
+  puzzleModule: {fileID: 6592898372247477046}
+  shapeSprites:
+  - {fileID: -1887117448, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
+  - {fileID: 738615110, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
+  - {fileID: -2074024709, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
+  - {fileID: -1457898000, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
+  requiredClearCount: 3
 --- !u!1 &4602061874175948271
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,7 +288,7 @@ GameObject:
   - component: {fileID: 6233028777296932118}
   - component: {fileID: 6714509297234298311}
   m_Layer: 6
-  m_Name: Slot_3
+  m_Name: Answer_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -408,7 +408,7 @@ GameObject:
   - component: {fileID: 1711918205867100030}
   - component: {fileID: 8228540687396286789}
   m_Layer: 6
-  m_Name: Slot_1
+  m_Name: Answer_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -592,7 +592,7 @@ GameObject:
   - component: {fileID: 4993946310727582209}
   - component: {fileID: 5471504760904500230}
   m_Layer: 6
-  m_Name: Slot_0
+  m_Name: Answer_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -727,7 +727,7 @@ RectTransform:
   m_GameObject: {fileID: 8536463986902018653}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 10, z: 1}
+  m_LocalScale: {x: 10.075, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2998423651935061637}
@@ -759,7 +759,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 0}
+  m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 0}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -803,7 +803,7 @@ MonoBehaviour:
   - {fileID: 738615110, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
   - {fileID: -2074024709, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
   - {fileID: -1457898000, guid: f8b2d2d529a8c8646acdd8281c6f9659, type: 3}
-  puzzleManager: {fileID: 9046247556779525756}
+  puzzleManager: {fileID: 1739581099567557244}
 --- !u!1001 &1763251153442729710
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -854,7 +854,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804815488203102992, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       propertyPath: m_Name
-      value: Module Variant panel
+      value: 'Module Answer panel '
       objectReference: {fileID: 0}
     - target: {fileID: 7109649257563713957, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -874,7 +874,7 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 2665941852404838578, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2554499608427748439}
+      addedObject: {fileID: 3714245456406518463}
     - targetCorrespondingSourceObject: {fileID: 8777576315450867073, guid: 249f69177c1185748b6b6de4f378b1ef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8908989420974981861}
@@ -909,7 +909,7 @@ MonoBehaviour:
   _onInitialize:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 9046247556779525756}
+      - m_Target: {fileID: 1739581099567557244}
         m_TargetAssemblyTypeName: ShapePuzzleManager, Assembly-CSharp
         m_MethodName: OnInitialize
         m_Mode: 0

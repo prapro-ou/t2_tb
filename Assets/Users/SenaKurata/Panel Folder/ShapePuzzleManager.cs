@@ -3,10 +3,10 @@ using System.Linq;
 
 public class ShapePuzzleManager : MonoBehaviour
 {
-    [SerializeField] private ShapePuzzleToolsOrchestrator toolsOrchestrator; // 通信通知用
+    [SerializeField] private ShapePuzzleToolsOrchestrator toolsOrchestrator;
 
-    [Header("作業者用モジュール")]
-    [SerializeField] private ShapePuzzleModule workerModule;
+    [Header("パズルモジュール（手元画面）")]
+    [SerializeField] private ShapePuzzleModule puzzleModule;
 
     [Header("使用する図形画像4枚")]
     [SerializeField] private Sprite[] shapeSprites;
@@ -15,84 +15,109 @@ public class ShapePuzzleManager : MonoBehaviour
     [SerializeField] private int requiredClearCount = 3;
     private int currentClearCount = 0;
 
+    // 2人のクリアフラグ
+    private bool isLocalCleared = false;
+    private bool isRemoteCleared = false;
+
     private const int PieceCount = 4;
 
-    // オーケストレーターの OnInitialize イベントから呼ばれる初期化処理
     public void OnInitialize(ShapePuzzleModuleSettingData data)
     {
         currentClearCount = 0;
+        ResetRoundState();
 
-        if (workerModule != null)
+        if (puzzleModule != null)
         {
-            workerModule.shapeSprites = shapeSprites;
-            workerModule.SetupPuzzle(data.correctOrder, data.initialOrder);
+            puzzleModule.shapeSprites = shapeSprites;
+            puzzleModule.SetupPuzzle(data.correctOrder, data.initialOrder);
         }
 
-        Debug.Log($"【SOからデータ受取完了】図形パズル初期化完了");
+        Debug.Log("【図形パズル】初期化完了");
     }
 
     /// <summary>
-    /// パズルが揃ったときに ShapePuzzleModule 側から呼ばれる関数
+    /// 自分の画面でパズルが揃ったとき（Moduleから呼ばれる）
     /// </summary>
-    public void OnRoundCleared()
+    public void OnLocalPlayerCleared()
     {
-        currentClearCount++;
-        Debug.Log($"【図形パズル】クリア進捗: {currentClearCount} / {requiredClearCount}");
+        if (isLocalCleared) return;
+        isLocalCleared = true;
 
-        if (currentClearCount >= requiredClearCount)
-        {
-            GameClear();
-        }
-        else
-        {
-            GenerateNextRound();
-        }
+        // オーケストレーター経由で「自分が揃った」ことを相手端末へ送信する処理が必要な場合はここで行う
+        CheckBothPlayersCleared();
     }
 
     /// <summary>
-    /// 次の問題（ラウンド）を自前でランダム生成して作業者UIを更新する
+    /// P2Pで相手プレイヤーが揃った通知をオーケストレーターから受信したとき呼び出す関数
     /// </summary>
+    public void OnRemotePlayerCleared()
+    {
+        if (isRemoteCleared) return;
+        isRemoteCleared = true;
+        Debug.Log("【図形パズル】相手プレイヤーのパズルが揃いました！");
+
+        CheckBothPlayersCleared();
+    }
+
+    /// <summary>
+    /// 両プレイヤーが揃ったか判定
+    /// </summary>
+    private void CheckBothPlayersCleared()
+    {
+        if (isLocalCleared && isRemoteCleared)
+        {
+            currentClearCount++;
+            Debug.Log($"★2人とも完了！ ラウンド進捗: {currentClearCount} / {requiredClearCount}★");
+
+            if (currentClearCount >= requiredClearCount)
+            {
+                GameClear();
+            }
+            else
+            {
+                GenerateNextRound();
+            }
+        }
+    }
+
     private void GenerateNextRound()
     {
+        ResetRoundState();
+
         int[] newCorrect = Enumerable.Range(0, PieceCount).ToArray();
-        Shuffle(newCorrect);
+        ShapePuzzleUtility.Shuffle(newCorrect);
 
         int[] newInitial = (int[])newCorrect.Clone();
+        int safetyCount = 0;
         do
         {
-            Shuffle(newInitial);
-        } while (Enumerable.SequenceEqual(newCorrect, newInitial));
+            ShapePuzzleUtility.Shuffle(newInitial);
+            safetyCount++;
+        } while (ShapePuzzleUtility.IsSequenceEqual(newCorrect, newInitial) && safetyCount < 100);
 
-        // 作業者画面のパズルを再セットアップ
-        if (workerModule != null)
+        if (puzzleModule != null)
         {
-            workerModule.SetupPuzzle(newCorrect, newInitial);
+            puzzleModule.SetupPuzzle(newCorrect, newInitial);
         }
 
-        Debug.Log("【図形パズル】次のラウンドのパズルを生成・更新しました。");
+        Debug.Log("【図形パズル】次のラウンドを開始します。");
+    }
+
+    private void ResetRoundState()
+    {
+        isLocalCleared = false;
+        isRemoteCleared = false;
     }
 
     private void GameClear()
     {
-        Debug.Log("【図形パズル】3回クリア達成！GAME CLEAR!");
+        Debug.Log("【図形パズル】全ラウンドクリア達成！");
 
-        // モジュール解除成功を通知（BombManagerと統一）
         if (toolsOrchestrator != null)
         {
             toolsOrchestrator.ModuleSuccess();
         }
 
         gameObject.SetActive(false);
-    }
-
-    private void Shuffle(int[] array)
-    {
-        for (int i = array.Length - 1; i > 0; i--)
-        {
-            int randomIndex = Random.Range(0, i + 1);
-            int temp = array[i];
-            array[i] = array[randomIndex];
-            array[randomIndex] = temp;
-        }
     }
 }
