@@ -15,6 +15,8 @@ MonoBehaviour:
   _moduleType: 6
   _modulePrefabsDictionary:
     m_list:
+    - Key: 1
+      Value: {fileID: 6545544101564282366, guid: e4a6fbb298898094788ae0aee1de907a, type: 3}
     - Key: 0
       Value: {fileID: 6545544101564282366, guid: 6aadd308816f8ba4eb525600174c6bc2, type: 3}
   _dataGanerate: {fileID: 11400000, guid: 0a552d08ef559fa48a3832e89e9d58f2, type: 2}

@@ -4,15 +4,17 @@ public class SymbolModuleMainOrchestrator : MonoBehaviour
 {
     [SerializeField] private ModuleToolsOrchestratorBase _toolsOrchestratorBase;
     [SerializeField] private SymbolManager _symbolManager;
+    [SerializeField] private SymbolManualManager _symbolManualManager;
 
     public void Initialize(SymbolModuleSettingData settingData)
     {
         Debug.Log("SymbolModule Initialize");
 
-        Debug.Log("Symbols: " + string.Join(", ", settingData.SymbolIndices));
-        Debug.Log("CorrectOrder: " + string.Join(", ", settingData.CorrectOrder));
-
+        // 解除側
         _symbolManager.Initialize(settingData);
+
+        // 指示側
+        _symbolManualManager.Initialize(settingData);
 
         _toolsOrchestratorBase.SetInitialize();
     }
