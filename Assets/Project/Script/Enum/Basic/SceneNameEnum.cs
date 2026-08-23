@@ -5,5 +5,6 @@ public enum SceneNameEnum
     BootScene,
     HomeScene,
     LobbyScene,
-    GameScene
+    GameScene,
+    TestGameScene
 }

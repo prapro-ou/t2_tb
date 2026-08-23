@@ -8,6 +8,7 @@ public class LobbySceneHostChange : MonoBehaviour
 {
     [SerializeField] private GameObject _hostPanel;
     [SerializeField] private EOSLobbyOperator _eosLobbyOperator;
+    [SerializeField] private AudioSource _audioSource;
     private ulong _notificationId = 0;
 
     public void Initialize()
@@ -26,6 +27,7 @@ public class LobbySceneHostChange : MonoBehaviour
     private async UniTask ChangeHostDisplay(ProductUserId targetUserID)
     {
         await UniTask.WaitForSeconds(1.0f);
+        _audioSource.Play();
         if (targetUserID == _eosLobbyOperator.LocalProductUserId)
         {
             _hostPanel.SetActive(true);

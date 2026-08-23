@@ -6,5 +6,6 @@ public class GameSceneDirector : MonoBehaviour
     void Start()
     {
         _gameSceneInitializationOperator.Initialize();
+
     }
 }
