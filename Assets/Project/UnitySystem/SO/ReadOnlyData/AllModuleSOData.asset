@@ -19,7 +19,7 @@ MonoBehaviour:
     - Key: 2
       Value: {fileID: 11400000, guid: 468e38c754ac0ea41a7670bd5c3417af, type: 2}
     - Key: 7
-      Value: {fileID: 11400000, guid: 2fdf487d8cd1c7d44b1e44ed03072feb, type: 2}
+      Value: {fileID: 11400000, guid: c6229234acca44f41b49a566af6cb3d8, type: 2}
     - Key: 3
       Value: {fileID: 11400000, guid: 6d0d9131e5bac184aabf6932f37bc443, type: 2}
     - Key: 4
@@ -28,3 +28,5 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: af3e19bdec85cbc428f726ab8e5b1a18, type: 2}
     - Key: 8
       Value: {fileID: 11400000, guid: 2fdf487d8cd1c7d44b1e44ed03072feb, type: 2}
+    - Key: 6
+      Value: {fileID: 11400000, guid: 34d232157283fea43b5c18ac55af8bc2, type: 2}
