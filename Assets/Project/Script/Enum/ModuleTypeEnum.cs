@@ -7,5 +7,6 @@ public enum ModuleTypeEnum
     Stopwatch,
     Password,
     Symbol,
+    Button,
     Dial
 }

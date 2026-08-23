@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e493afce11006c64cbfc2bc62db1818d, type: 3}
   m_Name: ButtonModuleSOData
   m_EditorClassIdentifier: Assembly-CSharp::ModuleSOData
-  _moduleType: 0
+  _moduleType: 7
   _modulePrefabsDictionary:
     m_list:
     - Key: 1
