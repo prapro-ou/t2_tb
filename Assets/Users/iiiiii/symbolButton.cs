@@ -7,7 +7,15 @@ public class symbolButton : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Debug.Log(gameObject.name + " が押されました");
+        Debug.Log("OnMouseDown検出: " + gameObject.name);
+
+        if (manager == null)
+        {
+            Debug.LogError(gameObject.name + " の manager が Null です");
+            return;
+        }
+
+        Debug.Log("Symbol" + symbolNumber + " を送信します");
         manager.PressSymbol(symbolNumber);
     }
 }

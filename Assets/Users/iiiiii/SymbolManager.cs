@@ -1,82 +1,56 @@
 using UnityEngine;
-using TMPro;
 using System.Collections.Generic;
-
-[System.Serializable]
-public class SymbolData
-{
-    public string text;
-    public Sprite sprite;
-    public bool useSprite;
-}
 
 public class SymbolManager : MonoBehaviour
 {
-    [SerializeField] private TMP_Text[] symbolTexts;
     [SerializeField] private SpriteRenderer[] symbolSprites;
+    [SerializeField] private Sprite[] symbolCandidates;
 
-    [SerializeField] private SymbolData[] symbolCandidates;
-
-    private int[] correctOrder = { 1, 2, 3, 4 };
+    private int[] correctOrder;
     private int currentIndex = 0;
 
-    void Start()
+    public void Initialize(SymbolModuleSettingData settingData)
     {
-        SetRandomSymbols();
-        ShuffleOrder();
+        currentIndex = 0;
 
-        Debug.Log(
-            "今回の正解順: "
-            + correctOrder[0] + " → "
-            + correctOrder[1] + " → "
-            + correctOrder[2] + " → "
-            + correctOrder[3]
-        );
+        SetSymbols(settingData.SymbolIndices);
+        correctOrder = settingData.CorrectOrder.ToArray();
+
+        Debug.Log("今回の正解順: " + string.Join(" → ", correctOrder));
     }
 
-    void SetRandomSymbols()
+    private void SetSymbols(List<int> symbolIndices)
     {
-        List<SymbolData> candidates = new List<SymbolData>(symbolCandidates);
-
         for (int i = 0; i < 4; i++)
         {
-            int randomIndex = Random.Range(0, candidates.Count);
-            SymbolData selected = candidates[randomIndex];
+            int index = symbolIndices[i];
 
-            if (selected.useSprite)
+            if (index < 0 || index >= symbolCandidates.Length)
             {
-                symbolTexts[i].gameObject.SetActive(false);
-                symbolSprites[i].gameObject.SetActive(true);
-                symbolSprites[i].sprite = selected.sprite;
-            }
-            else
-            {
-                symbolSprites[i].gameObject.SetActive(false);
-                symbolTexts[i].gameObject.SetActive(true);
-                symbolTexts[i].text = selected.text;
+                Debug.LogError("Symbol index out of range: " + index);
+                continue;
             }
 
-            candidates.RemoveAt(randomIndex);
-        }
-    }
+            symbolSprites[i].enabled = true;
+            symbolSprites[i].sprite = symbolCandidates[index];
 
-    void ShuffleOrder()
-    {
-        for (int i = correctOrder.Length - 1; i > 0; i--)
-        {
-            int randomIndex = Random.Range(0, i + 1);
-
-            int temp = correctOrder[i];
-            correctOrder[i] = correctOrder[randomIndex];
-            correctOrder[randomIndex] = temp;
+            // 背景より前に表示
+            symbolSprites[i].sortingOrder = 10;
         }
     }
 
     public void PressSymbol(int symbolNumber)
     {
+        if (correctOrder == null || correctOrder.Length == 0)
+        {
+            Debug.LogWarning("correctOrder がまだ設定されていません。");
+            return;
+        }
+
         if (symbolNumber == correctOrder[currentIndex])
         {
             Debug.Log("正解: Symbol" + symbolNumber);
+
             currentIndex++;
 
             if (currentIndex >= correctOrder.Length)
