@@ -17,6 +17,7 @@ public class GameSceneStartGameOperator : MonoBehaviour
     [SerializeField] TMP_Text _text;
     [SerializeField] GameObject _clickBlocker, _textPanel;
     [SerializeField] AudioSource _successAudioSource, _failedAudioSource;
+    private bool _isTimer;
     private float _timeCounter;
     private Dictionary<int, bool> _moduleCheck = new Dictionary<int, bool>();
     private string _uuidRadyGame, _uuidModuleCheck;
@@ -90,9 +91,11 @@ public class GameSceneStartGameOperator : MonoBehaviour
     public async UniTask GameTimer()
     {
         _timeCounter = 0;
+        _isTimer = true;
         TimeSpan _limitTime = _gameSettingActiveSOData.ThisGameSettingPacket.GameLimitTime;
         while (_timeCounter < _limitTime.TotalSeconds)
         {
+            if (!_isTimer) continue;
             _timeCounter += Time.deltaTime;
             _timeModuleTimeDisplayMediator.UpdateTime(_limitTime - TimeSpan.FromSeconds(_timeCounter));
             await UniTask.Yield();
@@ -110,6 +113,7 @@ public class GameSceneStartGameOperator : MonoBehaviour
     {
         EOSP2PMethod.UnregisterListener(_uuidRadyGame);
         EOSP2PMethod.UnregisterListener(_uuidModuleCheck);
+        _isTimer = false;
         EOSP2PMethod.StopListening(SocketNameEnum.ModuleInfo);
         if (endGameTypeEnum == EndGameTypeEnum.None) return;
         _textPanel.SetActive(true);
