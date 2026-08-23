@@ -227,7 +227,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SymbolModuleMainOrchestrator
   _toolsOrchestratorBase: {fileID: 2179072259483872666}
-  _symbolManager: {fileID: 5371052657975602467}
+  _symbolManager: {fileID: 0}
   _symbolManualManager: {fileID: 6132733753003119094}
 --- !u!1 &8717934626409937931
 GameObject:

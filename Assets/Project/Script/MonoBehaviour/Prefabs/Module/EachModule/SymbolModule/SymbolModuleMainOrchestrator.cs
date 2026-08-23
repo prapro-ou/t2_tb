@@ -10,11 +10,17 @@ public class SymbolModuleMainOrchestrator : MonoBehaviour
     {
         Debug.Log("SymbolModule Initialize");
 
-        // 解除側
-        _symbolManager.Initialize(settingData);
+        // A側（解除側）
+        if (_symbolManager != null)
+        {
+            _symbolManager.Initialize(settingData);
+        }
 
-        // 指示側
-        _symbolManualManager.Initialize(settingData);
+        // B側（指示側）
+        if (_symbolManualManager != null)
+        {
+            _symbolManualManager.Initialize(settingData);
+        }
 
         _toolsOrchestratorBase.SetInitialize();
     }
