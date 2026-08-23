@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class PasswordModuleToolsOrchestrator : MonoBehaviour
+public class PasswordModuleToolsOrchestrator
+    : ModuleToolsOrchestratorIndividual<PasswordModuleSettingData>
 {
     [SerializeField] private PasswordModule passwordModule;
 

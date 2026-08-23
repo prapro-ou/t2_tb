@@ -18,7 +18,6 @@ public class PasswordModule : MonoBehaviour
 
     void Start()
     {
-        SetPassword("0000");
         UpdateDisplay();
     }
 
@@ -45,12 +44,12 @@ public class PasswordModule : MonoBehaviour
     {
         if(input == correctcode)
         {
-            resultText.text = "EXIT";
+            resultText.text = "ACCESS GRANTED";
             ClearInput();
         }
         else
         {
-            resultText.text = "ERROR";
+            resultText.text = "ACCESS DENIED";
             ClearInput();
         }
     }
