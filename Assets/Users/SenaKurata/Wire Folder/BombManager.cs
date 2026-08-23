@@ -47,7 +47,7 @@ public class BombManager : MonoBehaviour
         currentStep = 0; // ステップを最初に戻す
 
         // シーン内のすべての Wire スクリプトを探して元に戻す
-        Wire[] wires = Object.FindObjectsByType<Wire>(FindObjectsSortMode.None);
+        Wire[] wires = Object.FindObjectsByType<Wire>();
         foreach (Wire wire in wires)
         {
             wire.ResetWire();
