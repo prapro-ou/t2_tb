@@ -11,9 +11,10 @@ public class PasswordModuleSettingDataGenerateSOMethod
 
     protected override PasswordModuleSettingData GeneratePacketType()
     {
+
         return new PasswordModuleSettingData
         {
-            password = password
+            password = Random.Range(0, 9999).ToString("0000")
         };
     }
 }

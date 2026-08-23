@@ -3,11 +3,20 @@ using UnityEngine;
 
 public class PasswordModule : MonoBehaviour
 {
+    [SerializeField] private PasswordModuleToolsOrchestrator _passwordModuleToolsOrchestrator;
+    [SerializeField] private GameSettingActiveSOData _gameSettingActiveSOData;
+    [SerializeField] private GameStatusActiveSOData _gameStatusActiveSOData;
+    [SerializeField] private Canvas _canvas;
     public TMP_Text displayText;
     private string correctcode;
 
+    public void InitializeModule(PasswordModuleSettingData settingData)
+    {
+        SetPassword(settingData.password);
+    }
     public void SetPassword(string password)
     {
+        _canvas.worldCamera = _gameStatusActiveSOData.Camera;
         correctcode = password;
     }
     public TMP_Text resultText;
@@ -23,8 +32,7 @@ public class PasswordModule : MonoBehaviour
 
     public void PressNumber(int number)
     {
-        Debug.Log("click: " + number);
-
+        Debug.Log("Pressed number: " + number);
         resultText.text = "";
 
         if (input.Length >= maxLength)
@@ -42,14 +50,15 @@ public class PasswordModule : MonoBehaviour
 
     public void Enter()
     {
-        if(input == correctcode)
+        if (input == correctcode)
         {
             resultText.text = "ACCESS GRANTED";
-            ClearInput();
+            _passwordModuleToolsOrchestrator.ModuleSuccess();
         }
         else
         {
             resultText.text = "ACCESS DENIED";
+            _passwordModuleToolsOrchestrator.ModuleFailed();
             ClearInput();
         }
     }
