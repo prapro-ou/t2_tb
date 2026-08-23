@@ -1,18 +1,4 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Project/UnitySystem/Prefabs/EatchModule/DialModule/DialModule.prefab.meta
-<<<<<<< HEAD
-guid: 7d65a832356725f4185cbfe49cc70f86
-========
-guid: 2771bf52479091f429466bca6a220f93
->>>>>>>> f650cae (配線切断一旦作成完了完成度上げるためにすべて変更する必要あるかも):Assets/Users/SenaKurata/Module Variant 1.prefab.meta
-=======
 guid: 10ec8393fc4b524469e2366a23b5c3f9
-========
-guid: 2771bf52479091f429466bca6a220f93
->>>>>>>> f650cae10bc834ec95b6402953efc7145c79c694:Assets/Users/SenaKurata/Module Variant 1.prefab.meta
->>>>>>> fc563ea5e495d36be31e221292bafd615bc57d12
 PrefabImporter:
   externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
